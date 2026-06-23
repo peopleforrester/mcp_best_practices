@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(rm -rf /*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f *)",
+      "Bash(git push * main*)",
+      "Read(.env)",
+      "Read(./**/*.key)",
+      "Read(./**/*.pem)",
+      "Read(./**/cosign.key)"
+    ],
+    "allow": [
+      "Bash(task*)",
+      "Bash(uv run*)",
+      "Bash(uv sync*)",
+      "Bash(uv add*)",
+      "Bash(pnpm*)",
+      "Bash(ruff*)",
+      "Bash(pytest*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(mkdocs*)"
+    ]
+  }
+}

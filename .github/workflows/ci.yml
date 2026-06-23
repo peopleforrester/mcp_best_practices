@@ -1,0 +1,58 @@
+# ABOUTME: CI for the MCP portfolio: prose standard, strict docs build, and guarded per-language jobs.
+# ABOUTME: Language jobs activate as code lands; cosign signing is added in the release workflow later.
+name: CI
+
+on:
+  push:
+    branches: [staging, main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  prose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Em-dash check (authored docs; verbatim research report exempt)
+        run: |
+          if grep -rnP '\x{2014}' --include='*.md' \
+               --exclude='mcp-sme-portfolio-research-*.md' \
+               docs README.md CLAUDE.md PROJECT_STATE.md decisions.md; then
+            echo "::error::em-dash (U+2014) found in authored docs"
+            exit 1
+          fi
+          echo "prose clean"
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Strict docs build
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          uv run --with-requirements docs/requirements.txt mkdocs build --strict
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Lint and test (when Python code exists)
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          if find . -name '*.py' -not -path './.venv/*' | grep -q .; then
+            uv run ruff check .
+            if find . \( -name 'test_*.py' -o -name '*_test.py' \) -not -path './.venv/*' | grep -q .; then
+              uv run pytest -q
+            else
+              echo "Python sources present but no tests; failing per no-skip-tests policy"
+              exit 1
+            fi
+          else
+            echo "no Python sources yet; skipping"
+          fi

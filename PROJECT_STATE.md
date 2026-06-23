@@ -3,23 +3,24 @@ ABOUTME: Reconcile against git log / git status / test results before trusting i
 
 # Project State: mcp_best_practices
 
-Phase: 1.2 Plan
-Approved: pending
+Phase: 3.1 Stage (Phase 0 scaffolding)
+Approved: 2026-06-23T16:25:45Z by Michael (sha256:e0bb135ce836)
 
 ## Lifecycle
 - [x] 1.1 Research
 - [x] 1.2 Plan
-- [ ] 1.3 Approve  ← you are here (plan written; awaiting Michael's explicit approval to seal the contract)
-- [ ] 2.1 Test
-- [ ] 2.2 Implement
-- [ ] 2.3 Verify
-- [ ] 3.1 Stage
+- [x] 1.3 Approve
+- [x] 2.1 Test (CONDITIONAL-skipped for config scaffolding; test infra begins with Phase 1 code)
+- [x] 2.2 Implement (root CLAUDE.md, .claude/settings.json, Taskfile, CI, mkdocs, README)
+- [x] 2.3 Verify (prose check clean; strict mkdocs build passes; YAML/JSON valid)
+- [ ] 3.1 Stage  ← you are here (commit + push to staging)
 - [ ] 3.2 Confirm CI
 - [ ] 3.3 Promote
 
 ## Contracts
-_(none yet. The build plan in `docs/BUILD_PLAN.md` is the proposed plan; it becomes a sealed
-contract at 1.3 with ts + sha256.)_
+- 2026-06-23T16:25:45Z · sha256:e0bb135ce836 · **Build plan approved by Michael.** `docs/BUILD_PLAN.md`
+  is the sealed contract: six tracks (security flagship first), stable `2025-11-25` baseline + RC
+  forward-compat, stack pins as tabled. Changes require `/prd-amend` + re-approval.
 
 <!-- ===== preserved pre-lifecycle body (migrated 2026-06-23T16:11:23Z) ===== -->
 
@@ -39,9 +40,11 @@ notes for the `2026-07-28` RC. Full plan in `docs/BUILD_PLAN.md`; founding resea
 - [x] Verification spikes complete → `docs/research/version-currency-2026-06-23.md`
 - [x] Exam-prep curriculum research spike complete → `docs/research/exam-curriculum-2026-06-23.md`
 - [x] `docs/spec-currency.md` (migration guide written)
-- [ ] Root `CLAUDE.md` + `.claude/settings.json`
-- [ ] Taskfile + GitHub Actions CI shell
-- [ ] MkDocs Material scaffold + README banner
+- [x] Root `CLAUDE.md` + `.claude/settings.json`
+- [x] Taskfile + GitHub Actions CI shell
+- [x] MkDocs Material scaffold + README banner
+
+**Phase 0 complete.** Next: Phase 1 (Security flagship) starting with threat models.
 
 ## Branch & Tests
 - Branch: `staging` (correct working branch). Code repo → staging-first workflow applies.
@@ -63,3 +66,4 @@ notes for the `2026-07-28` RC. Full plan in `docs/BUILD_PLAN.md`; founding resea
 _(append-only. Each phase transition adds one line, oldest first.)_
 - 2026-06-23T16:11:23Z init-state migrated pre-lifecycle PROJECT_STATE.md → Phase 1.2 Plan
 - 2026-06-23T16:11:23Z 1.2 added Phase 6 exam-prep track; wrote docs/spec-currency.md; curriculum spike landed
+- 2026-06-23T16:25:45Z 1.3 → 2.x plan approved (sha256:e0bb135ce836); Phase 0 scaffolding implemented + verified

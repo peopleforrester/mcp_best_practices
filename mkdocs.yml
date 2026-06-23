@@ -1,0 +1,30 @@
+# ABOUTME: MkDocs Material site config for the MCP portfolio docs.
+# ABOUTME: Material is in maintenance mode (pinned 9.7.x); revisit Zensical when it reaches GA.
+site_name: MCP Best Practices
+site_description: A security-first, polyglot Model Context Protocol subject-matter-expertise portfolio
+docs_dir: docs
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - toc.follow
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+nav:
+  - Home: index.md
+  - Build Plan: BUILD_PLAN.md
+  - Spec Currency: spec-currency.md
+  - Research:
+      - Founding Report: research/mcp-sme-portfolio-research-2026-06.md
+      - Version Currency: research/version-currency-2026-06-23.md
+      - Exam Curriculum: research/exam-curriculum-2026-06-23.md

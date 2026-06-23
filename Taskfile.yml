@@ -1,0 +1,70 @@
+# ABOUTME: Cross-language task runner for the polyglot MCP portfolio monorepo.
+# ABOUTME: Language tasks announce and skip when that language has no code yet (built incrementally).
+version: '3'
+
+silent: true
+
+tasks:
+  default:
+    cmds:
+      - task --list
+
+  lint:prose:
+    desc: Fail if any authored doc contains an em-dash (U+2014); the verbatim research report is exempt
+    cmds:
+      - |
+        if grep -rnP '\x{2014}' --include='*.md' \
+             --exclude='mcp-sme-portfolio-research-*.md' \
+             docs README.md CLAUDE.md PROJECT_STATE.md decisions.md 2>/dev/null; then
+          echo 'em-dash found (see above); replace per the prose standard in CLAUDE.md'
+          exit 1
+        fi
+        echo 'prose clean: no em-dashes in authored docs'
+
+  docs:serve:
+    desc: Serve the MkDocs Material site locally at http://127.0.0.1:8000
+    cmds:
+      - uv run --with-requirements docs/requirements.txt mkdocs serve
+
+  docs:build:
+    desc: Strict MkDocs build (fails on broken nav or links)
+    cmds:
+      - uv run --with-requirements docs/requirements.txt mkdocs build --strict
+
+  py:lint:
+    desc: Ruff lint across Python packages
+    cmds:
+      - |
+        if find . -name '*.py' -not -path './.venv/*' | grep -q .; then
+          uv run ruff check .
+        else
+          echo 'no Python sources yet; skipping py:lint'
+        fi
+
+  py:test:
+    desc: Run pytest across Python packages
+    cmds:
+      - |
+        if find . \( -name 'test_*.py' -o -name '*_test.py' \) -not -path './.venv/*' | grep -q .; then
+          uv run pytest -q
+        else
+          echo 'no Python tests yet; skipping py:test'
+        fi
+
+  ts:test:
+    desc: Run TypeScript tests via pnpm workspaces
+    cmds:
+      - |
+        if find . -name package.json -not -path './node_modules/*' | grep -q .; then
+          pnpm -r test
+        else
+          echo 'no TypeScript package yet; skipping ts:test'
+        fi
+
+  check:
+    desc: Run every currently-applicable check (prose + per-language)
+    cmds:
+      - task: lint:prose
+      - task: py:lint
+      - task: py:test
+      - task: ts:test

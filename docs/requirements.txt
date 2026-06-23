@@ -1,0 +1,2 @@
+# MkDocs Material is in maintenance mode (feature-frozen at 9.7.x); see docs/research/version-currency-2026-06-23.md
+mkdocs-material>=9.7,<10

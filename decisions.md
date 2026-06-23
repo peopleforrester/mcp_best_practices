@@ -17,3 +17,12 @@ Scope addition (Michael's request): a thoroughly researched MCP curriculum plus 
 quiz/exam app (`06-exam-prep/`). Defaults: FastAPI + versioned YAML question bank + light HTML
 frontend. Curriculum research spike launched. Railway project creation deferred until the app
 exists and Michael gives explicit go-ahead (account-level action).
+
+## 2026-06-23T16:25:45Z · 1.3 · build plan APPROVED by Michael
+
+Michael formally approved `docs/BUILD_PLAN.md`. Contract sealed: sha256:e0bb135ce836 (full:
+e0bb135ce8360f252086110c37dcdbe3ae982c253ccf82d078a7878d24fd4df5). The plan is now read-only;
+amendments require `/prd-amend` + re-approval. Advanced to Phase 2.2 to finish Phase 0 scaffolding.
+2.1 Test is CONDITIONAL-skipped for the config scaffolding (root CLAUDE.md, settings.json, Taskfile,
+CI shell, mkdocs.yml, README): no application logic to test yet. Test infrastructure (pytest/vitest)
+lands with Phase 1 security code, where 2.1 becomes mandatory.
