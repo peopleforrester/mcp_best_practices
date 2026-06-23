@@ -3,19 +3,22 @@ ABOUTME: Reconcile against git log / git status / test results before trusting i
 
 # Project State: mcp_best_practices
 
-Phase: 3.1 Stage (Phase 0 scaffolding)
+Phase: 2.2 Implement (Phase 1 security: threat models)
 Approved: 2026-06-23T16:25:45Z by Michael (sha256:e0bb135ce836)
 
-## Lifecycle
-- [x] 1.1 Research
-- [x] 1.2 Plan
+## Lifecycle (Phase 1 security track; Phase 0 landed on staging, CI green)
+- [x] 1.1 Research (founding report + curriculum spike cover the security body of knowledge)
+- [x] 1.2 Plan (approved build plan scopes the security track)
 - [x] 1.3 Approve
-- [x] 2.1 Test (CONDITIONAL-skipped for config scaffolding; test infra begins with Phase 1 code)
-- [x] 2.2 Implement (root CLAUDE.md, .claude/settings.json, Taskfile, CI, mkdocs, README)
-- [x] 2.3 Verify (prose check clean; strict mkdocs build passes; YAML/JSON valid)
-- [ ] 3.1 Stage  ← you are here (commit + push to staging)
+- [ ] 2.1 Test (CONDITIONAL: threat-model docs are prose, not code; tests begin with the gateway code)
+- [ ] 2.2 Implement  ← you are here (threat models, fan-out in flight)
+- [ ] 2.3 Verify
+- [ ] 3.1 Stage
 - [ ] 3.2 Confirm CI
 - [ ] 3.3 Promote
+
+> Phase 0 scaffolding reached 3.2 (CI green on staging, commit `ed8ca21`). 3.3 promote-to-main
+> deferred: batching the promotion with the first security deliverable. Staging-only for now.
 
 ## Contracts
 - 2026-06-23T16:25:45Z · sha256:e0bb135ce836 · **Build plan approved by Michael.** `docs/BUILD_PLAN.md`
@@ -44,7 +47,13 @@ notes for the `2026-07-28` RC. Full plan in `docs/BUILD_PLAN.md`; founding resea
 - [x] Taskfile + GitHub Actions CI shell
 - [x] MkDocs Material scaffold + README banner
 
-**Phase 0 complete.** Next: Phase 1 (Security flagship) starting with threat models.
+**Phase 0 complete.** Phase 1 (Security) in progress:
+- [x] (a) Threat models: 6 STRIDE-per-component models → `04-security/threat-models/` (fanned out via 6 subagents, verified em-dash-clean)
+- [ ] (b) Policy gateway  ← next
+- [ ] (c) Guardrails
+- [ ] (d) Signed registry
+- [ ] (e) OAuth confused-deputy demo
+- [ ] cross-component summary table + guidebook + deck
 
 ## Branch & Tests
 - Branch: `staging` (correct working branch). Code repo → staging-first workflow applies.

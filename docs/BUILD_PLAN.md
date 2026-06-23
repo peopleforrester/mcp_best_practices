@@ -48,7 +48,8 @@ work and records the decisions that govern every competency. Live status lives i
 - [ ] MkDocs Material scaffold + README version banner
 
 ### Phase 1: Security (FLAGSHIP) `04-security/`
-- [ ] (a) Threat models: STRIDE per component, mapped to OWASP MCP Top 10 + NSA CSI 10 recs
+- [x] (a) Threat models: STRIDE per component (host, client, LLM, server, data stores, auth server),
+  mapped to OWASP MCP Top 10 + NSA CSI 10 recs → `04-security/threat-models/`
 - [ ] (b) Policy gateway: tool allowlisting, per-client consent, SIEM JSON audit, OPA-style policy
 - [ ] (c) Guardrails: input/output sanitization, indirect-prompt-injection detection, Presidio PII
 - [ ] (d) Signed registry: cosign/sigstore verify before admitting a server
