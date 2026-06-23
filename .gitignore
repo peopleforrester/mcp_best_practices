@@ -1,4 +1,68 @@
+# ---- Secrets / credentials (NEVER commit) ----
 .env
+.env.*
+!.env.example
+*.key
+*.pem
+cosign.key
+cosign.*.key
+*.private
+service_account*.json
+token_*.json
+credentials_*.json
+
+# ---- Python (uv) ----
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.uv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ---- Node / TypeScript (pnpm) ----
+node_modules/
+.pnpm-store/
+*.tsbuildinfo
+.turbo/
+npm-debug.log*
+pnpm-debug.log*
+coverage/
+
+# ---- Go ----
+bin/
+*.exe
+*.test
+*.out
+
+# ---- Rust ----
+target/
+
+# ---- Docs (MkDocs / Docusaurus) ----
+site/
+.docusaurus/
+
+# ---- Reveal.js / slide builds ----
+slides/**/dist/
+_site/
+
+# ---- Containers / build artifacts ----
+*.sbom.json
+*.tar
+*.tgz
+
+# ---- OS / editor ----
 .DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
