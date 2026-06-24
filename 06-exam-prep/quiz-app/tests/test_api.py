@@ -1,0 +1,30 @@
+# ABOUTME: Tests the FastAPI surface: /exam hides answers, /exam/submit scores a submission.
+# ABOUTME: Uses the FastAPI TestClient; no network or running server required.
+from fastapi.testclient import TestClient
+
+from mcp_quiz.app import create_app
+from mcp_quiz.bank import load_bank
+
+
+def test_get_exam_hides_answers_and_rationale():
+    client = TestClient(create_app())
+    response = client.get("/exam")
+    assert response.status_code == 200
+    first = response.json()[0]
+    assert "options" in first
+    assert "answer" not in first
+    assert "rationale" not in first
+
+
+def test_submit_scores_a_perfect_submission():
+    questions = load_bank()
+    client = TestClient(create_app(questions))
+    answers = {q.id: q.answer for q in questions}
+    response = client.post("/exam/submit", json={"answers": answers})
+    assert response.status_code == 200
+    assert response.json()["score_pct"] == 100.0
+
+
+def test_health_endpoint():
+    client = TestClient(create_app())
+    assert client.get("/health").json() == {"status": "ok"}

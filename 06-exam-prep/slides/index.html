@@ -1,0 +1,78 @@
+<!doctype html>
+<!-- ABOUTME: Reveal.js deck for the Exam Prep track; standalone via the pinned CDN build.
+     ABOUTME: Content lives in the Markdown section; press S for speaker notes. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCP Exam Prep: Curriculum and Quiz App</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@6.0.1/dist/reveal.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@6.0.1/dist/theme/black.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@6.0.1/plugin/highlight/monokai.css" />
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="^\n---\n$" data-separator-notes="^Note:">
+          <textarea data-template>
+## MCP Exam Prep
+### A curriculum and a quiz app
+
+Note:
+Define what to know, then test it. Both shipped, the app tested and Railway-ready.
+
+---
+
+### The curriculum
+
+13 ordered modules, primitives to systems to security, each mapped to a track.
+
+```text
+JSON-RPC -> lifecycle -> transports -> primitives ->
+architecture -> authorization -> OWASP/NSA -> ecosystem
+```
+
+Note:
+Study path and code tracks line up. Full sourced version is in the research doc.
+
+---
+
+### The quiz app (FastAPI)
+
+```text
+GET  /exam          -> questions, no answer key
+POST /exam/submit   -> score + per-domain breakdown
+GET  /health        -> platform healthcheck
+```
+
+Bank validated on load; scoring is a pure function.
+
+Note:
+The taker gets a QuestionView, never the answer or rationale. Scoring has no IO, so it is unit-tested.
+
+---
+
+### Railway deploy
+
+```json
+{ "build": { "builder": "RAILPACK" },
+  "deploy": { "startCommand": "uvicorn mcp_quiz.app:app --host 0.0.0.0 --port $PORT" } }
+```
+
+Config shipped; creating the project is an account action, left for go-ahead.
+
+Note:
+PORT is injected by Railway. Postgres would store results; scoring is stateless today.
+          </textarea>
+        </section>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@6.0.1/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@6.0.1/plugin/markdown/markdown.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@6.0.1/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@6.0.1/plugin/notes/notes.js"></script>
+    <script>
+      Reveal.initialize({ hash: true, plugins: [RevealMarkdown, RevealHighlight, RevealNotes] });
+    </script>
+  </body>
+</html>

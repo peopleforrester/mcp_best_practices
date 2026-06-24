@@ -1,0 +1,132 @@
+# MCP exam question bank. Versioned content, validated on load by mcp_quiz.models.Question.
+# Built against the stable 2025-11-25 spec; RC-only items are marked in the stem. Domains:
+# fundamentals, architecture, tooling, security, ecosystem.
+version: 1
+questions:
+  - id: q-transport-streamable
+    domain: architecture
+    difficulty: medium
+    stem: "In MCP 2025-11-25, which transport replaced the HTTP+SSE transport from 2024-11-05?"
+    options: ["WebSocket transport", "Streamable HTTP", "gRPC transport", "Long-polling HTTP"]
+    answer: "Streamable HTTP"
+    rationale: "Streamable HTTP replaced HTTP+SSE, using one endpoint for POST and GET with optional SSE."
+
+  - id: q-rfc8707-purpose
+    domain: security
+    difficulty: hard
+    stem: "RFC 8707 Resource Indicators are mandated by MCP authorization primarily to prevent what?"
+    options:
+      - "DNS rebinding against local servers"
+      - "The confused-deputy attack, by binding a token's audience to a specific server"
+      - "Prompt injection via tool descriptions"
+      - "SSE stream replay"
+    answer: "The confused-deputy attack, by binding a token's audience to a specific server"
+    rationale: "The resource parameter pins the token audience so a token for one server cannot be replayed at another."
+
+  - id: q-token-passthrough
+    domain: security
+    difficulty: medium
+    stem: "Why does the MCP authorization spec forbid token passthrough?"
+    options:
+      - "It increases JSON-RPC payload size"
+      - "A server must only accept tokens issued for itself; forwarding foreign tokens breaks audience validation"
+      - "Passthrough tokens cannot be cached"
+      - "OAuth 2.1 has no refresh tokens"
+    answer: "A server must only accept tokens issued for itself; forwarding foreign tokens breaks audience validation"
+    rationale: "Servers must validate that tokens were issued for them and must not accept or transit other tokens."
+
+  - id: q-rc-stateless-core
+    domain: architecture
+    difficulty: hard
+    stem: "In the 2026-07-28 RC stateless core, how do protocol version and capabilities reach the server (no handshake, no Mcp-Session-Id)?"
+    options:
+      - "In a one-time initialized notification"
+      - "Inline in a _meta field on each request; servers call server/discover for capabilities"
+      - "In the Mcp-Session-Id header on every request"
+      - "They are inferred from the TLS certificate"
+    answer: "Inline in a _meta field on each request; servers call server/discover for capabilities"
+    rationale: "SEP-2567/2575 remove sessions and the handshake; per-request _meta lets any instance serve any request."
+
+  - id: q-json-encoding
+    domain: fundamentals
+    difficulty: easy
+    stem: "Which encoding must all MCP JSON-RPC messages use?"
+    options: ["UTF-16", "ASCII only", "UTF-8", "Base64"]
+    answer: "UTF-8"
+    rationale: "The transport spec requires JSON-RPC messages to be UTF-8 encoded."
+
+  - id: q-sampling-primitive
+    domain: tooling
+    difficulty: medium
+    stem: "Which MCP primitive lets a server delegate inference back to the client that owns the model?"
+    options: ["Resources", "Prompts", "Sampling", "Roots"]
+    answer: "Sampling"
+    rationale: "Sampling is the client-side primitive for server-requested inference; it is deprecated in the 2026-07-28 RC."
+
+  - id: q-tool-poisoning
+    domain: security
+    difficulty: medium
+    stem: "What does tool poisoning (OWASP MCP Top 10) refer to?"
+    options:
+      - "Overloading a server with tool-call requests"
+      - "Embedding malicious instructions in a tool's description that the model then follows"
+      - "Registering duplicate tool names"
+      - "Exhausting a tool's rate limit"
+    answer: "Embedding malicious instructions in a tool's description that the model then follows"
+    rationale: "MCP03 (Tool Poisoning) is description or metadata injection that hijacks model behavior."
+
+  - id: q-nsa-egress
+    domain: security
+    difficulty: hard
+    stem: "What posture does the NSA AISC CSI recommend for external MCP connections?"
+    options:
+      - "Allow all outbound traffic to maximize tool availability"
+      - "Disable authentication for trusted internal servers"
+      - "A filtering outbound proxy or DLP with pinned resource URLs; treat sessions as untrusted until verified"
+      - "Rely solely on TLS for trust"
+    answer: "A filtering outbound proxy or DLP with pinned resource URLs; treat sessions as untrusted until verified"
+    rationale: "The CSI flags optional auth and no protocol RBAC, recommending least-privilege tokens and filtering proxies."
+
+  - id: q-session-id-mechanics
+    domain: architecture
+    difficulty: medium
+    stem: "On a stateful Streamable HTTP server (2025-11-25), how is the session id assigned and used?"
+    options:
+      - "In a JSON-RPC param on initialize; ignored afterward"
+      - "In the Mcp-Session-Id response header on InitializeResult; the client echoes it on later requests"
+      - "In a URL query string regenerated per request"
+      - "In the SSE retry field"
+    answer: "In the Mcp-Session-Id response header on InitializeResult; the client echoes it on later requests"
+    rationale: "The session id rides the Mcp-Session-Id header; a 404 signals the client to re-initialize."
+
+  - id: q-governance-a2a
+    domain: ecosystem
+    difficulty: easy
+    stem: "As of 2026, which body governs MCP, and how does it relate to A2A?"
+    options:
+      - "MCP is proprietary to Anthropic; A2A is unrelated"
+      - "Both are Linux Foundation projects (MCP under the AAIF); MCP connects agents to tools, A2A connects agents to each other"
+      - "MCP and A2A are the same protocol under two names"
+      - "A2A governs MCP as a sub-specification"
+    answer: "Both are Linux Foundation projects (MCP under the AAIF); MCP connects agents to tools, A2A connects agents to each other"
+    rationale: "Anthropic donated MCP to the AAIF in Dec 2025; A2A is also LF-stewarded; the two compose."
+
+  - id: q-annotations-untrusted
+    domain: tooling
+    difficulty: medium
+    stem: "How must a client treat tool annotations like destructiveHint?"
+    options:
+      - "As enforced guarantees the server cannot violate"
+      - "As advisory hints, untrusted unless the server is trusted"
+      - "As required fields on every tool"
+      - "As client-only metadata the server never sees"
+    answer: "As advisory hints, untrusted unless the server is trusted"
+    rationale: "The spec states annotations are advisory and must be treated as untrusted unless from a trusted server."
+
+  - id: q-streamable-not-sse
+    domain: fundamentals
+    difficulty: easy
+    stem: "Which transport is legacy/deprecated as of 2025-03-26?"
+    options: ["stdio", "HTTP+SSE", "Streamable HTTP", "Unix domain sockets"]
+    answer: "HTTP+SSE"
+    rationale: "HTTP+SSE has been legacy since 2025-03-26; Streamable HTTP is the production HTTP transport."

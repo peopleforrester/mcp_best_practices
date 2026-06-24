@@ -90,8 +90,14 @@ registry server.json + offline validator + illustrative server card. 8 tests, ru
 **Use cases (05) done:** read-only Kubernetes MCP server (injected CoreV1Api, offline tests with real
 V1Pod models), MCP-to-agent A2A bridge (injected seam), ecosystem map, guidebook + deck. 5 tests.
 
-Remaining: Exam prep (06) only. Next: build the curriculum doc + FastAPI quiz app + question bank.
-Railway deploy config to be added; actually creating the Railway project needs Michael's go-ahead.
+**Exam prep (06) done:** ordered 13-module curriculum, FastAPI quiz app (validated YAML bank, pure
+scoring, answers hidden, /health), Railway config (Railpack + uvicorn), guidebook + deck. 10 tests,
+pristine output. Creating the Railway project is gated on Michael's go-ahead.
+
+**ALL TRACKS COMPLETE.** Six post-foundation tracks built (security, fundamentals, tooling,
+architecture, use-cases, exam-prep), all TDD, all CI-green, all promoted to main. Optional remaining:
+the deferred operational follow-ups (SHA-pin CI actions, gh-pages docs deploy, mypy, cosign backend,
+the Go/Rust accent) and resolving the npm-vs-pnpm TS-rule tension. None block a complete portfolio.
 
 CI/Taskfile are package-aware (iterate dirs with pyproject.toml). uv confirmed (CPython 3.14).
 FastMCP 3.x middleware API verified inline via WebFetch after the subagent spike kept 529-ing;

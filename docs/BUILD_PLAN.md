@@ -86,18 +86,17 @@ work and records the decisions that govern every competency. Live status lives i
 - [x] Honest ecosystem map (`ecosystem-map.md`), verified vs self-reported labeled
 - [x] Guidebook + deck. 5 tests, ruff clean
 
-### Phase 6: Exam prep: curriculum + quiz app `06-exam-prep/`
+### Phase 6: Exam prep: curriculum + quiz app `06-exam-prep/`  ✅ done
 A thoroughly researched MCP learning track plus a deployable quiz/exam app that tests a learner
 as if sitting an MCP exam. Doubles as an SME artifact (an authored body of knowledge + assessment).
-- [ ] Research spike: ordered MCP curriculum + exam blueprint + seed questions: **in flight 2026-06-23**
-- [ ] `curriculum/`: ordered study path (modules → topics → authoritative sources), mapped to the
-  five competencies; the canonical "order of materials"
-- [ ] `quiz-app/`: FastAPI app, versioned YAML/JSON question bank, light HTML frontend, scored exam
-  with per-domain results; questions tagged by domain + difficulty
-- [ ] Tests: question-bank schema validation, scoring logic, API integration (per no-skip-tests policy)
-- [ ] Railway deploy: `Dockerfile`/nixpacks + `railway.json`; **creating/linking the Railway project
-  is an account-level action: get Michael's go-ahead before `railway init` / `railway up`**
-- [ ] Guidebook + deck
+- [x] Research spike: ordered MCP curriculum + exam blueprint + seed questions (in `docs/research/`)
+- [x] `curriculum/`: ordered 13-module study path mapped to competencies (the "order of materials")
+- [x] `quiz-app/`: FastAPI app, versioned YAML question bank (validated on load), pure scoring,
+  per-domain results; answers hidden on GET /exam; questions tagged by domain + difficulty
+- [x] Tests: question-bank schema validation, scoring logic, API integration (10 tests, pristine)
+- [x] Railway config: `railway.json` (Railpack + uvicorn + /health); **creating/linking the project
+  is an account-level action, left for Michael's go-ahead before `railway init` / `railway up`**
+- [x] Guidebook + deck
 
 > Stack defaults (redirect if desired): FastAPI + question bank in versioned YAML, SQLite for local
 > runs / Postgres on Railway for results. Question bank is content, kept current with the spec
