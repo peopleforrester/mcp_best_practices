@@ -52,12 +52,17 @@ notes for the `2026-07-28` RC. Full plan in `docs/BUILD_PLAN.md`; founding resea
 - [~] (b) Policy gateway: **core done** (TDD, 9 tests, ruff clean) → `04-security/policy-gateway/`.
   FastMCP transport adapter pending the proxy/middleware spike (in flight, background agent).
 - [x] (c) Guardrails: injection detection + secret/PII redaction core (TDD, 9 tests) → `04-security/guardrails/`
-- [ ] (d) Signed registry
+- [x] (d) Signed registry: Ed25519 provenance verification core (TDD, 4 tests) → `04-security/signed-registry/`.
+  cosign/sigstore backend planned as an integration-tested `Verifier`.
 - [ ] (e) OAuth confused-deputy demo
 - [ ] cross-component summary table + guidebook + deck
+- [ ] FastMCP transport adapter wiring gateway + guardrails (BLOCKED: spike kept 529-ing on API overload)
 
-First Python package, so CI/Taskfile are now package-aware (iterate dirs with pyproject.toml).
-Python toolchain confirmed working under uv (resolved CPython 3.14).
+CI/Taskfile are package-aware (iterate dirs with pyproject.toml). uv confirmed (CPython 3.14).
+Three security packages built so far, all TDD + ruff clean: policy-gateway, guardrails, signed-registry.
+
+**Blocker:** the FastMCP 3.x proxy/middleware research spike failed twice on transient 529 (API
+overloaded). Adapter deferred until the API recovers or the research is done inline.
 
 ## Branch & Tests
 - Branch: `staging` (correct working branch). Code repo → staging-first workflow applies.

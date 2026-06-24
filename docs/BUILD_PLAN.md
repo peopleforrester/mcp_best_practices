@@ -54,7 +54,8 @@ work and records the decisions that govern every competency. Live status lives i
   Core engine + audit done (TDD) in `04-security/policy-gateway/`; FastMCP adapter pending spike.
 - [~] (c) Guardrails: injection detection + secret/PII redaction core done (TDD) in
   `04-security/guardrails/`; Presidio backend optional/later; wired into the gateway with the adapter
-- [ ] (d) Signed registry: cosign/sigstore verify before admitting a server
+- [~] (d) Signed registry: cosign/sigstore verify before admitting a server. Ed25519 provenance core
+  done (TDD) in `04-security/signed-registry/`; cosign `Verifier` backend planned (integration-tested).
 - [ ] (e) OAuth confused-deputy demo: token-passthrough anti-pattern vs RFC 8707 audience-bound flow
 - [ ] Guidebook + Reveal.js deck
 
