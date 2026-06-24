@@ -56,8 +56,11 @@ notes for the `2026-07-28` RC. Full plan in `docs/BUILD_PLAN.md`; founding resea
   cosign/sigstore backend planned as an integration-tested `Verifier`.
 - [x] (e) OAuth confused-deputy demo: RFC 8707 audience binding + passthrough/exchange (TDD, 6 tests)
   → `04-security/oauth-confused-deputy/`
-- [ ] cross-component summary table + security guidebook  ← next
-- [ ] best-practice verification pass (final)
+- [x] cross-component summary table (threat-models/README) + security guidebook + Reveal.js deck
+- [ ] best-practice verification pass (final)  ← next
+
+**Phase 1 (Security flagship) complete.** Five components + guidebook + deck, all TDD where code,
+all CI-green. 32 tests across four Python packages. Next: the best-practice verification pass.
 
 CI/Taskfile are package-aware (iterate dirs with pyproject.toml). uv confirmed (CPython 3.14).
 FastMCP 3.x middleware API verified inline via WebFetch after the subagent spike kept 529-ing;

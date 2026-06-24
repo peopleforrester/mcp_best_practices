@@ -35,5 +35,26 @@ headers), that is noted inline as preview.
 - **NSA AISC CSI** (May 2026) ten recommendations, summarized in
   `docs/research/mcp-sme-portfolio-research-2026-06.md`.
 
-The cross-component summary table (every threat in one view) lives at the bottom of this file once
-the component models are complete.
+## Cross-component summary
+
+How each OWASP MCP Top 10 category surfaces across the trust zones and which built control closes it.
+Component models carry the per-threat detail; this is the one-view map from risk to mitigation.
+
+| OWASP | Risk | Primary zones | Control that closes it |
+|---|---|---|---|
+| MCP01 | Token mismanagement & secret exposure | server, host, auth-server, data-stores | Guardrails redaction; gateway audit hashes arguments |
+| MCP02 | Privilege escalation via scope creep | host, auth-server | Gateway consent gate; OAuth audience binding |
+| MCP03 | Tool poisoning (description injection) | LLM, client, host | Guardrails injection detection; signed registry; gateway tool-definition pinning |
+| MCP04 | Supply chain & dependency tampering | server | Signed registry (provenance verification) |
+| MCP05 | Command injection & execution | server | Schema validation + sandboxing (server-side); gateway allowlist |
+| MCP06 | Intent flow subversion | LLM, host | Guardrails injection detection; gateway per-action consent |
+| MCP07 | Insufficient authn/authz | server, auth-server | OAuth resource-server validation; gateway policy |
+| MCP08 | Lack of audit & telemetry | host, server | Gateway SIEM-ready audit record per decision |
+| MCP09 | Shadow MCP servers | host, server | Signed registry admission; gateway allowlist |
+| MCP10 | Context injection & over-sharing | LLM, data-stores | Guardrails redaction; gateway per-server data-flow policy |
+
+NSA CSI recommendations map across the same controls: rec 2 (trust boundaries) is the zone
+decomposition itself; rec 4 (validate parameters) and rec 5 (sandbox) are server-side; rec 6 (sign and
+verify) is the signed registry; rec 7 (treat outputs as untrusted) is the guardrails posture; rec 8
+(log invocations) is the gateway audit record.
+
