@@ -29,3 +29,11 @@ nav:
       - Founding Report: research/mcp-sme-portfolio-research-2026-06.md
       - Version Currency: research/version-currency-2026-06-23.md
       - Exam Curriculum: research/exam-curriculum-2026-06-23.md
+      - Spikes:
+          - TypeScript SDK: research/spikes/typescript-sdk.md
+          - FastMCP Advanced: research/spikes/fastmcp-advanced.md
+          - Tool Design & Eval: research/spikes/tool-design-eval.md
+          - Architecture & Registry: research/spikes/architecture-registry.md
+          - A2A Integration: research/spikes/a2a-integration.md
+          - Kubernetes MCP Server: research/spikes/kubernetes-mcp-server.md
+          - Quiz App & Railway: research/spikes/quiz-app-railway.md

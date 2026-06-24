@@ -64,8 +64,14 @@ across four packages, all CI-green. Verification pass fixed 1 HIGH + 6 MED findi
 operational follow-ups (SHA-pin actions, gh-pages deploy, mypy, cosign backend) documented in the
 report. Currency rechecked 2026-06-24 (3 minor pin drifts updated).
 
-Next tracks (not started): Fundamentals (01), Tooling (03), Architecture (02), Use cases (05),
-Exam prep (06). Each follows the same TDD + guidebook + deck pattern.
+Next tracks: Fundamentals (01), Tooling (03), Architecture (02), Use cases (05), Exam prep (06).
+Each follows the same TDD + guidebook + deck pattern.
+
+**Research spikes for all remaining tracks complete (2026-06-24)** → `docs/research/spikes/`:
+typescript-sdk, fastmcp-advanced, tool-design-eval, architecture-registry, a2a-integration,
+kubernetes-mcp-server, quiz-app-railway. Key pins/gotchas captured (e.g. TS SDK stable lives on the
+`v1.x` branch not `main`; Railway builder is now Railpack; A2A SDK `a2a-sdk` 1.1.0; k8s client 36.0.2).
+Building tracks next, in order: Fundamentals → Tooling → Architecture → Use cases → Exam prep.
 
 CI/Taskfile are package-aware (iterate dirs with pyproject.toml). uv confirmed (CPython 3.14).
 FastMCP 3.x middleware API verified inline via WebFetch after the subagent spike kept 529-ing;
