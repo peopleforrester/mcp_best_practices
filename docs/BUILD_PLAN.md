@@ -73,11 +73,12 @@ work and records the decisions that govern every competency. Live status lives i
   tools; elicitation documented with the verified API (HITL flows live in the security track)
 - [x] Guidebook + deck. 5 tests, ruff clean
 
-### Phase 4: Architecture `02-architecture/`
-- [ ] Multi-server orchestration through one host; server composition/chaining
-- [ ] Stateless handle pattern (`create_basket`→`basket_id`→`add_item`) vs session state
-- [ ] Self-hosted MCP Registry (Docker/ko + Postgres) + `server.json` + `.well-known` server card
-- [ ] Guidebook + deck
+### Phase 4: Architecture `02-architecture/`  ✅ done
+- [x] Server composition via `FastMCP.mount(namespace=...)`; composite exposes both sub-servers
+- [x] Stateless handle pattern (`create_basket`→`basket_id`→`add_item`/`get_basket`) vs session state
+- [x] Registry `server.json` + offline validator + illustrative `.well-known` server card (card SEP draft).
+  Self-hosting the registry (Docker/ko + Postgres) documented in the spike, not stood up here.
+- [x] Guidebook + deck. 8 tests, ruff clean
 
 ### Phase 5: Use cases & ecosystem `05-use-cases-ecosystem/`
 - [ ] One production-style server (over a Kubernetes/CNCF API)

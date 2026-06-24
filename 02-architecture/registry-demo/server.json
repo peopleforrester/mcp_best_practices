@@ -1,0 +1,19 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
+  "name": "io.github.peopleforrester/mcp-policy-gateway",
+  "description": "Policy-enforcing MCP gateway: allowlist, per-client consent, OPA-style rules, SIEM audit.",
+  "version": "0.1.0",
+  "status": "active",
+  "repository": {
+    "url": "https://github.com/peopleforrester/mcp_best_practices",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "mcp-policy-gateway",
+      "version": "0.1.0",
+      "transport": { "type": "stdio" }
+    }
+  ]
+}

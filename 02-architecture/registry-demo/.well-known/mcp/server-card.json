@@ -1,0 +1,7 @@
+{
+  "name": "io.github.peopleforrester/mcp-policy-gateway",
+  "description": "Policy-enforcing MCP gateway with tool allowlisting, per-client consent, and SIEM audit.",
+  "version": "0.1.0",
+  "capabilities": { "tools": { "listChanged": true } },
+  "publisher": { "name": "peopleforrester", "url": "https://github.com/peopleforrester" }
+}

@@ -1,0 +1,76 @@
+<!doctype html>
+<!-- ABOUTME: Reveal.js deck for the Architecture track; opens standalone via the pinned CDN build.
+     ABOUTME: Content lives in the Markdown section; press S for speaker notes. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCP Architecture: State, Composition, Discovery</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@6.0.1/dist/reveal.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@6.0.1/dist/theme/black.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@6.0.1/plugin/highlight/monokai.css" />
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section data-markdown data-separator="^\n---\n$" data-separator-notes="^Note:">
+          <textarea data-template>
+## MCP Architecture
+### State, composition, discovery
+
+Note:
+System-level questions: where does state live, how do servers compose, how is a server discovered.
+
+---
+
+### Stateful session vs stateless handle
+
+- 2025-11-25: `Mcp-Session-Id`, sticky routing or shared store
+- 2026-07-28 RC: no session; state via a server-minted handle as a tool arg
+
+```text
+create_basket() -> "basket-1"
+add_item("basket-1", "apple") -> {count: 1}
+get_basket("basket-1") -> {items: ["apple"]}
+```
+
+Note:
+The handle form runs behind a plain load balancer; any instance with the store serves any call.
+
+---
+
+### Server composition
+
+```python
+composite.mount(build_basket_server(), namespace="basket")
+composite.mount(build_math_server(),  namespace="math")
+```
+
+One host, the union of both toolsets, one connection.
+
+Note:
+mount() is a live link; import_server() is a static copy.
+
+---
+
+### Registry and discovery
+
+- Official registry is preview (API v0.1)
+- Publish a `server.json`; validate it offline in CI
+- `.well-known/mcp/server-card.json` for pre-connection discovery (SEP draft)
+
+Note:
+We validate the load-bearing fields without contacting the live service. The card shape is still draft.
+          </textarea>
+        </section>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@6.0.1/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@6.0.1/plugin/markdown/markdown.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@6.0.1/plugin/highlight/highlight.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@6.0.1/plugin/notes/notes.js"></script>
+    <script>
+      Reveal.initialize({ hash: true, plugins: [RevealMarkdown, RevealHighlight, RevealNotes] });
+    </script>
+  </body>
+</html>

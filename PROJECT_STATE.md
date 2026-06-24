@@ -84,7 +84,11 @@ Open tension to raise: a global TypeScript rule (npm, exact pins, stricter tscon
 approved build-plan choice of pnpm + the verified pnpm pin. Kept pnpm for repo consistency; flag for
 Michael's call before more TS lands.
 
-Remaining: Architecture (02), Use cases (05), Exam prep (06). Next: Architecture.
+**Architecture (02) done:** stateless handle pattern, server composition via mount(namespace),
+registry server.json + offline validator + illustrative server card. 8 tests, ruff clean, guidebook + deck.
+
+Remaining: Use cases (05), Exam prep (06). Next: Use cases (Kubernetes MCP server + MCP/A2A demo +
+ecosystem map).
 
 CI/Taskfile are package-aware (iterate dirs with pyproject.toml). uv confirmed (CPython 3.14).
 FastMCP 3.x middleware API verified inline via WebFetch after the subagent spike kept 529-ing;
