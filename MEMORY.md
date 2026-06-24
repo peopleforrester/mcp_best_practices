@@ -1,17 +1,17 @@
-<!-- ABOUTME: Working memory for the MCP SME portfolio monorepo — how work was done and where we left off.
+<!-- ABOUTME: Working memory for the MCP SME portfolio monorepo: how work was done and where we left off.
 ABOUTME: Conversation context is lost across sessions; this and PROJECT_STATE.md are the only durable record. -->
 
-# MEMORY — MCP SME Portfolio Monorepo
+# MEMORY: MCP SME Portfolio Monorepo
 
 ## What this is
 A security-first, polyglot MCP subject-matter-expert portfolio for Michael. Goal: establish
 credible SME authorship through original working code (servers, an MCP policy gateway,
-guardrails, a cosign-signed registry), original threat models, and teaching decks — not forked
+guardrails, a cosign-signed registry), original threat models, and teaching decks, not forked
 reference servers. Built against MCP spec `2025-11-25` (stable), forward-compatible with the
 `2026-07-28` RC.
 
 ## Session log
-### 2026-06-23 — Repo bootstrap + ingest + planning
+### 2026-06-23: Repo bootstrap, ingest, planning (session 1)
 - Created the git repo and pushed `main` + `staging` to `peopleforrester/mcp_best_practices`
   (public). Initial commit to `main` was a one-time bootstrap (empty repo had no PR base);
   all work since is on `staging`.

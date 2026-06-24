@@ -1,0 +1,24 @@
+{
+  "name": "mcp-fundamentals-ts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Fundamentals: a TypeScript MCP hello server mirroring the Python one",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  },
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=22"
+  }
+}

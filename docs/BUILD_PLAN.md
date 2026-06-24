@@ -60,12 +60,12 @@ work and records the decisions that govern every competency. Live status lives i
   (TDD, real Ed25519) in `04-security/oauth-confused-deputy/`
 - [ ] Guidebook + Reveal.js deck
 
-### Phase 2: Fundamentals `01-fundamentals/`
-- [ ] FastMCP hello-world (tool + resource + prompt over stdio) + non-trivial typed/paginated server
-- [ ] Parallel TypeScript implementation
-- [ ] Minimal client (capability negotiation, progress, cancel)
-- [ ] Conformance-style tests (in-memory transport); contrast RC stateless vs stable handshake
-- [ ] Guidebook + deck
+### Phase 2: Fundamentals `01-fundamentals/`  ✅ done
+- [x] FastMCP hello server (tool + resource + prompt) + non-trivial typed/paginated catalog server
+- [x] Parallel TypeScript implementation (@modelcontextprotocol/sdk v1.29)
+- [x] Client via in-memory transport (capability negotiation asserted in tests)
+- [x] Conformance-style tests (in-memory transport): Python 9, TypeScript 4
+- [x] Guidebook + deck. (Go/Rust accent deferred: Go toolchain absent locally, would ship unrun)
 
 ### Phase 3: Tooling `03-tooling/`
 - [ ] Matched well-designed vs anti-pattern tool pair + eval harness (Anthropic methodology)

@@ -73,6 +73,11 @@ kubernetes-mcp-server, quiz-app-railway. Key pins/gotchas captured (e.g. TS SDK 
 `v1.x` branch not `main`; Railway builder is now Railpack; A2A SDK `a2a-sdk` 1.1.0; k8s client 36.0.2).
 Building tracks next, in order: Fundamentals → Tooling → Architecture → Use cases → Exam prep.
 
+**Fundamentals (01) done (2026-06-24):** Python FastMCP hello + typed/paginated catalog (9 tests),
+TypeScript hello server (@modelcontextprotocol/sdk v1.29, 4 vitest tests + typecheck), guidebook +
+deck. Added a `typescript` CI job (setup-node 24 + corepack pnpm). node 26 + pnpm 11.9 local; Go
+absent so the Go/Rust accent is deferred rather than shipped unrun. Next: Tooling (03).
+
 CI/Taskfile are package-aware (iterate dirs with pyproject.toml). uv confirmed (CPython 3.14).
 FastMCP 3.x middleware API verified inline via WebFetch after the subagent spike kept 529-ing;
 adapter built and tested green against the real library.

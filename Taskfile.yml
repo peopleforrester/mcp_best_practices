@@ -13,9 +13,10 @@ tasks:
     desc: Fail if any authored doc contains an em-dash (U+2014); the verbatim research report is exempt
     cmds:
       - |
-        if grep -rnP '\x{2014}' --include='*.md' \
+        if grep -rnP '\x{2014}' --include='*.md' --include='*.html' \
              --exclude='mcp-sme-portfolio-research-*.md' \
-             docs README.md CLAUDE.md PROJECT_STATE.md decisions.md 2>/dev/null; then
+             --exclude-dir=node_modules --exclude-dir=.venv --exclude-dir=site --exclude-dir=.git \
+             . 2>/dev/null; then
           echo 'em-dash found (see above); replace per the prose standard in CLAUDE.md'
           exit 1
         fi
