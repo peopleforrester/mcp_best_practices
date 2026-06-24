@@ -67,10 +67,11 @@ work and records the decisions that govern every competency. Live status lives i
 - [x] Conformance-style tests (in-memory transport): Python 9, TypeScript 4
 - [x] Guidebook + deck. (Go/Rust accent deferred: Go toolchain absent locally, would ship unrun)
 
-### Phase 3: Tooling `03-tooling/`
-- [ ] Matched well-designed vs anti-pattern tool pair + eval harness (Anthropic methodology)
-- [ ] All four annotations, structured `outputSchema`, elicitation w/ HITL, pagination, subscriptions
-- [ ] Guidebook + deck
+### Phase 3: Tooling `03-tooling/`  ✅ done
+- [x] Matched well-designed vs anti-pattern tool pair + deterministic offline eval harness (5 metrics)
+- [x] All four annotations (tested); structured output (TypedDict) + pagination in the catalog/contacts
+  tools; elicitation documented with the verified API (HITL flows live in the security track)
+- [x] Guidebook + deck. 5 tests, ruff clean
 
 ### Phase 4: Architecture `02-architecture/`
 - [ ] Multi-server orchestration through one host; server composition/chaining

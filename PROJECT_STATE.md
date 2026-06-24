@@ -73,10 +73,18 @@ kubernetes-mcp-server, quiz-app-railway. Key pins/gotchas captured (e.g. TS SDK 
 `v1.x` branch not `main`; Railway builder is now Railpack; A2A SDK `a2a-sdk` 1.1.0; k8s client 36.0.2).
 Building tracks next, in order: Fundamentals → Tooling → Architecture → Use cases → Exam prep.
 
-**Fundamentals (01) done (2026-06-24):** Python FastMCP hello + typed/paginated catalog (9 tests),
-TypeScript hello server (@modelcontextprotocol/sdk v1.29, 4 vitest tests + typecheck), guidebook +
-deck. Added a `typescript` CI job (setup-node 24 + corepack pnpm). node 26 + pnpm 11.9 local; Go
-absent so the Go/Rust accent is deferred rather than shipped unrun. Next: Tooling (03).
+**Fundamentals (01) done:** Python FastMCP hello + typed/paginated catalog (9 tests), TypeScript
+hello server (@modelcontextprotocol/sdk v1.29, 4 vitest tests + typecheck), guidebook + deck. Added a
+`typescript` CI job. Go absent locally so Go/Rust accent deferred (would ship unrun).
+
+**Tooling (03) done:** good-vs-anti-pattern tool pair + a deterministic offline eval harness (5
+metrics, CI-safe), all four annotation hints (tested), guidebook + deck. 5 tests, ruff clean.
+
+Open tension to raise: a global TypeScript rule (npm, exact pins, stricter tsconfig) conflicts with the
+approved build-plan choice of pnpm + the verified pnpm pin. Kept pnpm for repo consistency; flag for
+Michael's call before more TS lands.
+
+Remaining: Architecture (02), Use cases (05), Exam prep (06). Next: Architecture.
 
 CI/Taskfile are package-aware (iterate dirs with pyproject.toml). uv confirmed (CPython 3.14).
 FastMCP 3.x middleware API verified inline via WebFetch after the subagent spike kept 529-ing;
