@@ -80,11 +80,11 @@ work and records the decisions that govern every competency. Live status lives i
   Self-hosting the registry (Docker/ko + Postgres) documented in the spike, not stood up here.
 - [x] Guidebook + deck. 8 tests, ruff clean
 
-### Phase 5: Use cases & ecosystem `05-use-cases-ecosystem/`
-- [ ] One production-style server (over a Kubernetes/CNCF API)
-- [ ] MCP + A2A integration demo
-- [ ] Honest ecosystem map (verified vs vendor-claimed adoption)
-- [ ] Guidebook + deck
+### Phase 5: Use cases & ecosystem `05-use-cases-ecosystem/`  ✅ done
+- [x] Read-only Kubernetes MCP server (injected CoreV1Api; offline-tested with real V1Pod models)
+- [x] MCP + A2A delegation bridge (injected AgentDelegate seam; a2a-sdk wiring documented in the spike)
+- [x] Honest ecosystem map (`ecosystem-map.md`), verified vs self-reported labeled
+- [x] Guidebook + deck. 5 tests, ruff clean
 
 ### Phase 6: Exam prep: curriculum + quiz app `06-exam-prep/`
 A thoroughly researched MCP learning track plus a deployable quiz/exam app that tests a learner

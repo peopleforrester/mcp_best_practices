@@ -87,8 +87,11 @@ Michael's call before more TS lands.
 **Architecture (02) done:** stateless handle pattern, server composition via mount(namespace),
 registry server.json + offline validator + illustrative server card. 8 tests, ruff clean, guidebook + deck.
 
-Remaining: Use cases (05), Exam prep (06). Next: Use cases (Kubernetes MCP server + MCP/A2A demo +
-ecosystem map).
+**Use cases (05) done:** read-only Kubernetes MCP server (injected CoreV1Api, offline tests with real
+V1Pod models), MCP-to-agent A2A bridge (injected seam), ecosystem map, guidebook + deck. 5 tests.
+
+Remaining: Exam prep (06) only. Next: build the curriculum doc + FastAPI quiz app + question bank.
+Railway deploy config to be added; actually creating the Railway project needs Michael's go-ahead.
 
 CI/Taskfile are package-aware (iterate dirs with pyproject.toml). uv confirmed (CPython 3.14).
 FastMCP 3.x middleware API verified inline via WebFetch after the subagent spike kept 529-ing;
