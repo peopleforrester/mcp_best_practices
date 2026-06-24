@@ -51,7 +51,7 @@ notes for the `2026-07-28` RC. Full plan in `docs/BUILD_PLAN.md`; founding resea
 - [x] (a) Threat models: 6 STRIDE-per-component models → `04-security/threat-models/`
 - [~] (b) Policy gateway: **core done** (TDD, 9 tests, ruff clean) → `04-security/policy-gateway/`.
   FastMCP transport adapter pending the proxy/middleware spike (in flight, background agent).
-- [ ] (c) Guardrails
+- [x] (c) Guardrails: injection detection + secret/PII redaction core (TDD, 9 tests) → `04-security/guardrails/`
 - [ ] (d) Signed registry
 - [ ] (e) OAuth confused-deputy demo
 - [ ] cross-component summary table + guidebook + deck
