@@ -49,20 +49,18 @@ notes for the `2026-07-28` RC. Full plan in `docs/BUILD_PLAN.md`; founding resea
 
 **Phase 0 complete.** Phase 1 (Security) in progress:
 - [x] (a) Threat models: 6 STRIDE-per-component models → `04-security/threat-models/`
-- [~] (b) Policy gateway: **core done** (TDD, 9 tests, ruff clean) → `04-security/policy-gateway/`.
-  FastMCP transport adapter pending the proxy/middleware spike (in flight, background agent).
+- [x] (b) Policy gateway: core + **FastMCP middleware adapter** done (TDD, 13 tests incl. async
+  in-memory-client e2e) → `04-security/policy-gateway/`. Verified against real FastMCP 3.x.
 - [x] (c) Guardrails: injection detection + secret/PII redaction core (TDD, 9 tests) → `04-security/guardrails/`
 - [x] (d) Signed registry: Ed25519 provenance verification core (TDD, 4 tests) → `04-security/signed-registry/`.
   cosign/sigstore backend planned as an integration-tested `Verifier`.
-- [ ] (e) OAuth confused-deputy demo
+- [ ] (e) OAuth confused-deputy demo  ← next
 - [ ] cross-component summary table + guidebook + deck
-- [ ] FastMCP transport adapter wiring gateway + guardrails (BLOCKED: spike kept 529-ing on API overload)
+- [ ] best-practice verification pass (final)
 
 CI/Taskfile are package-aware (iterate dirs with pyproject.toml). uv confirmed (CPython 3.14).
-Three security packages built so far, all TDD + ruff clean: policy-gateway, guardrails, signed-registry.
-
-**Blocker:** the FastMCP 3.x proxy/middleware research spike failed twice on transient 529 (API
-overloaded). Adapter deferred until the API recovers or the research is done inline.
+FastMCP 3.x middleware API verified inline via WebFetch after the subagent spike kept 529-ing;
+adapter built and tested green against the real library.
 
 ## Branch & Tests
 - Branch: `staging` (correct working branch). Code repo → staging-first workflow applies.

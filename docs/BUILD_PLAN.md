@@ -50,8 +50,8 @@ work and records the decisions that govern every competency. Live status lives i
 ### Phase 1: Security (FLAGSHIP) `04-security/`
 - [x] (a) Threat models: STRIDE per component (host, client, LLM, server, data stores, auth server),
   mapped to OWASP MCP Top 10 + NSA CSI 10 recs → `04-security/threat-models/`
-- [~] (b) Policy gateway: tool allowlisting, per-client consent, SIEM JSON audit, OPA-style policy.
-  Core engine + audit done (TDD) in `04-security/policy-gateway/`; FastMCP adapter pending spike.
+- [x] (b) Policy gateway: tool allowlisting, per-client consent, SIEM JSON audit, OPA-style policy.
+  Core engine + audit + FastMCP middleware adapter done (TDD, e2e via in-memory client).
 - [~] (c) Guardrails: injection detection + secret/PII redaction core done (TDD) in
   `04-security/guardrails/`; Presidio backend optional/later; wired into the gateway with the adapter
 - [~] (d) Signed registry: cosign/sigstore verify before admitting a server. Ed25519 provenance core
