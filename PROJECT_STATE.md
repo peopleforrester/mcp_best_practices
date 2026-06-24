@@ -54,8 +54,9 @@ notes for the `2026-07-28` RC. Full plan in `docs/BUILD_PLAN.md`; founding resea
 - [x] (c) Guardrails: injection detection + secret/PII redaction core (TDD, 9 tests) → `04-security/guardrails/`
 - [x] (d) Signed registry: Ed25519 provenance verification core (TDD, 4 tests) → `04-security/signed-registry/`.
   cosign/sigstore backend planned as an integration-tested `Verifier`.
-- [ ] (e) OAuth confused-deputy demo  ← next
-- [ ] cross-component summary table + guidebook + deck
+- [x] (e) OAuth confused-deputy demo: RFC 8707 audience binding + passthrough/exchange (TDD, 6 tests)
+  → `04-security/oauth-confused-deputy/`
+- [ ] cross-component summary table + security guidebook  ← next
 - [ ] best-practice verification pass (final)
 
 CI/Taskfile are package-aware (iterate dirs with pyproject.toml). uv confirmed (CPython 3.14).

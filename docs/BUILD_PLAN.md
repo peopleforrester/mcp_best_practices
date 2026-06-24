@@ -56,7 +56,8 @@ work and records the decisions that govern every competency. Live status lives i
   `04-security/guardrails/`; Presidio backend optional/later; wired into the gateway with the adapter
 - [~] (d) Signed registry: cosign/sigstore verify before admitting a server. Ed25519 provenance core
   done (TDD) in `04-security/signed-registry/`; cosign `Verifier` backend planned (integration-tested).
-- [ ] (e) OAuth confused-deputy demo: token-passthrough anti-pattern vs RFC 8707 audience-bound flow
+- [x] (e) OAuth confused-deputy demo: token-passthrough anti-pattern vs RFC 8707 audience-bound flow
+  (TDD, real Ed25519) in `04-security/oauth-confused-deputy/`
 - [ ] Guidebook + Reveal.js deck
 
 ### Phase 2: Fundamentals `01-fundamentals/`
