@@ -57,3 +57,13 @@ def test_rejects_unsigned_entry():
     result = _registry(pk).admit(entry)
     assert result.admitted is False
     assert "unsigned" in result.reason
+
+
+def test_malformed_signer_key_fails_closed_without_raising():
+    # A trusted signer registered with a too-short key must reject, not crash the admission path.
+    verifier = Ed25519Verifier({"acme": b"too-short"})
+    registry = SignedRegistry(verifier=verifier, trusted_signers={"acme"})
+    sk, _ = _keypair()
+    result = registry.admit(_signed_entry(sk))
+    assert result.admitted is False
+    assert "signature" in result.reason

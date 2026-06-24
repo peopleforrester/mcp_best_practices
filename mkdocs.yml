@@ -24,6 +24,7 @@ nav:
   - Home: index.md
   - Build Plan: BUILD_PLAN.md
   - Spec Currency: spec-currency.md
+  - Best-Practice Verification: best-practice-verification-2026-06-24.md
   - Research:
       - Founding Report: research/mcp-sme-portfolio-research-2026-06.md
       - Version Currency: research/version-currency-2026-06-23.md

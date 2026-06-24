@@ -26,6 +26,24 @@ def test_redacts_github_and_aws_tokens():
     assert "aws_access_key" in kinds
 
 
+def test_redacts_github_pat_jwt_and_pem():
+    text = (
+        "github_pat_" + "A" * 70 + " "
+        "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.sig-part "
+        "-----BEGIN RSA PRIVATE KEY-----"
+    )
+    result = redact(text)
+    kinds = {r.kind for r in result.redactions}
+    assert {"github_pat", "jwt", "pem_private_key"} <= kinds
+
+
+def test_reports_one_redaction_per_occurrence():
+    result = redact("mail a@x.com and b@y.com")
+    email_hits = [r for r in result.redactions if r.kind == "email"]
+    assert len(email_hits) == 2
+    assert "a@x.com" not in result.text and "b@y.com" not in result.text
+
+
 def test_clean_text_is_unchanged():
     text = "Paris is the capital of France."
     result = redact(text)

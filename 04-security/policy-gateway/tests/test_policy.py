@@ -76,3 +76,21 @@ def test_default_posture_is_deny_for_empty_allowlist():
     engine = PolicyEngine(allowlist={}, tool_classes={})
     result = engine.evaluate(req("anything"))
     assert result.decision is Decision.DENY
+
+
+def test_allow_rule_satisfies_consent_gate():
+    # An operator pre-authorizes a specific mutating tool without per-call consent.
+    allow_rule = Rule(name="preauth-delete", effect=Effect.ALLOW, match=lambda r: r.tool_name == "delete_file")
+    engine = make_engine(rules=[allow_rule])
+    result = engine.evaluate(req("delete_file"))  # no consent supplied
+    assert result.decision is Decision.ALLOW
+    assert result.matched_rule == "preauth-delete"
+
+
+def test_deny_rule_wins_over_allow_rule_for_same_request():
+    allow_rule = Rule(name="preauth-delete", effect=Effect.ALLOW, match=lambda r: r.tool_name == "delete_file")
+    deny_rule = Rule(name="block-prod", effect=Effect.DENY, match=lambda r: r.arguments.get("path") == "/prod")
+    engine = make_engine(rules=[allow_rule, deny_rule])
+    result = engine.evaluate(req("delete_file", args={"path": "/prod"}))
+    assert result.decision is Decision.DENY
+    assert result.matched_rule == "block-prod"

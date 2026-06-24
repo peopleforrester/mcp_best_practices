@@ -81,9 +81,11 @@ class PolicyEngine:
 
     Evaluation order (secure default-deny):
         1. Allowlist: deny any tool not allowlisted for the (client, server) pair.
-        2. Explicit deny rules: deny wins over a later allow.
-        3. Consent gate: deny a non-read-only tool the client has not consented to.
-        4. Explicit allow rules, then a default allow for an allowlisted, consented tool.
+        2. Explicit deny rules: deny wins (evaluated before any allow).
+        3. Explicit allow rules: a matching allow rule grants the call and satisfies the consent
+           gate (an operator pre-authorizing a specific tool or argument pattern).
+        4. Consent gate: deny a non-read-only tool the client has not consented to.
+        5. Default allow for an allowlisted, read-only-or-consented tool.
     """
 
     allowlist: dict[tuple[str, str], set[str]]
@@ -107,6 +109,11 @@ class PolicyEngine:
             if rule.effect is Effect.DENY and rule.match(request):
                 return PolicyResult(Decision.DENY, f"denied by rule {rule.name}", rule.name, tool_class)
 
+        # A matching allow rule grants the call and satisfies the consent gate below.
+        for rule in self.rules:
+            if rule.effect is Effect.ALLOW and rule.match(request):
+                return PolicyResult(Decision.ALLOW, f"allowed by rule {rule.name}", rule.name, tool_class)
+
         if tool_class is not ToolClass.READ_ONLY and request.tool_name not in request.consents:
             return PolicyResult(
                 Decision.DENY,
@@ -114,9 +121,5 @@ class PolicyEngine:
                 "consent",
                 tool_class,
             )
-
-        for rule in self.rules:
-            if rule.effect is Effect.ALLOW and rule.match(request):
-                return PolicyResult(Decision.ALLOW, f"allowed by rule {rule.name}", rule.name, tool_class)
 
         return PolicyResult(Decision.ALLOW, "allowlisted and consented", "allowlist", tool_class)

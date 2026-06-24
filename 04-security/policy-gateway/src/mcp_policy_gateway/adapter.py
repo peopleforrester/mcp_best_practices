@@ -31,7 +31,7 @@ class PolicyMiddleware(Middleware):
         client_id: Identity attributed to the calling client for this connection.
         server_id: Identity of the upstream server whose tools are being gated.
         consents_for: Returns the set of tool names the client has consented to, given a client id.
-        audit_sink: Receives each audit record (default: discard). Wire to a logger or SIEM.
+        audit_sink: Receives each audit record. Required (no silent discard); wire to a logger or SIEM.
         clock: Returns the timestamp string for audit records (injected for testability).
         correlation_ids: Returns a correlation id per call (injected for testability).
     """
@@ -43,7 +43,7 @@ class PolicyMiddleware(Middleware):
         client_id: str,
         server_id: str,
         consents_for: Callable[[str], frozenset[str]],
-        audit_sink: Callable[[dict], None] | None = None,
+        audit_sink: Callable[[dict], None],
         clock: Callable[[], str] = _utc_now,
         correlation_ids: Callable[[], str] | None = None,
     ):
@@ -51,7 +51,7 @@ class PolicyMiddleware(Middleware):
         self._client_id = client_id
         self._server_id = server_id
         self._consents_for = consents_for
-        self._audit_sink = audit_sink or (lambda _record: None)
+        self._audit_sink = audit_sink
         self._clock = clock
         self._correlation_ids = correlation_ids or (lambda: uuid.uuid4().hex)
 

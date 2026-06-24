@@ -6,6 +6,11 @@ on:
   push:
     branches: [staging, main]
   pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -13,6 +18,7 @@ permissions:
 jobs:
   prose:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: Em-dash check (authored docs; verbatim research report exempt)
@@ -27,6 +33,7 @@ jobs:
 
   docs:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
@@ -38,6 +45,7 @@ jobs:
 
   python:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Install uv

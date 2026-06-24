@@ -47,9 +47,12 @@ class ResourceServer:
             return ValidationResult(False, "issuer mismatch")
         if token.claims.get("exp", 0) <= now:
             return ValidationResult(False, "token expired")
-        if token.audience != self.resource_uri:
+        # RFC 8707 permits aud to be a single string or an array; this server must be one of them.
+        aud = token.claims.get("aud")
+        audiences = [aud] if isinstance(aud, str) else list(aud or [])
+        if self.resource_uri not in audiences:
             return ValidationResult(
                 False,
-                f"audience mismatch (RFC 8707): token bound to {token.audience}, not {self.resource_uri}",
+                f"audience mismatch (RFC 8707): token bound to {audiences}, not {self.resource_uri}",
             )
         return ValidationResult(True, "accepted: valid signature, correct issuer and audience, not expired")

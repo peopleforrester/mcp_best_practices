@@ -57,10 +57,15 @@ notes for the `2026-07-28` RC. Full plan in `docs/BUILD_PLAN.md`; founding resea
 - [x] (e) OAuth confused-deputy demo: RFC 8707 audience binding + passthrough/exchange (TDD, 6 tests)
   → `04-security/oauth-confused-deputy/`
 - [x] cross-component summary table (threat-models/README) + security guidebook + Reveal.js deck
-- [ ] best-practice verification pass (final)  ← next
+- [x] best-practice verification pass → `docs/best-practice-verification-2026-06-24.md`
 
-**Phase 1 (Security flagship) complete.** Five components + guidebook + deck, all TDD where code,
-all CI-green. 32 tests across four Python packages. Next: the best-practice verification pass.
+**Phase 1 (Security flagship) complete + verified.** Five components + guidebook + deck. 39 tests
+across four packages, all CI-green. Verification pass fixed 1 HIGH + 6 MED findings (3 reviewers);
+operational follow-ups (SHA-pin actions, gh-pages deploy, mypy, cosign backend) documented in the
+report. Currency rechecked 2026-06-24 (3 minor pin drifts updated).
+
+Next tracks (not started): Fundamentals (01), Tooling (03), Architecture (02), Use cases (05),
+Exam prep (06). Each follows the same TDD + guidebook + deck pattern.
 
 CI/Taskfile are package-aware (iterate dirs with pyproject.toml). uv confirmed (CPython 3.14).
 FastMCP 3.x middleware API verified inline via WebFetch after the subagent spike kept 529-ing;

@@ -18,6 +18,16 @@ quiz/exam app (`06-exam-prep/`). Defaults: FastAPI + versioned YAML question ban
 frontend. Curriculum research spike launched. Railway project creation deferred until the app
 exists and Michael gives explicit go-ahead (account-level action).
 
+## 2026-06-24 · 2.3 · best-practice verification pass + remediation
+
+Ran a three-reviewer verification (currency, security correctness, best-practice alignment) plus
+deterministic checks. Fixed in-pass: 1 HIGH (signed-registry malformed-key crash now fails closed)
+and 6 MED (policy allow-rule semantics, required audit_sink, redaction honesty + broader shapes,
+OAuth list-audience + structural passthrough prohibition, CI concurrency/timeouts/PR-filter). Pinned
+Python 3.13 for reproducibility. Currency rechecked: spec + Python SDK v2 unchanged; rmcp/C#/pnpm pins
+bumped. Deferred operational items (SHA-pin actions, gh-pages, mypy, cosign backend, CodeQL) recorded
+in `docs/best-practice-verification-2026-06-24.md`. Verdict: the path is best-practice and current.
+
 ## 2026-06-23T16:25:45Z · 1.3 · build plan APPROVED by Michael
 
 Michael formally approved `docs/BUILD_PLAN.md`. Contract sealed: sha256:e0bb135ce836 (full:

@@ -12,20 +12,27 @@ class Ed25519Verifier:
     Args:
         public_keys: Mapping of signer_id to that signer's 32-byte raw Ed25519 public key.
 
-    An unknown signer or an invalid signature both return False; the registry treats either
-    as a rejection.
+    Keys are parsed once at construction. A malformed key (wrong length) is stored as unusable
+    rather than raising, so admission fails closed for that signer (verify returns False) instead
+    of throwing in the request path. An unknown signer or an invalid signature also return False.
     """
 
     def __init__(self, public_keys: dict[str, bytes]):
-        self._keys = dict(public_keys)
+        self._keys: dict[str, Ed25519PublicKey | None] = {}
+        for signer_id, raw_key in public_keys.items():
+            try:
+                self._keys[signer_id] = Ed25519PublicKey.from_public_bytes(raw_key)
+            except ValueError:
+                # Malformed key material: keep the signer known but unusable so verify fails closed.
+                self._keys[signer_id] = None
 
     def verify(self, payload: bytes, signature: bytes, signer_id: str) -> bool:
         """Return True if signature is a valid Ed25519 signature over payload for signer_id."""
-        raw_key = self._keys.get(signer_id)
-        if raw_key is None:
+        key = self._keys.get(signer_id)
+        if key is None:
             return False
         try:
-            Ed25519PublicKey.from_public_bytes(raw_key).verify(signature, payload)
+            key.verify(signature, payload)
         except InvalidSignature:
             return False
         return True

@@ -7,6 +7,12 @@ Two web-research spikes independently re-verified the fast-moving claims in
 `mcp-sme-portfolio-research-2026-06.md` against official sources. Where this file and the
 report disagree, **this file wins**. Re-verify anything here older than ~6 months at build time.
 
+> **Rechecked 2026-06-24.** Unchanged: MCP spec (`2025-11-25` stable, `2026-07-28` still RC), Python
+> SDK (`mcp` 1.28.0 stable, v2 still alpha, beta not yet shipped), FastMCP 3.4.x, TS SDK 1.29.0, Go
+> SDK v1.6.1, cosign 3.x, reveal.js 6.0.1, MkDocs Material 9.7.x, go-task 3.51.x, uv 0.11.x. Drifted
+> (minor, same line): **rmcp 1.7.0 to 1.8.0**, **C#/.NET SDK 1.2.0 to 1.4.0**, **pnpm 11.8.x to 11.9.0**.
+> Pins below updated accordingly.
+
 ## Headline corrections to fold into the plan
 1. **cosign is on the v3.x line (v3.0.0 GA in 2026; latest v3.1.1).** Pin v3, not v2. v3 makes
    the standardized Sigstore bundle format the default.
@@ -48,12 +54,12 @@ report disagree, **this file wins**. Re-verify anything here older than ~6 month
 | Python SDK | `mcp>=1.28,<2` |
 | FastMCP | `3.4.x` |
 | TypeScript SDK | `@modelcontextprotocol/sdk@^1.29` |
-| Rust SDK | `rmcp@1.7` |
+| Rust SDK | `rmcp@1.8` |
 | Go SDK | `github.com/modelcontextprotocol/go-sdk@v1.6.1` |
-| C#/.NET SDK | `ModelContextProtocol.Core@1.2` (targets .NET 8+) |
+| C#/.NET SDK | `ModelContextProtocol.Core@1.4` (targets .NET 8+) |
 | Reveal.js | `6.0.1` |
 | MkDocs Material | `9.7.x` (maintenance mode; watch Zensical) |
 | go-task | `3.51.x` |
 | uv | `0.11.x` |
-| pnpm | `11.8.x` (Node ≥22) |
+| pnpm | `11.9.x` (Node ≥22) |
 | cosign | `3.x` (GA; bundle format default) |

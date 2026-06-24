@@ -1,8 +1,15 @@
 # ABOUTME: Tests proving RFC 8707 audience binding rejects a token replayed at the wrong server.
 # ABOUTME: Also proves token passthrough fails downstream and token exchange is the correct flow.
-from mcp_oauth_demo.flows import attempt_passthrough, exchange_token_for_audience
-from mcp_oauth_demo.resource_server import ResourceServer
+import pytest
+
 from mcp_oauth_demo.authz import AuthorizationServer
+from mcp_oauth_demo.flows import (
+    TokenPassthroughForbidden,
+    attempt_passthrough,
+    exchange_token_for_audience,
+    gateway_forward,
+)
+from mcp_oauth_demo.resource_server import ResourceServer
 
 SERVER_A = "https://mcp.example.com/server-a"
 SERVER_B = "https://mcp.example.com/server-b"
@@ -63,3 +70,21 @@ def test_token_exchange_is_the_correct_flow():
         auth, subject="user-1", audience=SERVER_B, scope="read", expires_at=NOW + 100
     )
     assert rs_b.validate(token_for_b, now=NOW).accepted is True
+
+
+def test_conforming_gateway_refuses_passthrough_structurally():
+    # The prohibition is a rule, not a side effect: a conforming gateway never forwards the token.
+    auth, _, _ = _setup()
+    token_for_a = auth.issue(subject="user-1", audience=SERVER_A, scope="read", expires_at=NOW + 100)
+    with pytest.raises(TokenPassthroughForbidden):
+        gateway_forward(token_for_a, downstream_uri=SERVER_B)
+
+
+def test_list_valued_audience_is_honored():
+    # RFC 8707 permits an array audience; a server listed in it accepts the token.
+    auth, rs_a, _ = _setup()
+    token = auth.issue(
+        subject="user-1", audience=[SERVER_A, "https://mcp.example.com/server-c"], scope="read",
+        expires_at=NOW + 100,
+    )
+    assert rs_a.validate(token, now=NOW).accepted is True
