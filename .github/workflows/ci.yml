@@ -42,17 +42,22 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install uv
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
-      - name: Lint and test (when Python code exists)
+      - name: Lint and test each Python package
         run: |
           export PATH="$HOME/.local/bin:$PATH"
-          if find . -name '*.py' -not -path './.venv/*' | grep -q .; then
-            uv run ruff check .
-            if find . \( -name 'test_*.py' -o -name '*_test.py' \) -not -path './.venv/*' | grep -q .; then
-              uv run pytest -q
-            else
-              echo "Python sources present but no tests; failing per no-skip-tests policy"
-              exit 1
-            fi
-          else
-            echo "no Python sources yet; skipping"
-          fi
+          pkgs=$(find . -name pyproject.toml -not -path '*/.venv/*' -not -path '*/node_modules/*' -exec dirname {} \;)
+          if [ -z "$pkgs" ]; then echo "no Python packages yet; skipping"; exit 0; fi
+          for d in $pkgs; do
+            echo "::group::$d"
+            (
+              cd "$d"
+              uv run ruff check .
+              if find . -name 'test_*.py' -not -path '*/.venv/*' | grep -q .; then
+                uv run pytest -q
+              else
+                echo "::error::$d has Python sources but no tests (no-skip-tests policy)"
+                exit 1
+              fi
+            )
+            echo "::endgroup::"
+          done

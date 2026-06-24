@@ -48,12 +48,16 @@ notes for the `2026-07-28` RC. Full plan in `docs/BUILD_PLAN.md`; founding resea
 - [x] MkDocs Material scaffold + README banner
 
 **Phase 0 complete.** Phase 1 (Security) in progress:
-- [x] (a) Threat models: 6 STRIDE-per-component models → `04-security/threat-models/` (fanned out via 6 subagents, verified em-dash-clean)
-- [ ] (b) Policy gateway  ← next
+- [x] (a) Threat models: 6 STRIDE-per-component models → `04-security/threat-models/`
+- [~] (b) Policy gateway: **core done** (TDD, 9 tests, ruff clean) → `04-security/policy-gateway/`.
+  FastMCP transport adapter pending the proxy/middleware spike (in flight, background agent).
 - [ ] (c) Guardrails
 - [ ] (d) Signed registry
 - [ ] (e) OAuth confused-deputy demo
 - [ ] cross-component summary table + guidebook + deck
+
+First Python package, so CI/Taskfile are now package-aware (iterate dirs with pyproject.toml).
+Python toolchain confirmed working under uv (resolved CPython 3.14).
 
 ## Branch & Tests
 - Branch: `staging` (correct working branch). Code repo → staging-first workflow applies.
@@ -76,3 +80,5 @@ _(append-only. Each phase transition adds one line, oldest first.)_
 - 2026-06-23T16:11:23Z init-state migrated pre-lifecycle PROJECT_STATE.md → Phase 1.2 Plan
 - 2026-06-23T16:11:23Z 1.2 added Phase 6 exam-prep track; wrote docs/spec-currency.md; curriculum spike landed
 - 2026-06-23T16:25:45Z 1.3 → 2.x plan approved (sha256:e0bb135ce836); Phase 0 scaffolding implemented + verified
+- 2026-06-23T16:30:00Z 3.2 → 3.3 Phase 0 + threat models promoted to main (ff to 49b08c2, CI green)
+- 2026-06-24 2.x Phase 1 (b) policy gateway started: TDD on the pure-Python policy decision core

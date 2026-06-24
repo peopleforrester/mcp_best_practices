@@ -32,24 +32,26 @@ tasks:
       - uv run --with-requirements docs/requirements.txt mkdocs build --strict
 
   py:lint:
-    desc: Ruff lint across Python packages
+    desc: Ruff lint each Python package (a dir with a pyproject.toml)
     cmds:
       - |
-        if find . -name '*.py' -not -path './.venv/*' | grep -q .; then
-          uv run ruff check .
-        else
-          echo 'no Python sources yet; skipping py:lint'
-        fi
+        found=0
+        for d in $(find . -name pyproject.toml -not -path '*/.venv/*' -exec dirname {} \;); do
+          found=1; echo "== ruff: $d =="; (cd "$d" && uv run ruff check .)
+        done
+        [ $found -eq 1 ] || echo 'no Python packages yet; skipping py:lint'
 
   py:test:
-    desc: Run pytest across Python packages
+    desc: Run pytest in each Python package that has tests
     cmds:
       - |
-        if find . \( -name 'test_*.py' -o -name '*_test.py' \) -not -path './.venv/*' | grep -q .; then
-          uv run pytest -q
-        else
-          echo 'no Python tests yet; skipping py:test'
-        fi
+        found=0
+        for d in $(find . -name pyproject.toml -not -path '*/.venv/*' -exec dirname {} \;); do
+          if find "$d" -name 'test_*.py' -not -path '*/.venv/*' | grep -q .; then
+            found=1; echo "== pytest: $d =="; (cd "$d" && uv run pytest -q)
+          fi
+        done
+        [ $found -eq 1 ] || echo 'no Python tests yet; skipping py:test'
 
   ts:test:
     desc: Run TypeScript tests via pnpm workspaces

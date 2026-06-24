@@ -1,0 +1,22 @@
+[project]
+name = "mcp-policy-gateway"
+version = "0.1.0"
+description = "Policy-enforcing gateway core for MCP: allowlist, per-client consent, OPA-style rules, SIEM audit"
+requires-python = ">=3.11"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mcp_policy_gateway"]
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
