@@ -13,10 +13,7 @@ build-backend = "hatchling.build"
 packages = ["src/mcp_oauth_demo"]
 
 [dependency-groups]
-dev = ["pytest>=8", "ruff>=0.6"]
-
-[tool.ruff]
-line-length = 100
+dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

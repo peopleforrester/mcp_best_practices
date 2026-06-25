@@ -65,7 +65,7 @@ def build_contacts_server() -> FastMCP:
         Returns a small page of human-readable contacts (name, email, team) with a next_cursor for
         pagination. Search-focused rather than returning the whole directory, and it omits internal ids.
         """
-        matches = [
+        matches: list[ContactView] = [
             {"name": c["name"], "email": c["email"], "team": c["team"]}
             for c in _CONTACTS
             if query.lower() in c["name"].lower() and (team is None or c["team"] == team)
