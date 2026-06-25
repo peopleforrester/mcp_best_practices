@@ -19,8 +19,9 @@ from mcp_quiz.scoring import score_exam
 _STATIC_DIR = Path(__file__).parent / "static"
 _INDEX_HTML = (_STATIC_DIR / "index.html").read_text()
 
-# Set by the deploy to the live git commit, so /health answers "what is actually running".
-GIT_SHA = os.environ.get("GIT_SHA", "dev")
+# The live git commit, so /health answers "what is actually running". Railway's GitHub-connected
+# deploys set RAILWAY_GIT_COMMIT_SHA automatically; a manual GIT_SHA var covers a CLI deploy; else dev.
+GIT_SHA = (os.environ.get("RAILWAY_GIT_COMMIT_SHA") or os.environ.get("GIT_SHA") or "dev")[:12]
 
 _DOCS_PATHS = ("/docs", "/redoc", "/openapi.json")
 _STRICT_CSP = "default-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
