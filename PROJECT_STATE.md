@@ -3,22 +3,18 @@ ABOUTME: Reconcile against git log / git status / test results before trusting i
 
 # Project State: mcp_best_practices
 
-Phase: 2.2 Implement (Phase 1 security: threat models)
+Phase: 3.3 Promote (all tracks shipped; now in review + maintenance)
 Approved: 2026-06-23T16:25:45Z by Michael (sha256:e0bb135ce836)
 
-## Lifecycle (Phase 1 security track; Phase 0 landed on staging, CI green)
-- [x] 1.1 Research (founding report + curriculum spike cover the security body of knowledge)
-- [x] 1.2 Plan (approved build plan scopes the security track)
-- [x] 1.3 Approve
-- [ ] 2.1 Test (CONDITIONAL: threat-model docs are prose, not code; tests begin with the gateway code)
-- [ ] 2.2 Implement  ← you are here (threat models, fan-out in flight)
-- [ ] 2.3 Verify
-- [ ] 3.1 Stage
-- [ ] 3.2 Confirm CI
-- [ ] 3.3 Promote
+## Lifecycle (whole project: all six tracks built, tested, promoted to main)
+- [x] 1.1 Research  - [x] 1.2 Plan  - [x] 1.3 Approve
+- [x] 2.1 Test  - [x] 2.2 Implement  - [x] 2.3 Verify
+- [x] 3.1 Stage  - [x] 3.2 Confirm CI  - [x] 3.3 Promote
 
-> Phase 0 scaffolding reached 3.2 (CI green on staging, commit `ed8ca21`). 3.3 promote-to-main
-> deferred: batching the promotion with the first security deliverable. Staging-only for now.
+> Reconciled 2026-06-25: the old "2.2 threat models" line was stale. Reality: all six competency
+> tracks plus the exam app are built, CI-green, and on main. The repo is in review + maintenance.
+> Latest: a full architecture + code + senior review (4 reviewers) on 2026-06-25, followed by a
+> remediation pass (see "Review remediation" below).
 
 ## Contracts
 - 2026-06-23T16:25:45Z · sha256:e0bb135ce836 · **Build plan approved by Michael.** `docs/BUILD_PLAN.md`
@@ -122,6 +118,26 @@ A full code + architecture review (3 reviewers) ran 2026-06-25. Must-fixes DONE 
   fetch error handling; regression-guarded by a test.
 - Minor: `get_pod_status` reads the named pod (read_namespaced_pod, 404 -> ToolError); added
   `03-tooling/test_contacts.py` (6 direct tests). Repo total now 96 tests (92 Python + 4 TS).
+
+### Review remediation 2026-06-25 (round 2, after the 4-reviewer pass)
+Fixed in code:
+- Public quiz app hardened (the senior/arch HIGH credibility gap): externalized JS/CSS so a strict
+  CSP applies (`default-src 'self'`, docs exempted), security headers, a request-body cap (413), a
+  per-client rate limit (429), and a bounded `answers` map (Field max_length 500). All tested.
+- signed-registry: `canonical_payload` is now injective JSON (no `\n`-join ambiguity); added a
+  cross-signer rejection test.
+- architecture handles: `create_basket` mints a uuid4 handle (removes the non-atomic counter race and
+  predictable ids); docstring corrected re the in-process dict vs a shared store.
+- oauth resource_server: non-list `aud` coerced safely (no TypeError on a scalar claim).
+- policy-gateway audit: dropped `default=str` so non-JSON args fail loudly, not a non-deterministic hash.
+- bank loader enforces unique ids; eval_harness `clear_params` no longer penalizes zero-param tools.
+- Tightened weak tests (security-heaviest strict, scorecard full-equality), added /exam/submit
+  negative tests. Spec spike `mcp-rc-2026-07-28-readiness.md` written + 3 spikes added to docs nav.
+
+DECISIONS still open for Michael (not done unilaterally): connect Railway to GitHub (auto-deploy +
+SHA traceability), reverse the "no SHA-pin actions / no Dependabot" call given the supply-chain theme,
+add mypy to CI, a uv workspace / root ruff.toml to de-dup tool config, a composed capstone server
+(registry+gateway+guardrails+audit in one request path), and app observability (structlog + OTel).
 
 Railway deploy is CLI-based (`railway up --service mcp-exam-quiz`), not GitHub-connected, so it does
 not auto-deploy on push. Open question with Michael: connect Railway to the existing monorepo

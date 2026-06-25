@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, Field, model_validator
 
 Difficulty = Literal["easy", "medium", "hard"]
 Cognitive = Literal["recall", "application"]
@@ -56,9 +56,13 @@ class QuestionView(BaseModel):
 
 
 class SubmitRequest(BaseModel):
-    """A submitted exam: a mapping of question id to the chosen option."""
+    """A submitted exam: a mapping of question id to the chosen option.
 
-    answers: dict[str, str]
+    Bounded so an unauthenticated caller cannot post an arbitrarily large object; a real exam has far
+    fewer than 500 questions, and the body-size cap in the app is the coarser outer guard.
+    """
+
+    answers: dict[str, str] = Field(max_length=500)
 
 
 class DomainScore(BaseModel):

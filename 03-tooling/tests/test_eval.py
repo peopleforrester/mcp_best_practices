@@ -37,4 +37,7 @@ async def test_scorecard_is_deterministic():
         first = await evaluate_server(client)
     async with Client(build_contacts_server()) as client:
         second = await evaluate_server(client)
-    assert first["contacts_search"].score == second["contacts_search"].score
+    # Compare the whole frozen Scorecard, not just .score: two cards can share a total while
+    # differing on which metrics passed, and that would still be non-determinism.
+    assert first["contacts_search"] == second["contacts_search"]
+    assert first["getData"] == second["getData"]

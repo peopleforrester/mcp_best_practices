@@ -15,7 +15,9 @@ def arguments_fingerprint(arguments: dict) -> str:
     The raw arguments are never emitted, so secrets passed as tool arguments do not
     leak into logs or a SIEM.
     """
-    canonical = json.dumps(arguments, sort_keys=True, separators=(",", ":"), default=str)
+    # No default= coercion: MCP tool arguments are JSON, so a non-serializable value is a real error
+    # and must fail loudly rather than hash to a non-deterministic str() that defeats SIEM correlation.
+    canonical = json.dumps(arguments, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
