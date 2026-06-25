@@ -23,11 +23,21 @@ class FakeCoreV1Api:
         self._pods = pods
 
     def list_namespaced_pod(self, namespace: str, label_selector: str = "", **_kw) -> V1PodList:
+        # Note: this fake parses only a single key=value selector; the real client handles the full
+        # selector grammar (comma terms, !=, set-based). Sufficient for these read-only tests.
         pods = self._pods
         if label_selector:
             key, value = label_selector.split("=", 1)
             pods = [p for p in pods if (p.metadata.labels or {}).get(key) == value]
         return V1PodList(items=pods)
+
+    def read_namespaced_pod(self, name: str, namespace: str, **_kw) -> V1Pod:
+        for pod in self._pods:
+            if pod.metadata.name == name:
+                return pod
+        from kubernetes.client.exceptions import ApiException
+
+        raise ApiException(status=404, reason="Not Found")
 
 
 def _server() -> object:

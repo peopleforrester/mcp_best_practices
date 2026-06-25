@@ -115,11 +115,13 @@ questions were winged off training data, ran two spikes (`docs/research/spikes/e
 application-leaning, even option lengths, balanced answer positions, distractor-explaining rationales).
 Encoded the rubric in `models.Question` + `tests/test_quality.py`. Redeployed; live and verified.
 
-A full code + architecture review (3 reviewers) ran 2026-06-25. Real open must-fixes NOT yet done:
-- HIGH: `search_items`/`contacts_search` pagination has no cursor/limit bounds (limit=0 -> infinite
-  cursor loop). Needs `Field(ge=0)`/`Field(ge=1)`. (01-fundamentals catalog, 03-tooling contacts)
-- MED: quiz `static/index.html` builds DOM via innerHTML (XSS-by-construction); switch to textContent.
-- Minor: `get_pod_status` should read_namespaced_pod; add `03-tooling/test_contacts.py`.
+A full code + architecture review (3 reviewers) ran 2026-06-25. Must-fixes DONE 2026-06-25:
+- HIGH: `search_items`/`contacts_search` now validate pagination (`Field(ge=1,le=100)` limit,
+  `Field(ge=0)` cursor); limit=0/cursor<0 are rejected, no more infinite cursor loop. Tested.
+- MED: quiz `static/index.html` rebuilt with createElement/textContent (no `.innerHTML` sink) plus
+  fetch error handling; regression-guarded by a test.
+- Minor: `get_pod_status` reads the named pod (read_namespaced_pod, 404 -> ToolError); added
+  `03-tooling/test_contacts.py` (6 direct tests). Repo total now 96 tests (92 Python + 4 TS).
 
 Railway deploy is CLI-based (`railway up --service mcp-exam-quiz`), not GitHub-connected, so it does
 not auto-deploy on push. Open question with Michael: connect Railway to the existing monorepo

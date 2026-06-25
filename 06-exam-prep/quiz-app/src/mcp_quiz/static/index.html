@@ -1,6 +1,7 @@
 <!doctype html>
 <!-- ABOUTME: Minimal browser frontend for the MCP exam: loads /exam, submits to /exam/submit.
-     ABOUTME: Vanilla HTML/JS, same-origin calls, no external dependencies. -->
+     ABOUTME: Builds the DOM with createElement/textContent (no innerHTML interpolation), so untrusted
+     ABOUTME: question content cannot inject markup. Vanilla JS, same-origin, no dependencies. -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -42,24 +43,50 @@
       const submitBtn = document.getElementById("submit");
       const resultEl = document.getElementById("result");
 
+      // Build one question block with the DOM API. Every field is set via textContent or as an
+      // input value, never interpolated into innerHTML, so question content cannot inject markup.
+      function renderQuestion(q) {
+        const div = document.createElement("div");
+        div.className = "q";
+
+        const tag = document.createElement("div");
+        tag.className = "tag";
+        tag.textContent = `${q.domain} · ${q.difficulty}`;
+
+        const stem = document.createElement("div");
+        stem.className = "stem";
+        stem.textContent = q.stem;
+
+        div.append(tag, stem);
+
+        for (const option of q.options) {
+          const label = document.createElement("label");
+          label.className = "opt";
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = q.id;
+          input.value = option;
+          label.append(input, document.createTextNode(" " + option));
+          div.append(label);
+        }
+        return div;
+      }
+
       async function loadExam() {
         resultEl.style.display = "none";
         examEl.style.display = "block";
         examEl.textContent = "Loading questions…";
-        const questions = await (await fetch("/exam")).json();
-        examEl.innerHTML = "";
-        for (const q of questions) {
-          const div = document.createElement("div");
-          div.className = "q";
-          const opts = q.options
-            .map(
-              (o) =>
-                `<label class="opt"><input type="radio" name="${q.id}" value="${o.replace(/"/g, "&quot;")}"> ${o}</label>`,
-            )
-            .join("");
-          div.innerHTML = `<div class="tag">${q.domain} · ${q.difficulty}</div><div class="stem">${q.stem}</div>${opts}`;
-          examEl.appendChild(div);
+        let questions;
+        try {
+          const res = await fetch("/exam");
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          questions = await res.json();
+        } catch (err) {
+          examEl.textContent = "Could not load the exam. Please retry.";
+          return;
         }
+        examEl.textContent = "";
+        for (const q of questions) examEl.append(renderQuestion(q));
         submitBtn.style.display = "inline-block";
       }
 
@@ -68,22 +95,36 @@
         for (const input of document.querySelectorAll("input[type=radio]:checked")) {
           answers[input.name] = input.value;
         }
-        const res = await (
-          await fetch("/exam/submit", {
+        let result;
+        try {
+          const res = await fetch("/exam/submit", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ answers }),
-          })
-        ).json();
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          result = await res.json();
+        } catch (err) {
+          return;
+        }
         examEl.style.display = "none";
         submitBtn.style.display = "none";
-        document.getElementById("score").textContent = `${res.correct} / ${res.total}  (${res.score_pct}%)`;
-        document.getElementById("detail").innerHTML =
-          "<table>" +
-          res.by_domain
-            .map((d) => `<tr><td>${d.domain}</td><td>${d.correct} / ${d.total}</td></tr>`)
-            .join("") +
-          "</table>";
+        document.getElementById("score").textContent =
+          `${result.correct} / ${result.total}  (${result.score_pct}%)`;
+
+        const detail = document.getElementById("detail");
+        detail.textContent = "";
+        const table = document.createElement("table");
+        for (const d of result.by_domain) {
+          const row = document.createElement("tr");
+          const domainCell = document.createElement("td");
+          domainCell.textContent = d.domain;
+          const scoreCell = document.createElement("td");
+          scoreCell.textContent = `${d.correct} / ${d.total}`;
+          row.append(domainCell, scoreCell);
+          table.append(row);
+        }
+        detail.append(table);
         resultEl.style.display = "block";
       });
 

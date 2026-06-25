@@ -2,10 +2,17 @@
 # ABOUTME: Shows structured output (TypedDict), pagination via cursor, and progress reporting.
 from __future__ import annotations
 
-from typing import TypedDict
+from typing import Annotated, TypedDict
 
 from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
+from pydantic import Field
+
+# Pagination bounds: limit must be at least 1 (limit 0 would advance the cursor by 0 forever) and
+# cursor must be non-negative. Declared on the parameters so the schema advertises them and invalid
+# input is rejected rather than silently producing a broken or non-terminating page.
+Limit = Annotated[int, Field(ge=1, le=100)]
+Cursor = Annotated[int, Field(ge=0)]
 
 
 class ItemView(TypedDict):
@@ -45,8 +52,8 @@ def build_catalog_server() -> FastMCP:
     async def search_items(
         query: str = "",
         category: str | None = None,
-        limit: int = 5,
-        cursor: int = 0,
+        limit: Limit = 5,
+        cursor: Cursor = 0,
         ctx: Context | None = None,
     ) -> SearchPage:
         """Search the catalog by name substring and optional category.
