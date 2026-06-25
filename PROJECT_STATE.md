@@ -135,9 +135,10 @@ Fixed in code:
   negative tests. Spec spike `mcp-rc-2026-07-28-readiness.md` written + 3 spikes added to docs nav.
 
 ### Round 3 (2026-06-25): Michael said "do all of them" - all six DONE
-1. Deploy traceability: GIT_SHA stamped + surfaced at /health (live shows the deployed commit). The
-   GitHub auto-deploy *connection* is the only remaining piece and needs Michael's one-time Railway
-   GitHub-App authorization (interactive); the SHA-traceability part is done.
+1. Deploy traceability + auto-deploy: DONE. Michael connected Railway to the repo (branch main, root
+   dir /06-exam-prep/quiz-app). App reads RAILWAY_GIT_COMMIT_SHA, so /health stamps the auto-deployed
+   commit. Verified end to end: a merge to main triggered a Railway build with no `railway up`, and
+   /health flipped to the new commit. CLI `railway up` is no longer needed for the quiz app.
 2. SHA-pinned all CI actions to commit SHAs (checkout v7, setup-node v6, setup-uv v8); replaced the
    curl|sh uv install with pinned setup-uv; added `.github/dependabot.yml`.
 3. mypy added to every package + shared root `mypy.ini`; CI type-checks each package (caught + fixed
