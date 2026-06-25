@@ -2,6 +2,7 @@
 # ABOUTME: Mitigates supply-chain tampering and shadow servers (OWASP MCP04/MCP09, NSA CSI rec 6).
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -32,8 +33,12 @@ class ServerEntry:
 
     @staticmethod
     def canonical_payload(name: str, artifact_ref: str, signer_id: str) -> bytes:
-        """Return the canonical bytes that get signed and verified for an entry."""
-        return f"{name}\n{artifact_ref}\n{signer_id}".encode()
+        """Return the canonical bytes that get signed and verified for an entry.
+
+        JSON-encodes the fields as a list so the encoding is injective: a delimiter or newline inside
+        a field cannot shift the boundary and make two distinct entries serialize to the same bytes.
+        """
+        return json.dumps([name, artifact_ref, signer_id], separators=(",", ":")).encode()
 
     @property
     def payload(self) -> bytes:

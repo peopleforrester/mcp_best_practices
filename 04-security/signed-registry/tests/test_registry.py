@@ -59,6 +59,19 @@ def test_rejects_unsigned_entry():
     assert "unsigned" in result.reason
 
 
+def test_signature_under_a_different_signer_identity_is_rejected():
+    # An entry claims signer "b" but its signature was made with signer "a"'s key. Even though "b" is
+    # trusted, verification under b's public key fails, so the borrowed signature does not admit it.
+    sk_a, _ = _keypair()
+    _, pk_b = _keypair()
+    payload = ServerEntry.canonical_payload("svc", "ghcr.io/x@sha256:1", "b")
+    entry = ServerEntry(name="svc", artifact_ref="ghcr.io/x@sha256:1", signer_id="b", signature=sk_a.sign(payload))
+    verifier = Ed25519Verifier({"b": pk_b})
+    result = SignedRegistry(verifier=verifier, trusted_signers={"b"}).admit(entry)
+    assert result.admitted is False
+    assert "signature" in result.reason
+
+
 def test_malformed_signer_key_fails_closed_without_raising():
     # A trusted signer registered with a too-short key must reject, not crash the admission path.
     verifier = Ed25519Verifier({"acme": b"too-short"})
