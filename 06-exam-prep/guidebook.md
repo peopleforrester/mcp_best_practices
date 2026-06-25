@@ -17,8 +17,15 @@ study path and the code tracks line up. The fully sourced version is in
 
 A FastAPI service that administers the exam:
 
-- The question bank (`questions.yaml`) is versioned content, validated on load. A question whose
-  answer is not among its options fails immediately, so the bank cannot drift into an invalid state.
+- The question bank (`questions.yaml`) is versioned content, validated on load. It is authored to a
+  researched item-writing rubric, not improvised: `docs/research/spikes/exam-item-writing.md` (the
+  Haladyna and NBME multiple-choice guidelines plus the Linux Foundation associate-exam style) and
+  `docs/research/spikes/mcp-question-content.md` (sourced, defensible answer keys per domain). The
+  rubric is partly enforced in code: `models.Question` requires exactly four distinct options, the
+  answer among them, and a rationale long enough to explain the distractors; `tests/test_quality.py`
+  gates the bank on answer-position balance, an application-over-recall lean, and the key not being
+  systematically the longest option (the test-wiseness tell). Every rationale explains why the key is
+  correct and why each distractor is wrong.
 - Scoring (`scoring.py`) is a pure function: it returns the total, a percentage, and a per-domain
   breakdown, with no IO. That is what makes it unit-testable and reusable by the API.
 - The API (`app.py`) serves questions without the answer key (`GET /exam`), scores a submission
