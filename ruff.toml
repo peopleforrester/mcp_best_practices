@@ -1,0 +1,3 @@
+# ABOUTME: Shared ruff config for every package in the monorepo (one place to bump style rules).
+# ABOUTME: Per-package pyproject files inherit this; they must not re-declare [tool.ruff].
+line-length = 100

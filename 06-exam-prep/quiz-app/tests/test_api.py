@@ -38,9 +38,10 @@ def test_submit_rejects_oversized_answer_map():
     assert client.post("/exam/submit", json={"answers": answers}).status_code == 422
 
 
-def test_health_endpoint():
-    client = TestClient(create_app())
-    assert client.get("/health").json() == {"status": "ok"}
+def test_health_endpoint_reports_status_and_commit():
+    body = TestClient(create_app()).get("/health").json()
+    assert body["status"] == "ok"
+    assert "commit" in body  # surfaces the live git SHA (set by the deploy)
 
 
 def test_root_serves_the_browser_quiz():
