@@ -57,7 +57,8 @@ async def evaluate_server(client: Client) -> dict[str, Scorecard]:
         namespaced = "_" in tool.name and tool.name == tool.name.lower()
         description = (tool.description or "").strip()
         described = len(description) >= 20
-        clear_params = len(param_names) > 0 and param_names.isdisjoint(_VAGUE_PARAM_NAMES)
+        # A tool with no vague parameter names is clear, including a tool with no parameters at all.
+        clear_params = param_names.isdisjoint(_VAGUE_PARAM_NAMES)
         paginated = bool(param_names & {"limit", "cursor", "page", "offset"})
 
         result = await client.call_tool(tool.name, {})

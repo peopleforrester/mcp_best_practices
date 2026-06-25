@@ -1,28 +1,13 @@
 <!doctype html>
-<!-- ABOUTME: Minimal browser frontend for the MCP exam: loads /exam, submits to /exam/submit.
-     ABOUTME: Builds the DOM with createElement/textContent (no innerHTML interpolation), so untrusted
-     ABOUTME: question content cannot inject markup. Vanilla JS, same-origin, no dependencies. -->
+<!-- ABOUTME: Markup for the MCP exam frontend; styles and script are external (served from /static).
+     ABOUTME: External assets let the app enforce a strict Content-Security-Policy with no unsafe-inline. -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MCP Exam</title>
-    <style>
-      :root { color-scheme: light dark; }
-      body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
-      h1 { margin-bottom: 0.2rem; }
-      .meta { color: #888; margin-top: 0; }
-      .q { border: 1px solid #8884; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
-      .q .tag { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.04em; }
-      .q .stem { font-weight: 600; margin: 0.3rem 0 0.6rem; }
-      .opt { display: block; padding: 0.25rem 0; cursor: pointer; }
-      button { font-size: 1rem; padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid #8886; cursor: pointer; }
-      #result { border: 1px solid #8884; border-radius: 8px; padding: 1rem; margin: 1rem 0; display: none; }
-      #score { font-size: 1.6rem; font-weight: 700; }
-      table { border-collapse: collapse; margin-top: 0.5rem; }
-      td { padding: 0.2rem 0.8rem 0.2rem 0; }
-      a { color: inherit; }
-    </style>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="/static/app.js" defer></script>
   </head>
   <body>
     <h1>MCP Exam</h1>
@@ -30,106 +15,12 @@
       Built against MCP <code>2025-11-25</code>. Answer the questions and submit for a scored result.
       API docs at <a href="/docs">/docs</a>.
     </p>
-    <div id="exam">Loading questions…</div>
-    <button id="submit" style="display:none">Submit exam</button>
-    <div id="result">
+    <div id="exam">Loading questions...</div>
+    <button id="submit" class="hidden">Submit exam</button>
+    <div id="result" class="hidden">
       <div id="score"></div>
       <div id="detail"></div>
-      <button id="retry" style="margin-top:1rem">Try again</button>
+      <button id="retry">Try again</button>
     </div>
-
-    <script>
-      const examEl = document.getElementById("exam");
-      const submitBtn = document.getElementById("submit");
-      const resultEl = document.getElementById("result");
-
-      // Build one question block with the DOM API. Every field is set via textContent or as an
-      // input value, never interpolated into innerHTML, so question content cannot inject markup.
-      function renderQuestion(q) {
-        const div = document.createElement("div");
-        div.className = "q";
-
-        const tag = document.createElement("div");
-        tag.className = "tag";
-        tag.textContent = `${q.domain} · ${q.difficulty}`;
-
-        const stem = document.createElement("div");
-        stem.className = "stem";
-        stem.textContent = q.stem;
-
-        div.append(tag, stem);
-
-        for (const option of q.options) {
-          const label = document.createElement("label");
-          label.className = "opt";
-          const input = document.createElement("input");
-          input.type = "radio";
-          input.name = q.id;
-          input.value = option;
-          label.append(input, document.createTextNode(" " + option));
-          div.append(label);
-        }
-        return div;
-      }
-
-      async function loadExam() {
-        resultEl.style.display = "none";
-        examEl.style.display = "block";
-        examEl.textContent = "Loading questions…";
-        let questions;
-        try {
-          const res = await fetch("/exam");
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          questions = await res.json();
-        } catch (err) {
-          examEl.textContent = "Could not load the exam. Please retry.";
-          return;
-        }
-        examEl.textContent = "";
-        for (const q of questions) examEl.append(renderQuestion(q));
-        submitBtn.style.display = "inline-block";
-      }
-
-      submitBtn.addEventListener("click", async () => {
-        const answers = {};
-        for (const input of document.querySelectorAll("input[type=radio]:checked")) {
-          answers[input.name] = input.value;
-        }
-        let result;
-        try {
-          const res = await fetch("/exam/submit", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ answers }),
-          });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          result = await res.json();
-        } catch (err) {
-          return;
-        }
-        examEl.style.display = "none";
-        submitBtn.style.display = "none";
-        document.getElementById("score").textContent =
-          `${result.correct} / ${result.total}  (${result.score_pct}%)`;
-
-        const detail = document.getElementById("detail");
-        detail.textContent = "";
-        const table = document.createElement("table");
-        for (const d of result.by_domain) {
-          const row = document.createElement("tr");
-          const domainCell = document.createElement("td");
-          domainCell.textContent = d.domain;
-          const scoreCell = document.createElement("td");
-          scoreCell.textContent = `${d.correct} / ${d.total}`;
-          row.append(domainCell, scoreCell);
-          table.append(row);
-        }
-        detail.append(table);
-        resultEl.style.display = "block";
-      });
-
-      document.getElementById("retry").addEventListener("click", loadExam);
-      loadExam();
-    </script>
   </body>
 </html>

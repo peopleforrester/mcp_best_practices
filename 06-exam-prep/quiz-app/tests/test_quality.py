@@ -43,6 +43,7 @@ def test_every_domain_is_represented():
 
 
 def test_security_is_the_heaviest_domain():
-    # Matches the exam blueprint: security carries the most weight.
+    # Matches the exam blueprint: security carries strictly the most weight (a tie would not satisfy it).
     counts = Counter(q.domain for q in load_bank())
-    assert counts["security"] == max(counts.values())
+    others = max(count for domain, count in counts.items() if domain != "security")
+    assert counts["security"] > others

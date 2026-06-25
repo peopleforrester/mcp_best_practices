@@ -1,0 +1,18 @@
+/* ABOUTME: Styles for the MCP exam frontend, external so the page needs no inline style. */
+/* ABOUTME: External assets let the app set a strict CSP (default-src 'self', no unsafe-inline). */
+:root { color-scheme: light dark; }
+body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+h1 { margin-bottom: 0.2rem; }
+.meta { color: #888; margin-top: 0; }
+.q { border: 1px solid #8884; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+.q .tag { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.04em; }
+.q .stem { font-weight: 600; margin: 0.3rem 0 0.6rem; }
+.opt { display: block; padding: 0.25rem 0; cursor: pointer; }
+button { font-size: 1rem; padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid #8886; cursor: pointer; }
+#result { border: 1px solid #8884; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+#score { font-size: 1.6rem; font-weight: 700; }
+table { border-collapse: collapse; margin-top: 0.5rem; }
+td { padding: 0.2rem 0.8rem 0.2rem 0; }
+a { color: inherit; }
+#retry { margin-top: 1rem; }
+.hidden { display: none; }

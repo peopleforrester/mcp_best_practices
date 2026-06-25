@@ -2,6 +2,7 @@
 # ABOUTME: Mirrors the 2026-07-28 RC direction (no protocol session); the basket_id is the handle.
 from __future__ import annotations
 
+import uuid
 from typing import TypedDict
 
 from fastmcp import FastMCP
@@ -20,12 +21,13 @@ def build_basket_server() -> FastMCP:
     """Build a basket server where state is keyed by a handle passed as an ordinary tool argument.
 
     There is no protocol session: create_basket mints a handle, and later calls pass it back as a
-    normal argument. Any server instance with access to the same store could serve any call, which is
-    what makes the pattern horizontally scalable. The in-process dict here stands in for that store.
+    normal argument. The handle is an unguessable uuid4 (not a predictable counter, which would also
+    race under concurrent calls). The in-process dict stands in for what would be a shared external
+    store (Redis, a database); with such a store any instance could serve any call, which is what makes
+    the pattern horizontally scalable. The dict here is single-process and is not that store.
     """
     mcp = FastMCP("architecture-basket")
     baskets: dict[str, list[str]] = {}
-    counter = {"n": 0}
 
     def _state(basket_id: str) -> BasketState:
         items = baskets[basket_id]
@@ -34,8 +36,7 @@ def build_basket_server() -> FastMCP:
     @mcp.tool
     def create_basket() -> str:
         """Create a basket and return its handle (basket_id) for use in later calls."""
-        counter["n"] += 1
-        basket_id = f"basket-{counter['n']}"
+        basket_id = uuid.uuid4().hex
         baskets[basket_id] = []
         return basket_id
 
