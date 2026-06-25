@@ -2,17 +2,27 @@
 # ABOUTME: create_app builds the app from a bank; module-level app is the uvicorn/Railway entrypoint.
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 
 from mcp_quiz.bank import load_bank
 from mcp_quiz.models import Question, QuestionView, ScoreResult, SubmitRequest
 from mcp_quiz.scoring import score_exam
+
+_INDEX_HTML = (Path(__file__).parent / "static" / "index.html").read_text()
 
 
 def create_app(questions: list[Question] | None = None) -> FastAPI:
     """Build the quiz app over a question bank (defaults to the shipped bank)."""
     bank = questions if questions is not None else load_bank()
     app = FastAPI(title="MCP Exam", version="0.1.0")
+
+    @app.get("/", response_class=HTMLResponse, include_in_schema=False)
+    def index() -> str:
+        """Serve the browser quiz frontend."""
+        return _INDEX_HTML
 
     @app.get("/health")
     def health() -> dict[str, str]:

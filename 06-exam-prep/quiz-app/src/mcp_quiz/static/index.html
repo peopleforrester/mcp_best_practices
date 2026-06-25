@@ -1,0 +1,94 @@
+<!doctype html>
+<!-- ABOUTME: Minimal browser frontend for the MCP exam: loads /exam, submits to /exam/submit.
+     ABOUTME: Vanilla HTML/JS, same-origin calls, no external dependencies. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCP Exam</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+      h1 { margin-bottom: 0.2rem; }
+      .meta { color: #888; margin-top: 0; }
+      .q { border: 1px solid #8884; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+      .q .tag { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.04em; }
+      .q .stem { font-weight: 600; margin: 0.3rem 0 0.6rem; }
+      .opt { display: block; padding: 0.25rem 0; cursor: pointer; }
+      button { font-size: 1rem; padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid #8886; cursor: pointer; }
+      #result { border: 1px solid #8884; border-radius: 8px; padding: 1rem; margin: 1rem 0; display: none; }
+      #score { font-size: 1.6rem; font-weight: 700; }
+      table { border-collapse: collapse; margin-top: 0.5rem; }
+      td { padding: 0.2rem 0.8rem 0.2rem 0; }
+      a { color: inherit; }
+    </style>
+  </head>
+  <body>
+    <h1>MCP Exam</h1>
+    <p class="meta">
+      Built against MCP <code>2025-11-25</code>. Answer the questions and submit for a scored result.
+      API docs at <a href="/docs">/docs</a>.
+    </p>
+    <div id="exam">Loading questions…</div>
+    <button id="submit" style="display:none">Submit exam</button>
+    <div id="result">
+      <div id="score"></div>
+      <div id="detail"></div>
+      <button id="retry" style="margin-top:1rem">Try again</button>
+    </div>
+
+    <script>
+      const examEl = document.getElementById("exam");
+      const submitBtn = document.getElementById("submit");
+      const resultEl = document.getElementById("result");
+
+      async function loadExam() {
+        resultEl.style.display = "none";
+        examEl.style.display = "block";
+        examEl.textContent = "Loading questions…";
+        const questions = await (await fetch("/exam")).json();
+        examEl.innerHTML = "";
+        for (const q of questions) {
+          const div = document.createElement("div");
+          div.className = "q";
+          const opts = q.options
+            .map(
+              (o) =>
+                `<label class="opt"><input type="radio" name="${q.id}" value="${o.replace(/"/g, "&quot;")}"> ${o}</label>`,
+            )
+            .join("");
+          div.innerHTML = `<div class="tag">${q.domain} · ${q.difficulty}</div><div class="stem">${q.stem}</div>${opts}`;
+          examEl.appendChild(div);
+        }
+        submitBtn.style.display = "inline-block";
+      }
+
+      submitBtn.addEventListener("click", async () => {
+        const answers = {};
+        for (const input of document.querySelectorAll("input[type=radio]:checked")) {
+          answers[input.name] = input.value;
+        }
+        const res = await (
+          await fetch("/exam/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ answers }),
+          })
+        ).json();
+        examEl.style.display = "none";
+        submitBtn.style.display = "none";
+        document.getElementById("score").textContent = `${res.correct} / ${res.total}  (${res.score_pct}%)`;
+        document.getElementById("detail").innerHTML =
+          "<table>" +
+          res.by_domain
+            .map((d) => `<tr><td>${d.domain}</td><td>${d.correct} / ${d.total}</td></tr>`)
+            .join("") +
+          "</table>";
+        resultEl.style.display = "block";
+      });
+
+      document.getElementById("retry").addEventListener("click", loadExam);
+      loadExam();
+    </script>
+  </body>
+</html>
