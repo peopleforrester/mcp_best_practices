@@ -37,3 +37,11 @@ def test_root_serves_the_browser_quiz():
     assert "text/html" in response.headers["content-type"]
     assert "MCP Exam" in response.text
     assert "/exam" in response.text  # the page calls the API to load and submit
+
+
+def test_frontend_builds_dom_without_innerhtml():
+    # XSS-safety guard: question content is set via textContent/createElement, never assigned to
+    # .innerHTML (the sink). Matching the property access avoids tripping on the word in a comment.
+    html = TestClient(create_app()).get("/").text
+    assert ".innerHTML" not in html
+    assert "createElement" in html
