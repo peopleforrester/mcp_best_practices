@@ -53,6 +53,13 @@ which tool calls may run and records them; guardrails sanitize the content cross
 audience-bound tokens keep credentials from being replayed across servers. No single control is
 sufficient, which is why the model builds all four.
 
+5. **Composed capstone** (`capstone/`). The four controls above are also wired into a single running
+   server so the composition is tested code, not just this paragraph. `build_capstone_server` gates the
+   build on registry admission, runs `PolicyMiddleware` outermost (deny and audit before the tool
+   runs) and `GuardrailsMiddleware` innermost (redact the result on the way out). Its tests prove,
+   end to end, that an unadmitted server refuses to start, a destructive call without consent is
+   denied and audited, and a secret in a result is redacted before return.
+
 ## 3. What stays honest
 
 - The injection detectors are heuristics, not a complete defense. The real control is least-privilege

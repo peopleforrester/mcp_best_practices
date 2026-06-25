@@ -1,0 +1,31 @@
+[project]
+name = "mcp-security-capstone"
+version = "0.1.0"
+description = "Composed capstone: signed-registry admission + policy gateway + guardrails + audit in one MCP server"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp>=3.4,<4",
+    "cryptography>=42",
+    "mcp-policy-gateway",
+    "mcp-guardrails",
+    "mcp-signed-registry",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mcp_capstone"]
+
+[tool.uv.sources]
+mcp-policy-gateway = { path = "../policy-gateway", editable = true }
+mcp-guardrails = { path = "../guardrails", editable = true }
+mcp-signed-registry = { path = "../signed-registry", editable = true }
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.6", "mypy>=1.11"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
