@@ -28,6 +28,15 @@ Python 3.13 for reproducibility. Currency rechecked: spec + Python SDK v2 unchan
 bumped. Deferred operational items (SHA-pin actions, gh-pages, mypy, cosign backend, CodeQL) recorded
 in `docs/best-practice-verification-2026-06-24.md`. Verdict: the path is best-practice and current.
 
+## 2026-06-25 · 3.3 · all tracks complete; quiz app deployed to Railway
+
+All six post-foundation tracks built, tested, and promoted to main (80 tests; security, fundamentals,
+tooling, architecture, use-cases, exam-prep). Michael directed: do NOT build the operational
+follow-ups (SHA-pin actions, gh-pages, mypy, cosign backend, Go accent); keep pnpm (no npm switch).
+On his explicit go-ahead, deployed the quiz app to Railway: project `mcp-exam-quiz`, production env,
+live at https://mcp-exam-quiz-production.up.railway.app, verified (/health, /exam, /exam/submit). CLI
+deploy (not GitHub-connected); the railway.json (Railpack + uvicorn + /health) drives the build.
+
 ## 2026-06-23T16:25:45Z · 1.3 · build plan APPROVED by Michael
 
 Michael formally approved `docs/BUILD_PLAN.md`. Contract sealed: sha256:e0bb135ce836 (full:

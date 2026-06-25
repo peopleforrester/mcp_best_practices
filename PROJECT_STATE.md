@@ -95,9 +95,15 @@ scoring, answers hidden, /health), Railway config (Railpack + uvicorn), guideboo
 pristine output. Creating the Railway project is gated on Michael's go-ahead.
 
 **ALL TRACKS COMPLETE.** Six post-foundation tracks built (security, fundamentals, tooling,
-architecture, use-cases, exam-prep), all TDD, all CI-green, all promoted to main. Optional remaining:
-the deferred operational follow-ups (SHA-pin CI actions, gh-pages docs deploy, mypy, cosign backend,
-the Go/Rust accent) and resolving the npm-vs-pnpm TS-rule tension. None block a complete portfolio.
+architecture, use-cases, exam-prep), all TDD, all CI-green, all promoted to main.
+
+**Quiz app deployed to Railway (2026-06-25):** https://mcp-exam-quiz-production.up.railway.app
+(project `mcp-exam-quiz`, id 9d556cc5-78b6-4b18-8a07-b845b5d33436, production env). Railpack/uv build,
+verified live (/health, /exam answer-hidden, /exam/submit scoring). CLI deploy via `railway up` (not
+GitHub-branch-connected); redeploy with `railway up` from `06-exam-prep/quiz-app/`.
+
+Decisions: operational follow-ups will NOT be done (Michael, 2026-06-25). Kept pnpm (no npm switch).
+Nothing else outstanding; the portfolio is complete.
 
 CI/Taskfile are package-aware (iterate dirs with pyproject.toml). uv confirmed (CPython 3.14).
 FastMCP 3.x middleware API verified inline via WebFetch after the subagent spike kept 529-ing;

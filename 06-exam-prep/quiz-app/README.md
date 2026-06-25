@@ -19,17 +19,22 @@ uv run ruff check .
 uv run uvicorn mcp_quiz.app:app --reload   # local dev at http://127.0.0.1:8000
 ```
 
-## Railway deploy (config only)
+## Railway deploy (live)
+
+Deployed on Railway: **https://mcp-exam-quiz-production.up.railway.app**
+(`/health`, `/exam`, `/exam/submit`). Project `mcp-exam-quiz`, production environment.
 
 `railway.json` configures a Railpack build with the uvicorn start command bound to `0.0.0.0:$PORT`
-and `/health` as the healthcheck. Results storage would use a Railway Postgres service exposing
-`DATABASE_URL` (not wired yet; scoring is currently stateless).
+and `/health` as the healthcheck. Railpack detects the uv project from `uv.lock` and runs
+`uv sync --locked`. Results storage would use a Railway Postgres service exposing `DATABASE_URL`
+(not wired yet; scoring is currently stateless).
 
-Creating and linking the Railway project is an account-level action. The commands, once approved:
+Redeploy after changes from this directory:
 
 ```bash
-railway init           # creates the project (account action)
-railway link           # bind this directory
-railway up             # deploy
+railway up             # deploy the current directory to the linked service
 railway add -d postgres # optional: add a Postgres service for results
 ```
+
+The directory is linked per-machine (`~/.railway/config.json`); on another machine,
+`railway link --project mcp-exam-quiz` re-binds it.
