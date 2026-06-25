@@ -1,5 +1,5 @@
-# ABOUTME: CI for the MCP portfolio: prose standard, strict docs build, and guarded per-language jobs.
-# ABOUTME: Language jobs activate as code lands; cosign signing is added in the release workflow later.
+# ABOUTME: CI for the MCP portfolio: prose, strict docs, per-language tests + types, lockfile drift.
+# ABOUTME: Third-party actions are pinned to a full commit SHA (supply-chain hygiene we also teach).
 name: CI
 
 on:
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Em-dash check (authored docs; verbatim research report exempt)
         run: |
           if grep -rnP '\x{2014}' --include='*.md' --include='*.html' \
@@ -36,24 +36,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
       - name: Strict docs build
-        run: |
-          export PATH="$HOME/.local/bin:$PATH"
-          uv run --with-requirements docs/requirements.txt mkdocs build --strict
+        run: uv run --with-requirements docs/requirements.txt mkdocs build --strict
 
   python:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
-      - name: Lint and test each Python package
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+      - name: Lint, type-check, and test each Python package
         run: |
-          export PATH="$HOME/.local/bin:$PATH"
           pkgs=$(find . -name pyproject.toml -not -path '*/.venv/*' -not -path '*/node_modules/*' -exec dirname {} \;)
           if [ -z "$pkgs" ]; then echo "no Python packages yet; skipping"; exit 0; fi
           for d in $pkgs; do
@@ -61,6 +56,7 @@ jobs:
             (
               cd "$d"
               uv run ruff check .
+              [ -d src ] && uv run mypy --config-file "$GITHUB_WORKSPACE/mypy.ini" src
               if find . -name 'test_*.py' -not -path '*/.venv/*' | grep -q .; then
                 uv run pytest -q
               else
@@ -75,8 +71,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 24
       - name: Enable pnpm
@@ -90,3 +86,22 @@ jobs:
             ( cd "$d" && pnpm install --frozen-lockfile && pnpm test && pnpm typecheck )
             echo "::endgroup::"
           done
+
+  lockdrift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Fail if a shared dependency resolves to different versions across uv.lock files
+        run: |
+          status=0
+          for pkg in fastmcp mcp; do
+            versions=$(grep -hrA1 "^name = \"$pkg\"\$" --include=uv.lock . | grep '^version = ' | awk '{print $3}' | sort -u)
+            distinct=$(echo "$versions" | grep -c .)
+            echo "$pkg: ${versions:-(absent)}"
+            if [ "$distinct" -gt 1 ]; then
+              echo "::error::$pkg resolves to multiple versions across lockfiles"
+              status=1
+            fi
+          done
+          exit $status

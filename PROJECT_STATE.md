@@ -134,10 +134,21 @@ Fixed in code:
 - Tightened weak tests (security-heaviest strict, scorecard full-equality), added /exam/submit
   negative tests. Spec spike `mcp-rc-2026-07-28-readiness.md` written + 3 spikes added to docs nav.
 
-DECISIONS still open for Michael (not done unilaterally): connect Railway to GitHub (auto-deploy +
-SHA traceability), reverse the "no SHA-pin actions / no Dependabot" call given the supply-chain theme,
-add mypy to CI, a uv workspace / root ruff.toml to de-dup tool config, a composed capstone server
-(registry+gateway+guardrails+audit in one request path), and app observability (structlog + OTel).
+### Round 3 (2026-06-25): Michael said "do all of them" - all six DONE
+1. Deploy traceability: GIT_SHA stamped + surfaced at /health (live shows the deployed commit). The
+   GitHub auto-deploy *connection* is the only remaining piece and needs Michael's one-time Railway
+   GitHub-App authorization (interactive); the SHA-traceability part is done.
+2. SHA-pinned all CI actions to commit SHAs (checkout v7, setup-node v6, setup-uv v8); replaced the
+   curl|sh uv install with pinned setup-uv; added `.github/dependabot.yml`.
+3. mypy added to every package + shared root `mypy.ini`; CI type-checks each package (caught + fixed
+   an untyped comprehension in contacts.py). Taskfile gains `py:types`.
+4. De-dup: root `ruff.toml` (removed 9 copies); new CI `lockdrift` job (fastmcp/mcp must agree across
+   the 10 locks).
+5. Composed capstone server `04-security/capstone/` (registry admission + policy gateway + guardrails
+   + audit in one path; 5 e2e tests prove they compose). The senior's "strongest absent artifact".
+6. Observability: structlog JSON request logging + env-gated OTel on the quiz app; Railway app-sleep
+   enabled (idle cost to zero).
+Repo total: 108 tests (104 Python across 10 packages + 4 TS), all packages ruff + mypy clean.
 
 Railway deploy is CLI-based (`railway up --service mcp-exam-quiz`), not GitHub-connected, so it does
 not auto-deploy on push. Open question with Michael: connect Railway to the existing monorepo

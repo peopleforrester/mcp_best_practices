@@ -42,6 +42,18 @@ tasks:
         done
         [ $found -eq 1 ] || echo 'no Python packages yet; skipping py:lint'
 
+  py:types:
+    desc: Type-check each Python package with mypy (shared root mypy.ini)
+    cmds:
+      - |
+        root=$(pwd)
+        found=0
+        for d in $(find . -name pyproject.toml -not -path '*/.venv/*' -exec dirname {} \;); do
+          [ -d "$d/src" ] || continue
+          found=1; echo "== mypy: $d =="; (cd "$d" && uv run mypy --config-file "$root/mypy.ini" src)
+        done
+        [ $found -eq 1 ] || echo 'no Python packages yet; skipping py:types'
+
   py:test:
     desc: Run pytest in each Python package that has tests
     cmds:
@@ -69,5 +81,6 @@ tasks:
     cmds:
       - task: lint:prose
       - task: py:lint
+      - task: py:types
       - task: py:test
       - task: ts:test
