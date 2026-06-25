@@ -37,3 +37,6 @@ nav:
           - A2A Integration: research/spikes/a2a-integration.md
           - Kubernetes MCP Server: research/spikes/kubernetes-mcp-server.md
           - Quiz App & Railway: research/spikes/quiz-app-railway.md
+          - Exam Item-Writing: research/spikes/exam-item-writing.md
+          - MCP Question Content: research/spikes/mcp-question-content.md
+          - RC 2026-07-28 Readiness: research/spikes/mcp-rc-2026-07-28-readiness.md

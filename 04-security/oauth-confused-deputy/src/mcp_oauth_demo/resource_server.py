@@ -48,8 +48,14 @@ class ResourceServer:
         if token.claims.get("exp", 0) <= now:
             return ValidationResult(False, "token expired")
         # RFC 8707 permits aud to be a single string or an array; this server must be one of them.
+        # Any non-list scalar is treated as a single audience, so a malformed claim cannot raise here.
         aud = token.claims.get("aud")
-        audiences = [aud] if isinstance(aud, str) else list(aud or [])
+        if isinstance(aud, list):
+            audiences = aud
+        elif aud is None:
+            audiences = []
+        else:
+            audiences = [aud]
         if self.resource_uri not in audiences:
             return ValidationResult(
                 False,
