@@ -9,9 +9,12 @@ A small FastAPI service that administers an MCP exam.
   each answer is one of its options).
 - `scoring.py` : `score_exam(questions, answers)`, a pure function returning totals, a percentage,
   and a per-domain breakdown.
-- `app.py` : `GET /exam` serves questions without answers, `POST /exam/submit` scores a submission,
-  `GET /health` for the platform health check. `create_app()` builds it; module-level `app` is the
+- `app.py` : `GET /` serves a minimal browser quiz UI, `GET /exam` serves questions without answers,
+  `POST /exam/submit` scores a submission, `GET /health` for the platform health check, and FastAPI's
+  `GET /docs` gives an interactive API explorer. `create_app()` builds it; module-level `app` is the
   uvicorn entrypoint.
+- `static/index.html` : the vanilla-JS frontend (no build step) that loads `/exam`, renders radio
+  options, and posts to `/exam/submit` to show a scored, per-domain result.
 
 ```bash
 uv run pytest -q

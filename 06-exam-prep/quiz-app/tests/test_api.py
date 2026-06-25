@@ -28,3 +28,12 @@ def test_submit_scores_a_perfect_submission():
 def test_health_endpoint():
     client = TestClient(create_app())
     assert client.get("/health").json() == {"status": "ok"}
+
+
+def test_root_serves_the_browser_quiz():
+    client = TestClient(create_app())
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert "MCP Exam" in response.text
+    assert "/exam" in response.text  # the page calls the API to load and submit

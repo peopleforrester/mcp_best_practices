@@ -14,6 +14,7 @@ packages = ["src/mcp_quiz"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "src/mcp_quiz/questions.yaml" = "mcp_quiz/questions.yaml"
+"src/mcp_quiz/static/index.html" = "mcp_quiz/static/index.html"
 
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.6", "httpx>=0.27"]

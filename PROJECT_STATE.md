@@ -103,7 +103,16 @@ verified live (/health, /exam answer-hidden, /exam/submit scoring). CLI deploy v
 GitHub-branch-connected); redeploy with `railway up` from `06-exam-prep/quiz-app/`.
 
 Decisions: operational follow-ups will NOT be done (Michael, 2026-06-25). Kept pnpm (no npm switch).
-Nothing else outstanding; the portfolio is complete.
+
+**Browser quiz frontend added (2026-06-25):** `GET /` now serves `static/index.html` (vanilla-JS UI:
+load /exam, radio options, submit, scored per-domain result), replacing the bare-URL 404. `/docs`
+gives the Swagger explorer. Verified live after redeploy. On `staging` (`5a740a0`); **main promotion
+was DENIED, so main (`25961cc`) is one commit behind staging** until Michael approves the main push.
+
+Railway deploy is CLI-based (`railway up --service mcp-exam-quiz`), not GitHub-connected, so it does
+not auto-deploy on push. Open question with Michael: connect Railway to the existing monorepo
+(`peopleforrester/mcp_best_practices`) with service root dir `06-exam-prep/quiz-app` + watch path
+(recommended), vs a separate repo. GitHub App authorization is an interactive dashboard action.
 
 CI/Taskfile are package-aware (iterate dirs with pyproject.toml). uv confirmed (CPython 3.14).
 FastMCP 3.x middleware API verified inline via WebFetch after the subagent spike kept 529-ing;
