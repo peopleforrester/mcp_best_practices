@@ -1,0 +1,30 @@
+# ABOUTME: Dependabot config: weekly update PRs for GitHub Actions, the uv packages, and the TS package.
+# ABOUTME: A supply-chain-teaching repo should keep its own dependencies and actions current.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: uv
+    directories:
+      - /01-fundamentals/server-python
+      - /02-architecture
+      - /03-tooling
+      - /04-security/*
+      - /05-use-cases-ecosystem
+      - /06-exam-prep/quiz-app
+    schedule:
+      interval: weekly
+    groups:
+      python:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /01-fundamentals/server-typescript
+    schedule:
+      interval: weekly
