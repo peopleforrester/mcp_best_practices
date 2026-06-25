@@ -109,6 +109,18 @@ load /exam, radio options, submit, scored per-domain result), replacing the bare
 gives the Swagger explorer. Verified live after redeploy. On `staging` (`5a740a0`); **main promotion
 was DENIED, so main (`25961cc`) is one commit behind staging** until Michael approves the main push.
 
+**Exam bank rebuilt to an item-writing rubric (2026-06-25):** after Michael flagged that the original
+questions were winged off training data, ran two spikes (`docs/research/spikes/exam-item-writing.md`,
+`docs/research/spikes/mcp-question-content.md`) and rebuilt `questions.yaml` to v2 (18 items,
+application-leaning, even option lengths, balanced answer positions, distractor-explaining rationales).
+Encoded the rubric in `models.Question` + `tests/test_quality.py`. Redeployed; live and verified.
+
+A full code + architecture review (3 reviewers) ran 2026-06-25. Real open must-fixes NOT yet done:
+- HIGH: `search_items`/`contacts_search` pagination has no cursor/limit bounds (limit=0 -> infinite
+  cursor loop). Needs `Field(ge=0)`/`Field(ge=1)`. (01-fundamentals catalog, 03-tooling contacts)
+- MED: quiz `static/index.html` builds DOM via innerHTML (XSS-by-construction); switch to textContent.
+- Minor: `get_pod_status` should read_namespaced_pod; add `03-tooling/test_contacts.py`.
+
 Railway deploy is CLI-based (`railway up --service mcp-exam-quiz`), not GitHub-connected, so it does
 not auto-deploy on push. Open question with Michael: connect Railway to the existing monorepo
 (`peopleforrester/mcp_best_practices`) with service root dir `06-exam-prep/quiz-app` + watch path
