@@ -2,9 +2,14 @@
 # ABOUTME: getData is the wrong way (vague, dumps everything); contacts_search is the right way.
 from __future__ import annotations
 
-from typing import TypedDict
+from typing import Annotated, TypedDict
 
 from fastmcp import FastMCP
+from pydantic import Field
+
+# Pagination bounds: limit at least 1 (limit 0 advances the cursor by 0 forever), cursor non-negative.
+Limit = Annotated[int, Field(ge=1, le=100)]
+Cursor = Annotated[int, Field(ge=0)]
 
 # A small directory. The anti-pattern tool returns all of it as a blob; the good tool searches it.
 _CONTACTS = [
@@ -52,7 +57,9 @@ def build_contacts_server() -> FastMCP:
         return "\n".join(lines)
 
     @mcp.tool
-    def contacts_search(query: str = "", team: str | None = None, limit: int = 5, cursor: int = 0) -> ContactSearchPage:
+    def contacts_search(
+        query: str = "", team: str | None = None, limit: Limit = 5, cursor: Cursor = 0
+    ) -> ContactSearchPage:
         """Search the team directory by name substring and optional team.
 
         Returns a small page of human-readable contacts (name, email, team) with a next_cursor for

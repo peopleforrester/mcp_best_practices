@@ -38,3 +38,12 @@ async def test_get_unknown_item_raises_tool_error():
     async with Client(build_catalog_server()) as client:
         with pytest.raises(ToolError):
             await client.call_tool("get_item", {"item_id": "does-not-exist"})
+
+
+async def test_invalid_pagination_is_rejected():
+    # limit=0 would advance the cursor by 0 forever; cursor<0 is nonsensical. Both must fail loudly.
+    async with Client(build_catalog_server()) as client:
+        with pytest.raises(ToolError):
+            await client.call_tool("search_items", {"limit": 0})
+        with pytest.raises(ToolError):
+            await client.call_tool("search_items", {"cursor": -1})

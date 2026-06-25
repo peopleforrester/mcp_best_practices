@@ -6,6 +6,7 @@ from typing import Any, TypedDict
 
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
+from kubernetes.client.exceptions import ApiException
 from mcp.types import ToolAnnotations
 
 
@@ -65,11 +66,17 @@ def build_k8s_server(api: Any) -> FastMCP:
 
     @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=True))
     def get_pod_status(namespace: str, name: str) -> PodView:
-        """Get the status of one pod by name. Raises a ToolError if no such pod exists. Read-only."""
-        result = api.list_namespaced_pod(namespace)
-        for pod in result.items:
-            if pod.metadata.name == name:
-                return _view(pod)
-        raise ToolError(f"no pod named {name!r} in namespace {namespace!r}")
+        """Get the status of one pod by name. Raises a ToolError if no such pod exists. Read-only.
+
+        Reads the single named pod (a GET on that resource) rather than listing the namespace, which
+        is cheaper and keeps the least-privilege story tight (get on one pod, not list over the namespace).
+        """
+        try:
+            pod = api.read_namespaced_pod(name=name, namespace=namespace)
+        except ApiException as exc:
+            if exc.status == 404:
+                raise ToolError(f"no pod named {name!r} in namespace {namespace!r}") from exc
+            raise
+        return _view(pod)
 
     return mcp
