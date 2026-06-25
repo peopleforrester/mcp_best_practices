@@ -1,132 +1,329 @@
 # MCP exam question bank. Versioned content, validated on load by mcp_quiz.models.Question.
-# Built against the stable 2025-11-25 spec; RC-only items are marked in the stem. Domains:
-# fundamentals, architecture, tooling, security, ecosystem.
-version: 1
+#
+# Authored against two research spikes (do not edit without re-reading them):
+#  - docs/research/spikes/exam-item-writing.md  (Haladyna + NBME item-writing rubric; LF/CNCF style)
+#  - docs/research/spikes/mcp-question-content.md (sourced, defensible answer keys per domain)
+#
+# Construction rules applied to every item: exactly four options, parallel and roughly equal length
+# (the key is never the longest), distractors are real misconceptions (plausible but wrong), the
+# rationale explains why the key is right AND why each distractor is wrong, and the correct answer is
+# balanced across positions A/B/C/D at the bank level. Application items lean over pure recall, in the
+# Linux Foundation associate (knowledge-based) style. RC-only items are flagged in the stem and must
+# be re-verified when the 2026-07-28 spec is final. Built against the stable 2025-11-25 spec.
+version: 2
 questions:
-  - id: q-transport-streamable
+  # ---- Fundamentals ----
+  - id: q-encoding
+    domain: fundamentals
+    difficulty: easy
+    cognitive: recall
+    stem: "Which character encoding must all MCP JSON-RPC messages use?"
+    options: ["ASCII only", "UTF-16", "UTF-8", "UTF-32"]
+    answer: "UTF-8"
+    rationale: >-
+      The transport spec requires JSON-RPC messages to be UTF-8 encoded. ASCII cannot represent all
+      Unicode text; UTF-16 and UTF-32 are valid Unicode encodings but are not the one the spec mandates.
+      Source: 2025-11-25 transports.
+
+  - id: q-missing-version-header
+    domain: fundamentals
+    difficulty: medium
+    cognitive: application
+    stem: >-
+      An HTTP MCP client stops sending the MCP-Protocol-Version header after initialization, and the
+      server has no record of a negotiated version. Per the 2025-11-25 spec, how should the server respond?
+    options:
+      - "Reject each request with 400 until the header returns"
+      - "Assume protocol version 2025-03-26 and continue"
+      - "Assume the newest version the server supports"
+      - "Close the connection and demand a fresh initialize"
+    answer: "Assume protocol version 2025-03-26 and continue"
+    rationale: >-
+      With no MCP-Protocol-Version header and no other way to identify the version, the server SHOULD
+      assume 2025-03-26. Rejecting with 400 is the response to an invalid version, not a missing one;
+      assuming the newest version can break an older client; closing the connection is not the
+      documented fallback. Source: 2025-11-25 transports.
+
+  - id: q-stdio-logging
+    domain: fundamentals
+    difficulty: medium
+    cognitive: application
+    stem: >-
+      A server speaks MCP over stdio and also wants to emit human-readable debug lines. Where can it
+      write those lines without corrupting the protocol stream?
+    options:
+      - "On stdout, between the JSON-RPC messages"
+      - "In a debug field on each JSON-RPC response"
+      - "On stdout, base64-encoded so clients skip it"
+      - "On stderr, which the protocol leaves alone"
+    answer: "On stderr, which the protocol leaves alone"
+    rationale: >-
+      Over stdio the server MUST NOT write anything to stdout that is not a valid MCP message, and MAY
+      write UTF-8 logs to stderr. Writing on stdout (plain or base64) breaks the message framing, and a
+      debug field invents structure the protocol does not define. Source: 2025-11-25 transports (stdio).
+
+  # ---- Architecture ----
+  - id: q-streamable-supersedes
     domain: architecture
     difficulty: medium
-    stem: "In MCP 2025-11-25, which transport replaced the HTTP+SSE transport from 2024-11-05?"
-    options: ["WebSocket transport", "Streamable HTTP", "gRPC transport", "Long-polling HTTP"]
-    answer: "Streamable HTTP"
-    rationale: "Streamable HTTP replaced HTTP+SSE, using one endpoint for POST and GET with optional SSE."
+    cognitive: recall
+    stem: "Which transport did Streamable HTTP supersede when it arrived in protocol version 2025-03-26?"
+    options:
+      - "The WebSocket transport"
+      - "The gRPC streaming transport"
+      - "The long-polling HTTP transport"
+      - "The HTTP+SSE transport"
+    answer: "The HTTP+SSE transport"
+    rationale: >-
+      Streamable HTTP replaced the HTTP+SSE transport from 2024-11-05, using one endpoint for POST and
+      GET with optional SSE. WebSocket, gRPC streaming, and long-polling are real transport styles but
+      were never the standard MCP HTTP transport. Source: 2025-11-25 transports.
 
-  - id: q-rfc8707-purpose
+  - id: q-session-404
+    domain: architecture
+    difficulty: medium
+    cognitive: application
+    stem: >-
+      Behind a load balancer, an MCP client initializes, receives a session ID, then its next request
+      reaches a different replica that returns 404. What must the client do, and what fixes the deployment?
+    options:
+      - "Retry with the same session ID until the correct replica eventually answers it"
+      - "Re-initialize without a session ID; add sticky routing or shared state"
+      - "Switch to the HTTP+SSE transport, which needs no session at all"
+      - "Move the session ID into a URL query the replicas can each read"
+    answer: "Re-initialize without a session ID; add sticky routing or shared state"
+    rationale: >-
+      A 404 on a session-bearing request means the client MUST start a new session with a fresh
+      initialize and no session ID; stateful Streamable HTTP needs sticky routing or a shared session
+      store. Retrying the dead ID ignores the spec, HTTP+SSE is deprecated and not stateless, and the
+      session ID rides the MCP-Session-Id header, not a URL query. Source: 2025-11-25 transports.
+
+  - id: q-rc-stateless
+    domain: architecture
+    difficulty: hard
+    cognitive: application
+    stem: >-
+      A team wants any MCP request to land on any replica with no sticky routing and no shared session
+      store. Which 2026-07-28 release-candidate change makes this possible at the protocol layer? (RC, not final.)
+    options:
+      - "A required session header every replica checks against shared state"
+      - "A WebSocket upgrade that pins each client to a single replica"
+      - "Removing the handshake and sessions; context rides per-request _meta"
+      - "TLS client certificates that encode the session into the connection"
+    answer: "Removing the handshake and sessions; context rides per-request _meta"
+    rationale: >-
+      The RC stateless core removes the initialize handshake (SEP-2575) and protocol-level sessions
+      (SEP-2567); per-request _meta carries version, client info, and capabilities, with server/discover
+      for capabilities, so any instance can serve any request. A session header reintroduces what the RC
+      removes; the WebSocket and TLS options are inventions. RC, re-verify at GA. Source: 2026-07-28 RC blog.
+
+  - id: q-resumability
+    domain: architecture
+    difficulty: medium
+    cognitive: application
+    stem: >-
+      A Streamable HTTP server attaches an id to each SSE event. When a client's stream drops
+      mid-response, how does it resume without losing messages?
+    options:
+      - "Send a GET with the Last-Event-ID header to replay missed events"
+      - "Reissue the original POST, which replays the whole response again"
+      - "Open a fresh session with initialize and start the call over again"
+      - "Poll tools/list repeatedly until the server resends the pending result"
+    answer: "Send a GET with the Last-Event-ID header to replay missed events"
+    rationale: >-
+      Servers MAY attach an id to SSE events; the client resumes with a GET carrying Last-Event-ID, and
+      the server replays only on that stream. Reissuing the POST repeats side effects, a fresh session
+      discards the in-flight work, and polling tools/list is unrelated to resumption. Source: 2025-11-25 transports.
+
+  # ---- Tooling ----
+  - id: q-primitive-resource
+    domain: tooling
+    difficulty: easy
+    cognitive: recall
+    stem: "Which MCP server primitive is read-only context addressed by a URI, rather than an executable action?"
+    options: ["A tool", "A prompt", "A root", "A resource"]
+    answer: "A resource"
+    rationale: >-
+      Resources are read-only, URI-addressed context the client can fetch. Tools are executable actions,
+      prompts are parameterized templates, and roots scope filesystem or URI access on the client side.
+      Source: 2025-11-25 concepts.
+
+  - id: q-untrusted-annotations
+    domain: tooling
+    difficulty: medium
+    cognitive: application
+    stem: >-
+      A connected but unaudited server exposes a delete_records tool whose annotations claim readOnlyHint
+      true and destructiveHint false. How must a well-behaved client treat those annotations?
+    options:
+      - "As guarantees, so it can skip the confirmation prompt"
+      - "As schema fields it validates only for correctness"
+      - "As untrusted hints, still keeping a human in the loop"
+      - "As client-only metadata the server never actually sees"
+    answer: "As untrusted hints, still keeping a human in the loop"
+    rationale: >-
+      Clients MUST treat annotations as untrusted unless the server is trusted, and tools SHOULD keep a
+      human able to deny the call. Treating them as guarantees trusts attacker-supplied metadata, the
+      exact risk annotations warn about; the other options misstate what annotations are. Source: 2025-11-25 server/tools.
+
+  - id: q-sampling-fit
+    domain: tooling
+    difficulty: medium
+    cognitive: application
+    stem: >-
+      A server must summarize a document with an LLM but hold no model API keys of its own and let the
+      user review the prompt first. Which MCP capability fits?
+    options:
+      - "Sampling, with a human able to review and deny the request"
+      - "Resources, with the client auto-approving every read it gets"
+      - "Prompts, which run the inference on the server side directly"
+      - "Roots, which grant scoped model access to a chosen directory"
+    answer: "Sampling, with a human able to review and deny the request"
+    rationale: >-
+      Sampling routes inference through the client, so no server keys are needed, and a human SHOULD be
+      able to deny the request. Resources are read-only data, prompts are templates that do not run
+      inference, and roots scope URI access. Sampling is deprecated in the 2026-07-28 RC. Source: 2025-11-25 client/sampling.
+
+  # ---- Security ----
+  - id: q-auth-optional
+    domain: security
+    difficulty: medium
+    cognitive: recall
+    stem: "Which statement about authorization in MCP (2025-11-25) is correct?"
+    options:
+      - "It is optional; over HTTP the server is an OAuth 2.1 resource server"
+      - "It is mandatory on every transport, including local stdio servers"
+      - "The server mints its own access tokens without any authorization server"
+      - "It is provided entirely by mutual TLS client-certificate authentication"
+    answer: "It is optional; over HTTP the server is an OAuth 2.1 resource server"
+    rationale: >-
+      Authorization is OPTIONAL; when used over HTTP the MCP server acts as an OAuth 2.1 resource server.
+      stdio servers SHOULD read credentials from the environment rather than use this flow, so mandatory
+      is wrong; the server does not mint its own tokens, and the model is OAuth 2.1, not mutual TLS.
+      Source: 2025-11-25 authorization.
+
+  - id: q-pkce-required
+    domain: security
+    difficulty: medium
+    cognitive: recall
+    stem: "Which is a MUST-level requirement for an MCP client performing OAuth 2.1 authorization?"
+    options:
+      - "Send the user's password to the MCP server so it can verify it"
+      - "Use the implicit grant so that no client secret has to be stored"
+      - "Encrypt the access token with the resource server's public key"
+      - "Implement PKCE using the S256 code-challenge method on each flow"
+    answer: "Implement PKCE using the S256 code-challenge method on each flow"
+    rationale: >-
+      Clients MUST implement PKCE with S256. The implicit grant is discouraged in OAuth 2.1, the user's
+      password is never sent to the resource server, and the spec does not require client-side token
+      encryption. Source: 2025-11-25 authorization.
+
+  - id: q-confused-deputy
     domain: security
     difficulty: hard
-    stem: "RFC 8707 Resource Indicators are mandated by MCP authorization primarily to prevent what?"
+    cognitive: application
+    stem: >-
+      An MCP server fronts a high-privilege billing API. An attacker presents it a valid token that a
+      different, low-privilege service issued. Which spec-mandated control stops this?
     options:
-      - "DNS rebinding against local servers"
-      - "The confused-deputy attack, by binding a token's audience to a specific server"
-      - "Prompt injection via tool descriptions"
-      - "SSE stream replay"
-    answer: "The confused-deputy attack, by binding a token's audience to a specific server"
-    rationale: "The resource parameter pins the token audience so a token for one server cannot be replayed at another."
+      - "Origin header validation, which rejects cross-origin browser requests outright"
+      - "Audience binding (RFC 8707) plus server-side audience validation"
+      - "PKCE with S256, which protects the authorization-code exchange"
+      - "SSE resumability, which replays only on the originating stream"
+    answer: "Audience binding (RFC 8707) plus server-side audience validation"
+    rationale: >-
+      The attack is token reuse across audiences, a confused-deputy setup. RFC 8707 binds the token to a
+      resource and the server MUST reject a token not issued for it. Origin validation defends against DNS
+      rebinding, PKCE protects the code exchange, and SSE resumability is a transport concern. Sources:
+      2025-11-25 authorization; RFC 8707.
 
   - id: q-token-passthrough
     domain: security
     difficulty: medium
-    stem: "Why does the MCP authorization spec forbid token passthrough?"
+    cognitive: application
+    stem: >-
+      An MCP server must call an upstream SaaS API for the user. A developer proposes forwarding the same
+      access token the client presented. Why does the spec forbid this?
     options:
-      - "It increases JSON-RPC payload size"
-      - "A server must only accept tokens issued for itself; forwarding foreign tokens breaks audience validation"
-      - "Passthrough tokens cannot be cached"
-      - "OAuth 2.1 has no refresh tokens"
-    answer: "A server must only accept tokens issued for itself; forwarding foreign tokens breaks audience validation"
-    rationale: "Servers must validate that tokens were issued for them and must not accept or transit other tokens."
-
-  - id: q-rc-stateless-core
-    domain: architecture
-    difficulty: hard
-    stem: "In the 2026-07-28 RC stateless core, how do protocol version and capabilities reach the server (no handshake, no Mcp-Session-Id)?"
-    options:
-      - "In a one-time initialized notification"
-      - "Inline in a _meta field on each request; servers call server/discover for capabilities"
-      - "In the Mcp-Session-Id header on every request"
-      - "They are inferred from the TLS certificate"
-    answer: "Inline in a _meta field on each request; servers call server/discover for capabilities"
-    rationale: "SEP-2567/2575 remove sessions and the handshake; per-request _meta lets any instance serve any request."
-
-  - id: q-json-encoding
-    domain: fundamentals
-    difficulty: easy
-    stem: "Which encoding must all MCP JSON-RPC messages use?"
-    options: ["UTF-16", "ASCII only", "UTF-8", "Base64"]
-    answer: "UTF-8"
-    rationale: "The transport spec requires JSON-RPC messages to be UTF-8 encoded."
-
-  - id: q-sampling-primitive
-    domain: tooling
-    difficulty: medium
-    stem: "Which MCP primitive lets a server delegate inference back to the client that owns the model?"
-    options: ["Resources", "Prompts", "Sampling", "Roots"]
-    answer: "Sampling"
-    rationale: "Sampling is the client-side primitive for server-requested inference; it is deprecated in the 2026-07-28 RC."
+      - "It is allowed once the server confirms the token has not expired"
+      - "It is forbidden only because forwarding enlarges the request payload"
+      - "It is forbidden; the server must obtain a separate upstream token"
+      - "It is forbidden because OAuth 2.1 no longer issues any refresh tokens"
+    answer: "It is forbidden; the server must obtain a separate upstream token"
+    rationale: >-
+      The server MUST NOT pass the client's token upstream; it obtains a separate token from the upstream
+      authorization server, acting as that server's OAuth client. Passthrough breaks audience validation
+      and creates a confused deputy. Expiry does not make it allowed, payload size is not the reason, and
+      OAuth 2.1 still issues refresh tokens. Source: 2025-11-25 authorization.
 
   - id: q-tool-poisoning
     domain: security
     difficulty: medium
-    stem: "What does tool poisoning (OWASP MCP Top 10) refer to?"
+    cognitive: recall
+    stem: "OWASP MCP03 Tool Poisoning occurs when an adversary does what?"
     options:
-      - "Overloading a server with tool-call requests"
-      - "Embedding malicious instructions in a tool's description that the model then follows"
-      - "Registering duplicate tool names"
-      - "Exhausting a tool's rate limit"
-    answer: "Embedding malicious instructions in a tool's description that the model then follows"
-    rationale: "MCP03 (Tool Poisoning) is description or metadata injection that hijacks model behavior."
+      - "Compromises the tools, plugins, or outputs a model relies on"
+      - "Floods a server with tool calls until it hits its rate limit"
+      - "Registers a tool whose name collides with an existing tool"
+      - "Replays a captured SSE event stream to resend a stale result"
+    answer: "Compromises the tools, plugins, or outputs a model relies on"
+    rationale: >-
+      OWASP defines MCP03 as an adversary compromising the tools, plugins, or their outputs that a model
+      depends on; malicious instructions in a tool description are one common instance. Flooding is denial
+      of service, name collision is a registration issue, and stream replay is a transport concern, none
+      of which is the OWASP definition. Source: owasp.org MCP Top 10.
 
   - id: q-nsa-egress
     domain: security
     difficulty: hard
-    stem: "What posture does the NSA AISC CSI recommend for external MCP connections?"
+    cognitive: application
+    stem: >-
+      A platform team hardens external MCP connections following the NSA AISC guidance, which notes that
+      MCP authentication is optional and the protocol has no built-in RBAC. Which posture fits?
     options:
-      - "Allow all outbound traffic to maximize tool availability"
-      - "Disable authentication for trusted internal servers"
-      - "A filtering outbound proxy or DLP with pinned resource URLs; treat sessions as untrusted until verified"
-      - "Rely solely on TLS for trust"
-    answer: "A filtering outbound proxy or DLP with pinned resource URLs; treat sessions as untrusted until verified"
-    rationale: "The CSI flags optional auth and no protocol RBAC, recommending least-privilege tokens and filtering proxies."
+      - "Allow all outbound traffic so every discovered tool remains reachable"
+      - "Untrusted sessions, least-privilege tokens, and filtered egress logging"
+      - "Disable authentication for internal-network servers to reduce friction"
+      - "Rely on TLS, since transport encryption already authenticates the server"
+    answer: "Untrusted sessions, least-privilege tokens, and filtered egress logging"
+    rationale: >-
+      The guidance recommends treating each session as untrusted until verified, least-privilege per-tool
+      tokens, registry pinning, egress through a filtering proxy, and audit logging. Allowing all egress,
+      disabling auth, and trusting TLS each invert one of those. The verbatim CSI wording is paraphrased
+      pending a direct read of the PDF. Source: NSA AISC CSI (press release and summaries).
 
-  - id: q-session-id-mechanics
-    domain: architecture
-    difficulty: medium
-    stem: "On a stateful Streamable HTTP server (2025-11-25), how is the session id assigned and used?"
-    options:
-      - "In a JSON-RPC param on initialize; ignored afterward"
-      - "In the Mcp-Session-Id response header on InitializeResult; the client echoes it on later requests"
-      - "In a URL query string regenerated per request"
-      - "In the SSE retry field"
-    answer: "In the Mcp-Session-Id response header on InitializeResult; the client echoes it on later requests"
-    rationale: "The session id rides the Mcp-Session-Id header; a 404 signals the client to re-initialize."
-
-  - id: q-governance-a2a
+  # ---- Ecosystem ----
+  - id: q-governance
     domain: ecosystem
     difficulty: easy
-    stem: "As of 2026, which body governs MCP, and how does it relate to A2A?"
+    cognitive: recall
+    stem: "Who stewards the Model Context Protocol as of 2026?"
     options:
-      - "MCP is proprietary to Anthropic; A2A is unrelated"
-      - "Both are Linux Foundation projects (MCP under the AAIF); MCP connects agents to tools, A2A connects agents to each other"
-      - "MCP and A2A are the same protocol under two names"
-      - "A2A governs MCP as a sub-specification"
-    answer: "Both are Linux Foundation projects (MCP under the AAIF); MCP connects agents to tools, A2A connects agents to each other"
-    rationale: "Anthropic donated MCP to the AAIF in Dec 2025; A2A is also LF-stewarded; the two compose."
+      - "Anthropic, which keeps proprietary control of the protocol"
+      - "The Agentic AI Foundation, a fund under the Linux Foundation"
+      - "The OpenJS Foundation, alongside Node.js and the Electron project"
+      - "The Cloud Native Computing Foundation, alongside the Kubernetes project"
+    answer: "The Agentic AI Foundation, a fund under the Linux Foundation"
+    rationale: >-
+      Anthropic donated MCP to the Agentic AI Foundation, a directed fund under the Linux Foundation, in
+      December 2025; maintainer-led technical governance is unchanged. Anthropic no longer holds it
+      proprietary, and the OpenJS Foundation and the CNCF are real foundations but not MCP's home.
+      Source: AAIF governance posts.
 
-  - id: q-annotations-untrusted
-    domain: tooling
+  - id: q-mcp-vs-a2a
+    domain: ecosystem
     difficulty: medium
-    stem: "How must a client treat tool annotations like destructiveHint?"
+    cognitive: application
+    stem: >-
+      An agent must use a database tool and also delegate subtasks to a separate fraud-analysis agent
+      built on another framework. Which protocols fit which job?
     options:
-      - "As enforced guarantees the server cannot violate"
-      - "As advisory hints, untrusted unless the server is trusted"
-      - "As required fields on every tool"
-      - "As client-only metadata the server never sees"
-    answer: "As advisory hints, untrusted unless the server is trusted"
-    rationale: "The spec states annotations are advisory and must be treated as untrusted unless from a trusted server."
-
-  - id: q-streamable-not-sse
-    domain: fundamentals
-    difficulty: easy
-    stem: "Which transport is legacy/deprecated as of 2025-03-26?"
-    options: ["stdio", "HTTP+SSE", "Streamable HTTP", "Unix domain sockets"]
-    answer: "HTTP+SSE"
-    rationale: "HTTP+SSE has been legacy since 2025-03-26; Streamable HTTP is the production HTTP transport."
+      - "MCP for both, since MCP already also covers all agent-to-agent traffic"
+      - "A2A for both, since A2A also covers an agent's tool access"
+      - "MCP for the database tool; A2A to collaborate with the agent"
+      - "Neither; this needs one proprietary single-vendor protocol"
+    answer: "MCP for the database tool; A2A to collaborate with the agent"
+    rationale: >-
+      MCP connects an agent to tools; A2A connects agents to each other; the two compose. Claiming either
+      protocol covers both overstates its scope, and a single proprietary protocol is unnecessary because
+      MCP and A2A are open Linux Foundation projects. Sources: a2a-protocol.org; AAIF governance posts.

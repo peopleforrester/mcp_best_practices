@@ -23,13 +23,29 @@ def test_every_question_answer_is_one_of_its_options():
 
 
 def test_malformed_question_is_rejected():
+    # Answer not among the four options must fail validation (rationale is long enough to isolate it).
     with pytest.raises(ValidationError):
         Question(
             id="bad",
             domain="fundamentals",
             difficulty="easy",
-            stem="?",
-            options=["a", "b"],
-            answer="c",
-            rationale="answer not in options",
+            cognitive="recall",
+            stem="Which option is correct?",
+            options=["alpha", "bravo", "charlie", "delta"],
+            answer="echo",
+            rationale="The answer is not present among the four listed options, so this must fail.",
+        )
+
+
+def test_question_with_wrong_option_count_is_rejected():
+    with pytest.raises(ValidationError):
+        Question(
+            id="three",
+            domain="fundamentals",
+            difficulty="easy",
+            cognitive="recall",
+            stem="Which option is correct?",
+            options=["alpha", "bravo", "charlie"],
+            answer="alpha",
+            rationale="Three options is not allowed; the rubric requires exactly four per item here.",
         )
