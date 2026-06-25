@@ -7,26 +7,42 @@ from typing import Literal
 from pydantic import BaseModel, model_validator
 
 Difficulty = Literal["easy", "medium", "hard"]
+Cognitive = Literal["recall", "application"]
 
 
 class Question(BaseModel):
-    """One exam question, including the answer key (never served to the taker)."""
+    """One exam question, including the answer key (never served to the taker).
+
+    Item-writing rules from docs/research/spikes/exam-item-writing.md are enforced here so the bank
+    cannot silently regress: exactly four distinct options, the answer among them, and a rationale
+    substantive enough to explain why the distractors are wrong (not just assert the key).
+    """
 
     id: str
     domain: str
     difficulty: Difficulty
+    cognitive: Cognitive
     stem: str
     options: list[str]
     answer: str
     rationale: str
 
     @model_validator(mode="after")
-    def _answer_must_be_an_option(self) -> Question:
+    def _validate_item(self) -> Question:
+        if len(self.options) != 4:
+            raise ValueError(f"question {self.id!r} must have exactly four options")
+        if len(set(self.options)) != 4:
+            raise ValueError(f"question {self.id!r} has duplicate options")
         if self.answer not in self.options:
             raise ValueError(f"answer is not among options for question {self.id!r}")
-        if len(self.options) < 2:
-            raise ValueError(f"question {self.id!r} needs at least two options")
+        if len(self.rationale.strip()) < 40:
+            raise ValueError(f"question {self.id!r} rationale is too short to explain the distractors")
         return self
+
+    @property
+    def answer_index(self) -> int:
+        """Zero-based position (A=0) of the correct answer, for bank-level balance checks."""
+        return self.options.index(self.answer)
 
 
 class QuestionView(BaseModel):
