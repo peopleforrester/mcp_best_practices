@@ -39,7 +39,9 @@ _PATTERNS: list[tuple[str, str, Severity, re.Pattern[str]]] = [
         "instruction_override",
         "ignore-previous-instructions",
         Severity.HIGH,
-        re.compile(r"\bignore\s+(?:all\s+|any\s+)?(?:previous|prior|above)\s+instructions\b", re.I),
+        re.compile(
+            r"\bignore\s+(?:all\s+|any\s+|the\s+)?(?:previous|prior|above)\s+instructions\b", re.I
+        ),
     ),
     (
         "instruction_override",
