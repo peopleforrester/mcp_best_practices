@@ -144,13 +144,17 @@ def create_app(
     ) -> Response:
         path = request.url.path
         # Behind Railway's edge, request.client.host is the proxy for every visitor, so keying the
-        # limiter on it throttles everyone into one bucket and lets an IP-rotating attacker past. The
-        # platform edge is a trusted hop, so use the left-most X-Forwarded-For entry (the real client).
-        # Demo-grade: a forgeable header is acceptable only because the one trusted hop sets it; in
-        # production the rate limit belongs at the edge.
+        # limiter on it throttles everyone into one bucket. X-Forwarded-For is a comma list where each
+        # proxy appends the previous hop, so the right-most entry is the one the trusted edge added (the
+        # real client for a single-hop deploy); the left-most entry is whatever the client sent and is
+        # forgeable. Key on the right-most entry so an attacker rotating the left-most value cannot mint
+        # a fresh bucket per request. This still trusts a header, so it is demo-grade: the production
+        # control is rate limiting at the edge, where the client identity is not client-supplied. (The
+        # exact hop count depends on the platform's XFF handling; if more proxies are added, the trusted
+        # index moves left by the number of trusted hops.)
         forwarded = request.headers.get("x-forwarded-for")
         if forwarded:
-            client = forwarded.split(",")[0].strip()
+            client = forwarded.split(",")[-1].strip()
         else:
             client = request.client.host if request.client else "unknown"
         start = time.monotonic()

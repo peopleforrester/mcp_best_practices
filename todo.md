@@ -1,7 +1,7 @@
 # Remediation Progress — Round 5 (senior review 2026-06-26)
 
 - [x] R1 (H1): registry server.json $schema → 2025-12-11 + currency-lock test
-- [ ] R2 (H3): capstone defaults to a real injection-finding sink + observing test
+- [x] R2 (H3): capstone defaults to a real injection-finding sink + observing test
 - [ ] R3 (H2): rate limiter keys on right-most XFF + multi-hop test
 - [ ] R4 (M1): eval harness best-effort tool call (no crash on required params)
 - [ ] R5 (M2): move LocalSpecialist to the test tier, keep the Protocol seam shipped
