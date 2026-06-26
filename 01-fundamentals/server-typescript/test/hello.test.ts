@@ -25,14 +25,16 @@ describe("fundamentals hello server (TypeScript)", () => {
     const client = await connectedClient();
     const result = await client.callTool({ name: "echo", arguments: { text: "hello mcp" } });
     const content = result.content as Array<{ type: string; text: string }>;
-    expect(content[0].text).toBe("hello mcp");
+    expect(content.length).toBeGreaterThan(0);
+    expect(content[0]?.text).toBe("hello mcp");
   });
 
   it("reads the templated greeting resource", async () => {
     const client = await connectedClient();
     const result = await client.readResource({ uri: "greeting://world" });
     const contents = result.contents as Array<{ text: string }>;
-    expect(contents[0].text).toContain("world");
+    expect(contents.length).toBeGreaterThan(0);
+    expect(contents[0]?.text).toContain("world");
   });
 
   it("exposes the summarize prompt", async () => {
