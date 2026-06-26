@@ -80,3 +80,13 @@ def test_malformed_signer_key_fails_closed_without_raising():
     result = registry.admit(_signed_entry(sk))
     assert result.admitted is False
     assert "signature" in result.reason
+
+
+def test_wrong_type_signer_key_fails_closed_without_raising():
+    # A key of the wrong type (not bytes) raises TypeError from from_public_bytes; that must still fail
+    # closed at construction, not escape past the fail-closed guard into the request path.
+    verifier = Ed25519Verifier({"acme": "not-bytes-at-all"})  # type: ignore[dict-item]
+    registry = SignedRegistry(verifier=verifier, trusted_signers={"acme"})
+    sk, _ = _keypair()
+    result = registry.admit(_signed_entry(sk))
+    assert result.admitted is False

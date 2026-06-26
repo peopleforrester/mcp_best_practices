@@ -22,8 +22,9 @@ class Ed25519Verifier:
         for signer_id, raw_key in public_keys.items():
             try:
                 self._keys[signer_id] = Ed25519PublicKey.from_public_bytes(raw_key)
-            except ValueError:
-                # Malformed key material: keep the signer known but unusable so verify fails closed.
+            except (ValueError, TypeError):
+                # Malformed key material (wrong length raises ValueError, wrong type raises TypeError):
+                # keep the signer known but unusable so verify fails closed instead of throwing later.
                 self._keys[signer_id] = None
 
     def verify(self, payload: bytes, signature: bytes, signer_id: str) -> bool:
