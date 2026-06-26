@@ -121,11 +121,14 @@ def create_app(
     max_body_bytes: int = 64 * 1024,
     rate_limit: int = 120,
     rate_window_s: float = 60.0,
+    max_clients: int = 10_000,
 ) -> FastAPI:
     """Build the quiz app over a question bank (defaults to the shipped bank).
 
     The hardening is demo-grade: rate state is in-memory per process and resets on restart, and the
     body cap is a coarse guard. Production would use an edge rate limiter and a shared store.
+    The per-client rate buckets are swept of stale entries once the map exceeds max_clients, so a flood
+    of one-shot client ids cannot grow the map without bound.
     """
     bank = questions if questions is not None else load_bank()
     app = FastAPI(title="MCP Exam", version="0.1.0")
@@ -133,6 +136,7 @@ def create_app(
     _configure_telemetry(app)
 
     hits: dict[str, list[float]] = {}
+    app.state.rate_limit_buckets = hits  # exposed so the eviction behavior is observable in tests
 
     @app.middleware("http")
     async def guard(
@@ -164,6 +168,11 @@ def create_app(
             return response
 
         now = time.monotonic()
+        # Bound the map: when it grows past the cap, drop buckets whose every timestamp is now stale
+        # (clients that hit once and never returned). This keeps a one-shot id flood from leaking memory.
+        if len(hits) > max_clients:
+            for stale in [c for c, ts in hits.items() if all(now - t >= rate_window_s for t in ts)]:
+                del hits[stale]
         recent = [t for t in hits.get(client, []) if now - t < rate_window_s]
         if len(recent) >= rate_limit:
             return finish(JSONResponse({"detail": "rate limit exceeded"}, status_code=429))

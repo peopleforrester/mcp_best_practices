@@ -103,6 +103,36 @@ def test_rate_limit_is_enforced():
     assert client.get("/health").status_code == 429
 
 
+def test_openapi_schema_never_exposes_answers_or_rationale():
+    # The public OpenAPI schema must not advertise answer/rationale fields anywhere; otherwise a client
+    # could learn the answer shape from the docs even though /exam strips them at runtime.
+    schema = TestClient(create_app()).get("/openapi.json").json()
+    components = schema.get("components", {}).get("schemas", {})
+    for name, model in components.items():
+        props = set(model.get("properties", {}))
+        assert "answer" not in props, name
+        assert "rationale" not in props, name
+
+
+def test_rate_limit_buckets_are_evicted_when_over_cap(monkeypatch):
+    # A flood of one-shot client ids must not grow the bucket map without bound: once it exceeds the
+    # cap, buckets whose timestamps have aged past the window are swept.
+    import mcp_quiz.app as appmod
+
+    clock = {"now": 0.0}
+    monkeypatch.setattr(appmod.time, "monotonic", lambda: clock["now"])
+
+    app = create_app(rate_window_s=10.0, max_clients=2)
+    client = TestClient(app)
+    for ip in ("1.1.1.1", "2.2.2.2", "3.3.3.3"):
+        client.get("/health", headers={"X-Forwarded-For": ip})
+    assert len(app.state.rate_limit_buckets) == 3  # all fresh, nothing to evict yet
+
+    clock["now"] = 1000.0  # age the existing buckets past the window
+    client.get("/health", headers={"X-Forwarded-For": "4.4.4.4"})  # trips the sweep (len > cap)
+    assert len(app.state.rate_limit_buckets) == 1  # the three stale buckets were evicted
+
+
 def test_rate_limit_is_keyed_per_client_not_the_shared_proxy():
     # Behind Railway's edge, request.client.host is the proxy for everyone. The limiter must key on
     # the forwarded client, so one visitor cannot consume another's budget (or throttle everyone).
