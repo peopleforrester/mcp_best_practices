@@ -1,6 +1,7 @@
 # ABOUTME: End-to-end tests that the four security controls compose in one server request path.
 # ABOUTME: Registry admission gates the build; the gateway denies/audits; guardrails redact results.
 import json
+import logging
 
 import pytest
 from cryptography.hazmat.primitives import serialization
@@ -28,12 +29,13 @@ def _trusted_registry():
     return registry, _entry(sk)
 
 
-def _build(*, consents=frozenset(), audit=None):
+def _build(*, consents=frozenset(), audit=None, findings=None):
     registry, entry = _trusted_registry()
     return build_capstone_server(
         registry=registry,
         registry_entry=entry,
         consents_for=lambda _client: frozenset(consents),
+        finding_sink=(findings.append if findings is not None else None),
         audit_sink=(audit.append if audit is not None else lambda _record: None),
     )
 
@@ -89,3 +91,21 @@ async def test_guardrails_redact_a_secret_nested_in_structured_content():
     assert "sk-" not in blob
     assert "ada@example.com" not in blob
     assert "REDACTED" in blob
+
+
+async def test_capstone_surfaces_injection_findings_to_the_sink():
+    # The composed artifact bills four controls; the injection scan must actually do something. A tool
+    # result carrying an injection pattern has to reach the finding sink, not be silently discarded.
+    findings: list[object] = []
+    async with Client(_build(findings=findings)) as client:
+        await client.call_tool("lookup_record", {"record_id": "leaky"})
+    assert findings, "an injection pattern in a tool result must reach the finding sink"
+
+
+async def test_capstone_logs_injection_findings_by_default(caplog):
+    # With no sink wired, the capstone must still surface findings (log them), not discard them. This
+    # is the H3 regression guard: the default used to be a no-op lambda.
+    with caplog.at_level(logging.WARNING, logger="mcp_capstone.guardrails"):
+        async with Client(_build()) as client:
+            await client.call_tool("lookup_record", {"record_id": "leaky"})
+    assert any("injection" in r.getMessage().lower() for r in caplog.records)
