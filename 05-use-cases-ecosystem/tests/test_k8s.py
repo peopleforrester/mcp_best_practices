@@ -91,6 +91,22 @@ class _RaisingApi:
 
         raise ApiException(status=self._status, reason="boom")
 
+    def read_namespaced_pod(self, name: str, namespace: str, **_kw):
+        from kubernetes.client.exceptions import ApiException
+
+        raise ApiException(status=self._status, reason="boom")
+
+
+async def test_get_pod_status_maps_403_and_500_to_a_labeled_tool_error():
+    # get_pod_status mapped only 404 and re-raised 403/500 into a detail-free generic error. It must
+    # label them like find_pods does, so the message names the pod or namespace, not just "error".
+    for status in (403, 500):
+        async with Client(build_k8s_server(_RaisingApi(status))) as client:
+            with pytest.raises(ToolError) as exc_info:
+                await client.call_tool("get_pod_status", {"namespace": "nope", "name": "ghost"})
+        message = str(exc_info.value)
+        assert "ghost" in message or "nope" in message
+
 
 async def test_find_pods_maps_api_error_to_a_labeled_tool_error():
     # FastMCP masks any unhandled exception as a generic ToolError, so the contract that matters is the
