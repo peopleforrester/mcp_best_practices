@@ -1,5 +1,5 @@
 <!-- ABOUTME: Guardrails for MCP traffic: injection detection and secret/PII redaction.
-ABOUTME: Framework-independent; the policy gateway calls these on tool inputs and results. -->
+ABOUTME: Framework-independent functions; the shipped middleware applies them to tool results (egress). -->
 
 # MCP Guardrails
 
