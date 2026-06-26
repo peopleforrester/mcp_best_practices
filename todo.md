@@ -7,7 +7,7 @@
 - [x] R5 (M2): move LocalSpecialist to the test tier, keep the Protocol seam shipped
 - [x] R6 (M3): align redaction docstring with egress-only reality
 - [x] R7 (M4): registry validator checks package internals + fix the baked test
-- [ ] R8 (M5): get_pod_status maps 403/500 to labeled ToolError + tests
+- [x] R8 (M5): get_pod_status maps 403/500 to labeled ToolError + tests
 - [ ] R9 (nits): strengthen wrong-invariant tests; narrow Ed25519 except; guidebook caveats
 - [ ] R10 (config): pnpm/Node/TS pin drift, exactOptionalPropertyTypes, close dependabot branch
 
