@@ -10,10 +10,13 @@ def test_get_exam_hides_answers_and_rationale():
     client = TestClient(create_app())
     response = client.get("/exam")
     assert response.status_code == 200
-    first = response.json()[0]
-    assert "options" in first
-    assert "answer" not in first
-    assert "rationale" not in first
+    items = response.json()
+    assert items, "the exam must serve at least one item"
+    # Check every item, not just the first: a leak in any later item would slip past a first-only check.
+    for item in items:
+        assert "options" in item
+        assert "answer" not in item
+        assert "rationale" not in item
 
 
 def test_submit_scores_a_perfect_submission():
@@ -140,3 +143,14 @@ def test_rate_limit_is_keyed_per_client_not_the_shared_proxy():
     assert client.get("/health", headers={"X-Forwarded-For": "1.1.1.1"}).status_code == 200
     assert client.get("/health", headers={"X-Forwarded-For": "1.1.1.1"}).status_code == 429
     assert client.get("/health", headers={"X-Forwarded-For": "2.2.2.2"}).status_code == 200
+
+
+def test_rate_limit_keys_on_the_trusted_rightmost_xff_hop():
+    # The edge appends the real client IP on the right; the left-most entry is whatever the client sent
+    # and is forgeable. The limiter must key on the right-most (trusted) entry, so an attacker rotating
+    # the left-most value cannot mint a fresh bucket per request and slip the limit.
+    client = TestClient(create_app(rate_limit=1))
+    first = client.get("/health", headers={"X-Forwarded-For": "9.9.9.9, 5.5.5.5"})
+    second = client.get("/health", headers={"X-Forwarded-For": "8.8.8.8, 5.5.5.5"})
+    assert first.status_code == 200
+    assert second.status_code == 429  # same trusted hop (5.5.5.5), spoofed left-most ignored

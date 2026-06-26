@@ -174,6 +174,36 @@ Deferred (recorded in todo.md): M9 eval-namespacing metric, A2A async seam, pagi
 surfaced Taskfile `ts:test` bug (`pnpm -r` fails at repo root; CI loops per-package and is unaffected).
 Repo total: 118 tests (114 Python across 11 packages + 4 TS), all ruff + mypy clean, TS typecheck green.
 
+### Round 5 (2026-06-27): second senior review, full TDD pass, all 10 phases shipped
+A second /review-senior ran 2026-06-26. Findings independently verified before acting; one was my own
+round-4 miss. Each phase is a single TDD commit; audit trail in plan.md / todo.md.
+- H1 (my round-4 error): registry server.json $schema was stale at 2025-09-29. Verified live on the CDN
+  that 2025-12-11 exists (the round-4 check only probed 2025-11-25, which 404s, and never checked the
+  date my own spike already documented). Bumped to 2025-12-11 and added a CI currency-lock test.
+- H3: the capstone's injection scan discarded every finding by default and no test observed one. It now
+  defaults to a logging sink, a tool result carries an injection pattern, and tests prove the finding
+  both reaches a wired sink and is logged by default.
+- H2: the rate limiter keyed on the spoofable left-most X-Forwarded-For. Flipped to the trusted
+  right-most hop (Michael's call) with a multi-hop test; comment records the contested Railway nuance.
+- M1: the eval harness crashed on a required-param tool (called every tool with {}). Now best-effort:
+  the response-size probe is skipped and logged for required-param tools; static metrics still score.
+- M2: the canned A2A delegate (LocalSpecialist) moved out of production source into the test tier; the
+  shipped package exposes only the AgentDelegate Protocol seam.
+- M3: guardrails docstrings claimed input coverage; reworded to the egress-only reality of the middleware.
+- M4: the registry validator accepted packages:[{}]; it now checks each package/remote has its
+  load-bearing fields.
+- M5: get_pod_status mapped only 404; now maps 403/500 to labeled ToolErrors like find_pods, with tests.
+- Nits: Ed25519 verifier fails closed on a wrong-type key (not just wrong length); /exam test checks
+  every item; detector snippet test asserts the matched span; guidebook caveats for the allow-rule
+  pre-authorization and the OAuth signed-byte point.
+- Config: TS deps pinned exact + exactOptionalPropertyTypes on; ruff bumped to 0.15.20 and fastapi to
+  0.138.1 (incorporating Dependabot PR #6, which was then closed, plus capstone the PR had missed);
+  pnpm pin reconciled to 11.9.x. fastmcp 3.4.2 / mcp 1.28.0 still agree across all locks.
+- Respectful disagreement: the review's H2 "use right-most" fix may be wrong for Railway (its own docs
+  call the left-most the real client); applied per Michael's explicit choice. The OAuth gateway_forward
+  and passthrough tests are real behavioral contracts, not tautologies, and were left as-is.
+Repo total: 127 tests (123 Python across 11 packages + 4 TS), all ruff + mypy clean, TS typecheck green.
+
 Railway deploy is CLI-based (`railway up --service mcp-exam-quiz`), not GitHub-connected, so it does
 not auto-deploy on push. Open question with Michael: connect Railway to the existing monorepo
 (`peopleforrester/mcp_best_practices`) with service root dir `06-exam-prep/quiz-app` + watch path
@@ -186,7 +216,7 @@ adapter built and tested green against the real library.
 ## Branch & Tests
 - Branch: `staging` (correct working branch). Code repo → staging-first workflow applies.
 - Working tree: clean after the round-4 remediation commits.
-- Tests: 118 total (114 Python across 11 packages + 4 TS), all green; every package ruff + mypy clean,
+- Tests: 127 total (123 Python across 11 packages + 4 TS), all green; every package ruff + mypy clean,
   TS typecheck clean. CI: prose, docs, python (ruff+mypy+pytest), typescript, lockdrift jobs.
 
 ## Verification method
@@ -206,3 +236,4 @@ _(append-only. Each phase transition adds one line, oldest first.)_
 - 2026-06-23T16:30:00Z 3.2 → 3.3 Phase 0 + threat models promoted to main (ff to 49b08c2, CI green)
 - 2026-06-24 2.x Phase 1 (b) policy gateway started: TDD on the pure-Python policy decision core
 - 2026-06-26 3.x /remediate round 4: 11 TDD phases over the senior review shipped to staging (118 tests green)
+- 2026-06-27 3.x round 5: 10 TDD phases over the second senior review shipped to staging (127 tests green); fixed the round-4 stale-schema miss (H1)

@@ -25,15 +25,33 @@ All notable changes to this project are recorded here. The format follows
 
 ### Changed
 
-- Quiz app rate limiter now keys on the forwarded client rather than the shared proxy address, so one
-  visitor cannot consume another visitor's budget behind the platform edge.
+- Quiz app rate limiter keys on the trusted right-most `X-Forwarded-For` hop rather than the spoofable
+  left-most entry, so an attacker rotating the client-supplied value cannot mint a fresh bucket per
+  request. The per-client bucket map is also evicted of stale entries past a size cap.
 - Quiz app request body cap is enforced on the request stream, so a chunked upload with no
   Content-Length can no longer bypass it; submission answer keys and values are length-bounded.
 - Secret redaction covers the modern OpenAI key prefixes (`sk-proj-`, `sk-svcacct-`, `sk-admin-`) and
   bounds the email host pattern against pathological backtracking.
+- Registry demo `server.json` pins the current `2025-12-11` schema, and a test locks it so CI catches
+  schema drift; the registry validator now checks that each package and remote has its installable
+  fields rather than accepting an empty object.
+- Pagination parameters renamed `cursor` to `offset` (a numeric offset, named honestly).
+- TypeScript dependencies pinned to exact versions; `exactOptionalPropertyTypes` and
+  `noUncheckedIndexedAccess` enabled. `ruff` and `fastapi` bumped to current patches.
 
 ### Security
 
+- The composed capstone's injection scan defaults to a logging sink instead of discarding findings, so
+  the detector is observable out of the box, not a silent no-op. Nested structured tool output is
+  scanned and redacted recursively.
+- The Ed25519 registry verifier fails closed on a wrong-type signer key, not just a wrong-length one.
+- `get_pod_status` and `find_pods` both map Kubernetes API errors (404/403/other) to labeled tool
+  errors instead of leaking a raw exception.
 - Frontend builds the DOM with `createElement` and `textContent` only, never `innerHTML`, removing the
   reflected-content sink in the quiz UI.
 - Quiz-app pagination bounds were corrected (the earlier off-by-one allowed an out-of-range page).
+
+### Removed
+
+- The canned in-process A2A delegate moved out of the shipped package into the test tier; the package
+  exposes only the `AgentDelegate` Protocol seam.
