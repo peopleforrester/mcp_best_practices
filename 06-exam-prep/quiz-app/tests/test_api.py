@@ -10,10 +10,13 @@ def test_get_exam_hides_answers_and_rationale():
     client = TestClient(create_app())
     response = client.get("/exam")
     assert response.status_code == 200
-    first = response.json()[0]
-    assert "options" in first
-    assert "answer" not in first
-    assert "rationale" not in first
+    items = response.json()
+    assert items, "the exam must serve at least one item"
+    # Check every item, not just the first: a leak in any later item would slip past a first-only check.
+    for item in items:
+        assert "options" in item
+        assert "answer" not in item
+        assert "rationale" not in item
 
 
 def test_submit_scores_a_perfect_submission():
