@@ -1,5 +1,7 @@
 # ABOUTME: End-to-end tests that the four security controls compose in one server request path.
 # ABOUTME: Registry admission gates the build; the gateway denies/audits; guardrails redact results.
+import json
+
 import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
@@ -76,3 +78,14 @@ async def test_guardrails_redact_a_secret_in_the_tool_result():
         result = await client.call_tool("lookup_record", {"record_id": "leaky"})
     assert "sk-" not in result.data
     assert "REDACTED" in result.data
+
+
+async def test_guardrails_redact_a_secret_nested_in_structured_content():
+    # A secret buried inside a nested dict/list of structured output must be redacted too, not just
+    # top-level string values. Otherwise a tool can leak by returning {"meta": {"notes": ["sk-..."]}}.
+    async with Client(_build()) as client:
+        result = await client.call_tool("lookup_record_detail", {"record_id": "leaky"})
+    blob = json.dumps(result.data)
+    assert "sk-" not in blob
+    assert "ada@example.com" not in blob
+    assert "REDACTED" in blob

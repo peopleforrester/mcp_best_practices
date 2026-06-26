@@ -3,7 +3,7 @@
 - [x] Phase 1 (H3): redaction covers sk-proj/sk-svcacct/sk-admin + bounded email host
 - [x] Phase 2 (H1): rate-limit identity from X-Forwarded-For
 - [x] Phase 3 (H2): streaming body cap + answer key/value length bounds
-- [ ] Phase 4 (H4): LICENSE (Apache-2.0) + CHANGELOG
+- [x] Phase 4 (H4): LICENSE (Apache-2.0) + CHANGELOG
 - [ ] Phase 5 (M5): capstone recursive redaction/scan
 - [ ] Phase 6 (M6): honest pagination naming (offset)
 - [ ] Phase 7 (M8): k8s find_pods error contract
