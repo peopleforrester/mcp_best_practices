@@ -1,4 +1,4 @@
-# ABOUTME: Secret/PII redaction for tool inputs and results before they are logged or re-shared.
+# ABOUTME: Secret/PII redaction for text such as tool results before it is logged or re-shared.
 # ABOUTME: Best-effort on known secret shapes (MCP01), not exhaustive; a Presidio backend can be added.
 from __future__ import annotations
 
