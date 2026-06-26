@@ -26,6 +26,53 @@ GIT_SHA = (os.environ.get("RAILWAY_GIT_COMMIT_SHA") or os.environ.get("GIT_SHA")
 _DOCS_PATHS = ("/docs", "/redoc", "/openapi.json")
 _STRICT_CSP = "default-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
 
+
+class BodySizeLimitMiddleware:
+    """Cap the request body at the ASGI layer by buffering it under a hard ceiling, then replaying it.
+
+    A Content-Length header check alone is bypassable: a Transfer-Encoding: chunked request carries no
+    Content-Length, so the body would be buffered unbounded before any handler runs. This reads the
+    incoming stream chunk by chunk and stops the moment the running total crosses the limit, so memory
+    is bounded by the cap itself (max_bytes + one chunk) regardless of what length the client declared.
+    A within-limit body is replayed to the app as a single request event; an over-limit body never
+    reaches the app at all, it gets a 413. Raising through the inner stack is avoided on purpose: the
+    BaseHTTPMiddleware guard downstream rewrites a receive-side exception into a 400, so the limit is
+    enforced here, before that stack, instead.
+    """
+
+    def __init__(self, app: object, *, max_bytes: int) -> None:
+        self.app = app
+        self.max_bytes = max_bytes
+
+    async def __call__(self, scope: dict, receive: object, send: object) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)  # type: ignore[operator]
+            return
+
+        body = b""
+        more_body = True
+        while more_body:
+            message = await receive()  # type: ignore[operator]
+            if message["type"] != "http.request":
+                break
+            body += message.get("body", b"")
+            more_body = message.get("more_body", False)
+            if len(body) > self.max_bytes:
+                response = JSONResponse({"detail": "request body too large"}, status_code=413)
+                await response(scope, receive, send)  # type: ignore[arg-type]
+                return
+
+        replayed = False
+
+        async def replay() -> dict:
+            nonlocal replayed
+            if not replayed:
+                replayed = True
+                return {"type": "http.request", "body": body, "more_body": False}
+            return await receive()  # type: ignore[operator]
+
+        await self.app(scope, replay, send)  # type: ignore[operator]
+
 structlog.configure(
     processors=[
         structlog.processors.add_log_level,
@@ -113,10 +160,6 @@ def create_app(
             )
             return response
 
-        content_length = request.headers.get("content-length")
-        if content_length and content_length.isdigit() and int(content_length) > max_body_bytes:
-            return finish(JSONResponse({"detail": "request body too large"}, status_code=413))
-
         now = time.monotonic()
         recent = [t for t in hits.get(client, []) if now - t < rate_window_s]
         if len(recent) >= rate_limit:
@@ -125,6 +168,12 @@ def create_app(
         hits[client] = recent
 
         return finish(await call_next(request))
+
+    # Added last so it is the outermost middleware: it counts the raw request stream before the guard
+    # or any handler can buffer it, which is what makes the cap hold for chunked (no Content-Length)
+    # uploads. A rejected oversized body returns a bare 413 without the per-response security headers,
+    # which is acceptable for an abort that never reaches application logic.
+    app.add_middleware(BodySizeLimitMiddleware, max_bytes=max_body_bytes)
 
     @app.get("/", response_class=HTMLResponse, include_in_schema=False)
     def index() -> str:
