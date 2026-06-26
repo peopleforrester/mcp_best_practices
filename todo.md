@@ -10,7 +10,7 @@
 - [x] Phase 8 (M10): type enforcement (mypy/tsc/tsconfig)
   - surfaced: Taskfile `ts:test` uses `pnpm -r` which fails at repo root (no workspace);
     CI loops per-package instead. New finding, deferred (pre-existing, out of M10 scope).
-- [ ] Phase 9 (M11): incremental report_progress
+- [x] Phase 9 (M11): incremental report_progress
 - [ ] Phase 10 (M7 + low): fingerprint docstring + server.json $schema
 - [ ] Phase 11 (low): lock contracts (OpenAPI hide, detector bypass, hits eviction)
 
