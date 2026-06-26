@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import dataclass
 from typing import Any
 
 from fastmcp import Client
+
+_log = logging.getLogger("mcp_tooling.eval_harness")
 
 # Parameter names that signal a poorly-specified tool (ambiguous to the model).
 _VAGUE_PARAM_NAMES = {"x", "data", "id", "input", "val", "value", "obj", "arg", "args", "payload"}
@@ -47,13 +50,16 @@ def _response_text(result: Any) -> str:
 async def evaluate_server(client: Client) -> dict[str, Scorecard]:
     """Score every tool on the connected server. Deterministic: same server, same scores.
 
-    Each tool is introspected via list_tools and invoked once with empty arguments (the demo tools
-    take only optional parameters) to size its response. No model or network is involved.
+    Each tool is introspected via list_tools and the four static design metrics are scored from its
+    schema. The response-size metric needs a call, which is best-effort: a tool with a required
+    parameter cannot be invoked with empty arguments, so its response size is not measured (recorded as
+    not-penalized and logged). No model or network is involved.
     """
     scores: dict[str, Scorecard] = {}
     for tool in await client.list_tools():
         schema = tool.inputSchema or {}
         param_names = set((schema.get("properties") or {}).keys())
+        required = set(schema.get("required") or [])
 
         namespaced = "_" in tool.name and tool.name == tool.name.lower()
         description = (tool.description or "").strip()
@@ -62,8 +68,19 @@ async def evaluate_server(client: Client) -> dict[str, Scorecard]:
         clear_params = param_names.isdisjoint(_VAGUE_PARAM_NAMES)
         paginated = bool(param_names & {"limit", "cursor", "page", "offset"})
 
-        result = await client.call_tool(tool.name, {})
-        concise_response = _estimate_tokens(_response_text(result)) <= _TOKEN_BUDGET
+        # Only the response-size metric needs a call, and it is only callable with {} when nothing is
+        # required. A required-param tool is not penalized for being uncallable here (required params
+        # are good design); its conciseness is simply unmeasured.
+        if required:
+            _log.info(
+                "eval: %s has required params %s; skipping the response-size probe",
+                tool.name,
+                sorted(required),
+            )
+            concise_response = True
+        else:
+            result = await client.call_tool(tool.name, {})
+            concise_response = _estimate_tokens(_response_text(result)) <= _TOKEN_BUDGET
 
         scores[tool.name] = Scorecard(
             namespaced=namespaced,
