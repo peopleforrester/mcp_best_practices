@@ -14,6 +14,23 @@ async def test_search_returns_only_matches():
     assert all("widget" in item["name"].lower() for item in result.structured_content["items"])
 
 
+async def test_search_reports_incremental_progress():
+    # report_progress must advance as the scan proceeds, not fire once with a single ratio. Collect the
+    # notifications and assert there is more than one, they do not go backwards, and they end at total.
+    seen: list[tuple[float, float | None]] = []
+
+    async def on_progress(progress: float, total: float | None, message: str | None) -> None:
+        seen.append((progress, total))
+
+    async with Client(build_catalog_server(), progress_handler=on_progress) as client:
+        await client.call_tool("search_items", {"query": ""})
+
+    assert len(seen) > 1
+    progresses = [p for p, _ in seen]
+    assert progresses == sorted(progresses)
+    assert seen[-1][0] == seen[-1][1]
+
+
 async def test_search_paginates_with_offset():
     async with Client(build_catalog_server()) as client:
         first = (await client.call_tool("search_items", {"query": "", "limit": 3, "offset": 0})).structured_content

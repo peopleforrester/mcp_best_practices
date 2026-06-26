@@ -63,14 +63,17 @@ def build_catalog_server() -> FastMCP:
         Returns a page of matches with a next_offset for pagination (None on the last page).
         Search-focused rather than list-everything, per effective-tool design.
         """
-        matches = [
-            item
-            for item in _CATALOG
-            if query.lower() in item["name"].lower()
-            and (category is None or item["category"] == category)
-        ]
-        if ctx is not None:
-            await ctx.report_progress(progress=len(matches), total=len(_CATALOG))
+        # Scan the catalog item by item, reporting progress as the scan advances (1..total), so the
+        # client sees a genuine incremental indicator rather than a single after-the-fact ratio.
+        matches: list[ItemView] = []
+        total_items = len(_CATALOG)
+        for examined, item in enumerate(_CATALOG, start=1):
+            if query.lower() in item["name"].lower() and (
+                category is None or item["category"] == category
+            ):
+                matches.append(item)
+            if ctx is not None:
+                await ctx.report_progress(progress=examined, total=total_items)
         page = matches[offset : offset + limit]
         next_offset = offset + limit if offset + limit < len(matches) else None
         return {"items": page, "total": len(matches), "next_offset": next_offset}
