@@ -1,5 +1,5 @@
 # ABOUTME: A non-trivial FastMCP server: a typed catalog with a paginated, search-focused tool.
-# ABOUTME: Shows structured output (TypedDict), pagination via cursor, and progress reporting.
+# ABOUTME: Shows structured output (TypedDict), pagination via offset, and progress reporting.
 from __future__ import annotations
 
 from typing import Annotated, TypedDict
@@ -8,11 +8,13 @@ from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
 from pydantic import Field
 
-# Pagination bounds: limit must be at least 1 (limit 0 would advance the cursor by 0 forever) and
-# cursor must be non-negative. Declared on the parameters so the schema advertises them and invalid
+# Pagination bounds: limit must be at least 1 (limit 0 would advance the offset by 0 forever) and the
+# offset must be non-negative. Declared on the parameters so the schema advertises them and invalid
 # input is rejected rather than silently producing a broken or non-terminating page.
+# This is a numeric offset, named honestly. MCP's wire pagination uses an opaque string cursor; a demo
+# over an in-memory list uses a plain offset, so it is called "offset" rather than dressed up as one.
 Limit = Annotated[int, Field(ge=1, le=100)]
-Cursor = Annotated[int, Field(ge=0)]
+Offset = Annotated[int, Field(ge=0)]
 
 
 class ItemView(TypedDict):
@@ -29,7 +31,7 @@ class SearchPage(TypedDict):
 
     items: list[ItemView]
     total: int
-    next_cursor: int | None
+    next_offset: int | None
 
 
 _CATALOG: list[ItemView] = [
@@ -53,12 +55,12 @@ def build_catalog_server() -> FastMCP:
         query: str = "",
         category: str | None = None,
         limit: Limit = 5,
-        cursor: Cursor = 0,
+        offset: Offset = 0,
         ctx: Context | None = None,
     ) -> SearchPage:
         """Search the catalog by name substring and optional category.
 
-        Returns a page of matches with a next_cursor for pagination (None on the last page).
+        Returns a page of matches with a next_offset for pagination (None on the last page).
         Search-focused rather than list-everything, per effective-tool design.
         """
         matches = [
@@ -69,9 +71,9 @@ def build_catalog_server() -> FastMCP:
         ]
         if ctx is not None:
             await ctx.report_progress(progress=len(matches), total=len(_CATALOG))
-        page = matches[cursor : cursor + limit]
-        next_cursor = cursor + limit if cursor + limit < len(matches) else None
-        return {"items": page, "total": len(matches), "next_cursor": next_cursor}
+        page = matches[offset : offset + limit]
+        next_offset = offset + limit if offset + limit < len(matches) else None
+        return {"items": page, "total": len(matches), "next_offset": next_offset}
 
     @mcp.tool
     def get_item(item_id: str) -> ItemView:

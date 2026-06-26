@@ -23,8 +23,8 @@ not just the function output.
 
 - `hello.py`: `build_hello_server()` registers the three primitives with decorators (`@mcp.tool`,
   `@mcp.resource`, `@mcp.prompt`).
-- `catalog.py`: a non-trivial server. `search_items` is search-focused and paginated (a `cursor` and a
-  `next_cursor`, `None` on the last page), reports progress through the `Context`, and returns a typed
+- `catalog.py`: a non-trivial server. `search_items` is search-focused and paginated (an `offset` and a
+  `next_offset`, `None` on the last page), reports progress through the `Context`, and returns a typed
   `SearchPage`. `get_item` returns a typed `ItemView` and raises `ToolError` on an unknown id. This is
   the effective-tool-design guidance from the Tooling track applied: search over list-everything,
   structured output, human-meaningful fields.
