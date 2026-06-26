@@ -78,3 +78,27 @@ async def test_get_unknown_pod_raises():
     async with Client(_server()) as client:
         with pytest.raises(ToolError):
             await client.call_tool("get_pod_status", {"namespace": "default", "name": "ghost"})
+
+
+class _RaisingApi:
+    """A CoreV1Api stand-in whose list call fails the way the real client does on a bad namespace."""
+
+    def __init__(self, status: int):
+        self._status = status
+
+    def list_namespaced_pod(self, namespace: str, label_selector: str = "", **_kw):
+        from kubernetes.client.exceptions import ApiException
+
+        raise ApiException(status=self._status, reason="boom")
+
+
+async def test_find_pods_maps_api_error_to_a_labeled_tool_error():
+    # FastMCP masks any unhandled exception as a generic ToolError, so the contract that matters is the
+    # message: find_pods must raise an explicit ToolError that names the namespace and the reason,
+    # rather than letting a raw ApiException be masked into a detail-free error. The generic mask never
+    # contains the namespace, so asserting it appears proves the labeled error path ran.
+    for status in (404, 403, 500):
+        async with Client(build_k8s_server(_RaisingApi(status))) as client:
+            with pytest.raises(ToolError) as exc_info:
+                await client.call_tool("find_pods", {"namespace": "nope"})
+        assert "nope" in str(exc_info.value)

@@ -135,9 +135,10 @@ Fixed in code:
   negative tests. Spec spike `mcp-rc-2026-07-28-readiness.md` written + 3 spikes added to docs nav.
 
 ### Round 3 (2026-06-25): Michael said "do all of them" - all six DONE
-1. Deploy traceability: GIT_SHA stamped + surfaced at /health (live shows the deployed commit). The
-   GitHub auto-deploy *connection* is the only remaining piece and needs Michael's one-time Railway
-   GitHub-App authorization (interactive); the SHA-traceability part is done.
+1. Deploy traceability + auto-deploy: DONE. Michael connected Railway to the repo (branch main, root
+   dir /06-exam-prep/quiz-app). App reads RAILWAY_GIT_COMMIT_SHA, so /health stamps the auto-deployed
+   commit. Verified end to end: a merge to main triggered a Railway build with no `railway up`, and
+   /health flipped to the new commit. CLI `railway up` is no longer needed for the quiz app.
 2. SHA-pinned all CI actions to commit SHAs (checkout v7, setup-node v6, setup-uv v8); replaced the
    curl|sh uv install with pinned setup-uv; added `.github/dependabot.yml`.
 3. mypy added to every package + shared root `mypy.ini`; CI type-checks each package (caught + fixed
@@ -150,6 +151,29 @@ Fixed in code:
    enabled (idle cost to zero).
 Repo total: 108 tests (104 Python across 10 packages + 4 TS), all packages ruff + mypy clean.
 
+### Round 4 (2026-06-26): /remediate TDD pass over the senior review, all 11 phases shipped
+Each phase is one TDD commit (red test, minimal fix, full gate, commit). Audit trail in `plan.md` /
+`todo.md`.
+- H3: redaction covers modern OpenAI key prefixes (sk-proj/sk-svcacct/sk-admin) + bounded email host.
+- H1: rate limiter keys on the forwarded client, not the shared proxy.
+- H2: request body cap enforced on the stream (an ASGI buffer-and-replay middleware), so a chunked
+  upload with no Content-Length can no longer bypass it; answer keys/values are length-bounded.
+- H4: Apache-2.0 LICENSE + CHANGELOG.
+- M5: capstone guardrails recurse nested dicts/lists, redacting and scanning every reachable string.
+- M6: pagination renamed cursor → offset (honest: a numeric offset, not an opaque MCP cursor).
+- M8: k8s `find_pods` maps ApiException to a labeled ToolError (404/403/other), matching get_pod_status.
+- M10: mypy `disallow_untyped_defs`; `tsc --noEmit` wired into `task check`; tsconfig
+  `noUncheckedIndexedAccess` (caught two unchecked index accesses in the TS test).
+- M11: `search_items` reports genuinely incremental progress (1..total), not one after-the-fact ratio.
+- M7: `arguments_fingerprint` docstring softened (a correlation aid, not a confidentiality control;
+  a digest of a low-entropy argument is brute-forceable). server.json `$schema` verified: the
+  2025-11-25 registry schema does not exist (CDN 404 on 2026-06-26), so it stays at 2025-09-29.
+- Low: detector no longer evaded by the filler article ("ignore the previous instructions"); OpenAPI
+  schema asserted never to expose answer/rationale; rate-limit buckets are evicted past a size cap.
+Deferred (recorded in todo.md): M9 eval-namespacing metric, A2A async seam, pagination DRY, and a newly
+surfaced Taskfile `ts:test` bug (`pnpm -r` fails at repo root; CI loops per-package and is unaffected).
+Repo total: 118 tests (114 Python across 11 packages + 4 TS), all ruff + mypy clean, TS typecheck green.
+
 Railway deploy is CLI-based (`railway up --service mcp-exam-quiz`), not GitHub-connected, so it does
 not auto-deploy on push. Open question with Michael: connect Railway to the existing monorepo
 (`peopleforrester/mcp_best_practices`) with service root dir `06-exam-prep/quiz-app` + watch path
@@ -161,10 +185,9 @@ adapter built and tested green against the real library.
 
 ## Branch & Tests
 - Branch: `staging` (correct working branch). Code repo → staging-first workflow applies.
-- Working tree: in progress (planning edits).
-- Last CI: n/a (no CI yet); HEAD `1a7c83f`.
-- Tests: none yet (no code). Per the no-skip-tests policy, every competency/exam package needs
-  unit/integration/e2e once code exists.
+- Working tree: clean after the round-4 remediation commits.
+- Tests: 118 total (114 Python across 11 packages + 4 TS), all green; every package ruff + mypy clean,
+  TS typecheck clean. CI: prose, docs, python (ruff+mypy+pytest), typescript, lockdrift jobs.
 
 ## Verification method
 - Research report: provided by Michael (June 2026), treated as authoritative source-of-record.
@@ -182,3 +205,4 @@ _(append-only. Each phase transition adds one line, oldest first.)_
 - 2026-06-23T16:25:45Z 1.3 → 2.x plan approved (sha256:e0bb135ce836); Phase 0 scaffolding implemented + verified
 - 2026-06-23T16:30:00Z 3.2 → 3.3 Phase 0 + threat models promoted to main (ff to 49b08c2, CI green)
 - 2026-06-24 2.x Phase 1 (b) policy gateway started: TDD on the pure-Python policy decision core
+- 2026-06-26 3.x /remediate round 4: 11 TDD phases over the senior review shipped to staging (118 tests green)

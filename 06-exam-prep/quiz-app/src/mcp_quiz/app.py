@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import os
 import time
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 
 import structlog
@@ -25,6 +26,53 @@ GIT_SHA = (os.environ.get("RAILWAY_GIT_COMMIT_SHA") or os.environ.get("GIT_SHA")
 
 _DOCS_PATHS = ("/docs", "/redoc", "/openapi.json")
 _STRICT_CSP = "default-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+
+
+class BodySizeLimitMiddleware:
+    """Cap the request body at the ASGI layer by buffering it under a hard ceiling, then replaying it.
+
+    A Content-Length header check alone is bypassable: a Transfer-Encoding: chunked request carries no
+    Content-Length, so the body would be buffered unbounded before any handler runs. This reads the
+    incoming stream chunk by chunk and stops the moment the running total crosses the limit, so memory
+    is bounded by the cap itself (max_bytes + one chunk) regardless of what length the client declared.
+    A within-limit body is replayed to the app as a single request event; an over-limit body never
+    reaches the app at all, it gets a 413. Raising through the inner stack is avoided on purpose: the
+    BaseHTTPMiddleware guard downstream rewrites a receive-side exception into a 400, so the limit is
+    enforced here, before that stack, instead.
+    """
+
+    def __init__(self, app: object, *, max_bytes: int) -> None:
+        self.app = app
+        self.max_bytes = max_bytes
+
+    async def __call__(self, scope: dict, receive: object, send: object) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)  # type: ignore[operator]
+            return
+
+        body = b""
+        more_body = True
+        while more_body:
+            message = await receive()  # type: ignore[operator]
+            if message["type"] != "http.request":
+                break
+            body += message.get("body", b"")
+            more_body = message.get("more_body", False)
+            if len(body) > self.max_bytes:
+                response = JSONResponse({"detail": "request body too large"}, status_code=413)
+                await response(scope, receive, send)  # type: ignore[arg-type]
+                return
+
+        replayed = False
+
+        async def replay() -> dict:
+            nonlocal replayed
+            if not replayed:
+                replayed = True
+                return {"type": "http.request", "body": body, "more_body": False}
+            return await receive()  # type: ignore[operator]
+
+        await self.app(scope, replay, send)  # type: ignore[operator]
 
 structlog.configure(
     processors=[
@@ -73,11 +121,14 @@ def create_app(
     max_body_bytes: int = 64 * 1024,
     rate_limit: int = 120,
     rate_window_s: float = 60.0,
+    max_clients: int = 10_000,
 ) -> FastAPI:
     """Build the quiz app over a question bank (defaults to the shipped bank).
 
     The hardening is demo-grade: rate state is in-memory per process and resets on restart, and the
     body cap is a coarse guard. Production would use an edge rate limiter and a shared store.
+    The per-client rate buckets are swept of stale entries once the map exceeds max_clients, so a flood
+    of one-shot client ids cannot grow the map without bound.
     """
     bank = questions if questions is not None else load_bank()
     app = FastAPI(title="MCP Exam", version="0.1.0")
@@ -85,11 +136,23 @@ def create_app(
     _configure_telemetry(app)
 
     hits: dict[str, list[float]] = {}
+    app.state.rate_limit_buckets = hits  # exposed so the eviction behavior is observable in tests
 
     @app.middleware("http")
-    async def guard(request: Request, call_next):
+    async def guard(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         path = request.url.path
-        client = request.client.host if request.client else "unknown"
+        # Behind Railway's edge, request.client.host is the proxy for every visitor, so keying the
+        # limiter on it throttles everyone into one bucket and lets an IP-rotating attacker past. The
+        # platform edge is a trusted hop, so use the left-most X-Forwarded-For entry (the real client).
+        # Demo-grade: a forgeable header is acceptable only because the one trusted hop sets it; in
+        # production the rate limit belongs at the edge.
+        forwarded = request.headers.get("x-forwarded-for")
+        if forwarded:
+            client = forwarded.split(",")[0].strip()
+        else:
+            client = request.client.host if request.client else "unknown"
         start = time.monotonic()
 
         def finish(response: Response) -> Response:
@@ -104,11 +167,12 @@ def create_app(
             )
             return response
 
-        content_length = request.headers.get("content-length")
-        if content_length and content_length.isdigit() and int(content_length) > max_body_bytes:
-            return finish(JSONResponse({"detail": "request body too large"}, status_code=413))
-
         now = time.monotonic()
+        # Bound the map: when it grows past the cap, drop buckets whose every timestamp is now stale
+        # (clients that hit once and never returned). This keeps a one-shot id flood from leaking memory.
+        if len(hits) > max_clients:
+            for stale in [c for c, ts in hits.items() if all(now - t >= rate_window_s for t in ts)]:
+                del hits[stale]
         recent = [t for t in hits.get(client, []) if now - t < rate_window_s]
         if len(recent) >= rate_limit:
             return finish(JSONResponse({"detail": "rate limit exceeded"}, status_code=429))
@@ -116,6 +180,12 @@ def create_app(
         hits[client] = recent
 
         return finish(await call_next(request))
+
+    # Added last so it is the outermost middleware: it counts the raw request stream before the guard
+    # or any handler can buffer it, which is what makes the cap hold for chunked (no Content-Length)
+    # uploads. A rejected oversized body returns a bare 413 without the per-response security headers,
+    # which is acceptable for an abort that never reaches application logic.
+    app.add_middleware(BodySizeLimitMiddleware, max_bytes=max_body_bytes)
 
     @app.get("/", response_class=HTMLResponse, include_in_schema=False)
     def index() -> str:

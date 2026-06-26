@@ -7,9 +7,11 @@ from typing import Annotated, TypedDict
 from fastmcp import FastMCP
 from pydantic import Field
 
-# Pagination bounds: limit at least 1 (limit 0 advances the cursor by 0 forever), cursor non-negative.
+# Pagination bounds: limit at least 1 (limit 0 advances the offset by 0 forever), offset non-negative.
+# A numeric offset, named honestly: MCP's wire pagination is an opaque string cursor, but a demo over
+# an in-memory list paginates by offset, so the parameter is called "offset" rather than "cursor".
 Limit = Annotated[int, Field(ge=1, le=100)]
-Cursor = Annotated[int, Field(ge=0)]
+Offset = Annotated[int, Field(ge=0)]
 
 # A small directory. The anti-pattern tool returns all of it as a blob; the good tool searches it.
 _CONTACTS = [
@@ -41,7 +43,7 @@ class ContactSearchPage(TypedDict):
 
     contacts: list[ContactView]
     total: int
-    next_cursor: int | None
+    next_offset: int | None
 
 
 def build_contacts_server() -> FastMCP:
@@ -58,11 +60,11 @@ def build_contacts_server() -> FastMCP:
 
     @mcp.tool
     def contacts_search(
-        query: str = "", team: str | None = None, limit: Limit = 5, cursor: Cursor = 0
+        query: str = "", team: str | None = None, limit: Limit = 5, offset: Offset = 0
     ) -> ContactSearchPage:
         """Search the team directory by name substring and optional team.
 
-        Returns a small page of human-readable contacts (name, email, team) with a next_cursor for
+        Returns a small page of human-readable contacts (name, email, team) with a next_offset for
         pagination. Search-focused rather than returning the whole directory, and it omits internal ids.
         """
         matches: list[ContactView] = [
@@ -70,8 +72,8 @@ def build_contacts_server() -> FastMCP:
             for c in _CONTACTS
             if query.lower() in c["name"].lower() and (team is None or c["team"] == team)
         ]
-        page = matches[cursor : cursor + limit]
-        next_cursor = cursor + limit if cursor + limit < len(matches) else None
-        return {"contacts": page, "total": len(matches), "next_cursor": next_cursor}
+        page = matches[offset : offset + limit]
+        next_offset = offset + limit if offset + limit < len(matches) else None
+        return {"contacts": page, "total": len(matches), "next_offset": next_offset}
 
     return mcp

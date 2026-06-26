@@ -66,6 +66,16 @@ tasks:
         done
         [ $found -eq 1 ] || echo 'no Python tests yet; skipping py:test'
 
+  ts:types:
+    desc: Type-check each TypeScript package with tsc --noEmit
+    cmds:
+      - |
+        found=0
+        for d in $(find . -name package.json -not -path '*/node_modules/*' -exec dirname {} \;); do
+          found=1; echo "== tsc: $d =="; (cd "$d" && pnpm typecheck)
+        done
+        [ $found -eq 1 ] || echo 'no TypeScript package yet; skipping ts:types'
+
   ts:test:
     desc: Run TypeScript tests via pnpm workspaces
     cmds:
@@ -83,4 +93,5 @@ tasks:
       - task: py:lint
       - task: py:types
       - task: py:test
+      - task: ts:types
       - task: ts:test

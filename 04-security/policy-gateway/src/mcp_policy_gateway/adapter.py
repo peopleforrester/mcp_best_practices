@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import uuid
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
+from typing import Any
 
 from fastmcp.exceptions import ToolError
 from fastmcp.server.middleware import Middleware, MiddlewareContext
@@ -55,7 +56,9 @@ class PolicyMiddleware(Middleware):
         self._clock = clock
         self._correlation_ids = correlation_ids or (lambda: uuid.uuid4().hex)
 
-    async def on_call_tool(self, context: MiddlewareContext, call_next):
+    async def on_call_tool(
+        self, context: MiddlewareContext, call_next: Callable[[MiddlewareContext], Awaitable[Any]]
+    ) -> Any:
         """Evaluate policy for a tool call, audit it, then deny or forward."""
         request = PolicyRequest(
             client_id=self._client_id,

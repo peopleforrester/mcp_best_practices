@@ -11,9 +11,12 @@ from mcp_policy_gateway.policy import PolicyRequest, PolicyResult
 def arguments_fingerprint(arguments: dict) -> str:
     """Return a sha256 hex digest of the arguments.
 
-    Canonicalizes with sorted keys so the digest is stable across argument ordering.
-    The raw arguments are never emitted, so secrets passed as tool arguments do not
-    leak into logs or a SIEM.
+    Canonicalizes with sorted keys so the digest is stable across argument ordering, which lets a SIEM
+    correlate repeated calls with the same arguments without storing the raw values. This is a
+    correlation aid, not a confidentiality control: sha256 is one-way, but a digest of a low-entropy or
+    guessable argument (a short token, a known id, an enum value) is recoverable by brute force, so do
+    not treat the fingerprint as protection for a secret passed as a tool argument. The defense against
+    secrets in arguments is to not pass them as arguments; redaction handles results, not this digest.
     """
     # No default= coercion: MCP tool arguments are JSON, so a non-serializable value is a real error
     # and must fail loudly rather than hash to a non-deterministic str() that defeats SIEM correlation.

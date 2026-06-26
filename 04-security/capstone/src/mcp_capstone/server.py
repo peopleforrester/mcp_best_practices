@@ -43,13 +43,33 @@ def build_capstone_server(
         return f"record {record_id}: status active"
 
     @mcp.tool
+    def lookup_record_detail(record_id: str) -> dict:
+        """Read a record with nested metadata (read-only).
+
+        The 'leaky' record buries secret-shaped text deep in the structure on purpose, to prove the
+        guardrails redact nested structured values, not just top-level strings.
+        """
+        if record_id == "leaky":
+            return {
+                "id": record_id,
+                "meta": {"notes": ["contact ada@example.com", "key sk-abcdef0123456789abcdef0123"]},
+            }
+        return {"id": record_id, "meta": {"notes": ["status active"]}}
+
+    @mcp.tool
     def delete_record(record_id: str) -> str:
         """Delete a record by id (destructive; requires per-client consent)."""
         return f"deleted record {record_id}"
 
     engine = PolicyEngine(
-        allowlist={(_CLIENT_ID, _SERVER_ID): {"lookup_record", "delete_record"}},
-        tool_classes={"lookup_record": ToolClass.READ_ONLY, "delete_record": ToolClass.DESTRUCTIVE},
+        allowlist={
+            (_CLIENT_ID, _SERVER_ID): {"lookup_record", "lookup_record_detail", "delete_record"}
+        },
+        tool_classes={
+            "lookup_record": ToolClass.READ_ONLY,
+            "lookup_record_detail": ToolClass.READ_ONLY,
+            "delete_record": ToolClass.DESTRUCTIVE,
+        },
     )
     # Order is an onion: the policy gateway is outermost, so it denies and audits before the tool runs;
     # the guardrails are innermost, so they sanitize the result on the way back out.

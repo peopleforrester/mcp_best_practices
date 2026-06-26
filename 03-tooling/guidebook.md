@@ -13,8 +13,8 @@ One domain, two tools:
 
 - `getData(x)` is the anti-pattern: a vague name, a meaningless parameter, a terse description, no
   pagination, and a single opaque text blob of the entire directory including internal ids.
-- `contacts_search(query, team, limit, cursor)` is the well-designed tool: a namespaced
-  `domain_action` name, a clear description, meaningful parameters, pagination with a `next_cursor`,
+- `contacts_search(query, team, limit, offset)` is the well-designed tool: a namespaced
+  `domain_action` name, a clear description, meaningful parameters, pagination with a `next_offset`,
   structured human-readable output, and no leaked internal ids.
 
 These embody the guidance from Anthropic's "Writing effective tools for AI agents": build for the
@@ -52,7 +52,7 @@ the gateway, not in annotations.
 
 - Structured output: `contacts_search` returns a `TypedDict`, so FastMCP generates an output schema
   and the client receives `structured_content`.
-- Pagination: the `cursor` / `next_cursor` pattern in `contacts_search`.
+- Pagination: the `offset` / `next_offset` pattern in `contacts_search`.
 - Elicitation (human-in-the-loop): a server requests structured input mid-call with
   `await ctx.elicit(message, response_type)`, which returns an action of accept, decline, or cancel
   plus the data. It is used in the security track's confirmation flows; the verified API shape is in
