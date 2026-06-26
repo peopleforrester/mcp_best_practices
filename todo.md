@@ -1,4 +1,4 @@
-# Remediation Progress — Round 5 (senior review 2026-06-26)
+# Remediation Progress: Round 5 (senior review 2026-06-26)
 
 - [x] R1 (H1): registry server.json $schema → 2025-12-11 + currency-lock test
 - [x] R2 (H3): capstone defaults to a real injection-finding sink + observing test
@@ -11,7 +11,8 @@
 - [x] R9 (nits): strengthen wrong-invariant tests; narrow Ed25519 except; guidebook caveats
   - note: the OAuth gateway_forward / passthrough tests are real behavioral contracts, not
     tautologies; left as-is (respectful disagreement with that nit).
-- [ ] R10 (config): pnpm/Node/TS pin drift, exactOptionalPropertyTypes, close dependabot branch
+- [x] R10 (config): TS exact pins + exactOptionalPropertyTypes; ruff/fastapi bumps (PR #6 closed);
+      pnpm pin reconciled. Node engines >=22 vs CI 24 left as-is (24 satisfies the floor; not drift).
 
 ## Deferred (carried)
 - M9 eval namespacing metric; A2A async seam; pagination DRY

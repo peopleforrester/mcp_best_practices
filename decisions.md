@@ -65,3 +65,30 @@ Two findings were corrected rather than implemented as written, with evidence:
 Deferred items unchanged: M9 eval-namespacing metric, A2A async seam, pagination DRY. Repo is at 118
 tests, all green. Staging is ahead of main; promotion pending per the standing "keep promoting to main"
 directive.
+
+## 2026-06-27T01:00:00Z · 3.x · Round 5: second senior review, full TDD pass
+
+Ran a second /review-senior, independently verified every finding before acting, then remediated all
+ten phases TDD. Three decisions worth recording:
+
+- H1 was my own round-4 error. I had concluded server.json's 2025-09-29 schema was current after
+  probing only 2025-11-25 (which 404s). A live CDN probe on 2026-06-27 shows 2025-12-11 exists and is
+  newer, and my own architecture-registry spike already documented it. Bumped to 2025-12-11 and added a
+  currency-lock test so CI catches this class of drift. Lesson logged: a "verified" note that locks in
+  an incomplete check is worse than no note.
+
+- H2 (rate-limit XFF): the review said switch from the left-most to the right-most entry. I flagged
+  that this may be wrong for Railway, whose own docs call the left-most the real client (the platform's
+  XFF handling is contested and was changing as of early 2026). Michael chose to apply the right-most
+  fix anyway. Implemented with a multi-hop test; the code comment records the contested nuance and that
+  the real control is edge rate-limiting. If Railway's behavior is confirmed to populate the left-most,
+  this should be revisited.
+
+- Dependabot PR #6 (ruff + fastapi bumps across 9 dirs) was incorporated into this pass rather than
+  merged or closed-and-lost: ruff floor raised to >=0.15.20 across all 10 packages (the PR missed the
+  capstone package, added after it opened), fastapi bumped to 0.138.1 in the quiz app, then PR #6 closed
+  with a note. fastmcp 3.4.2 / mcp 1.28.0 still agree across all locks (lockdrift invariant intact).
+
+Two of the review's nits were declined with reasons: the OAuth gateway_forward / passthrough tests are
+behavioral contracts, not tautologies; and the Node engines >=22 vs CI Node 24 pairing is a valid
+floor-plus-tested-version setup, not drift.
