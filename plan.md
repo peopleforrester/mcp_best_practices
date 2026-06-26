@@ -1,30 +1,36 @@
-# Remediation Plan (senior review 2026-06-26)
+# Remediation Plan: Round 5 (senior review 2026-06-26)
 
-Phased TDD remediation of the `/review-senior` findings. Order by risk: High, then
-teaching-fidelity Mediums, then contract-locking Lows. One concern per commit; full gate
-(ruff + mypy + pytest) green before each commit. Push to staging per batch, PR to main at end.
+Full pass over the 2026-06-26 senior review. TDD per phase: red test, minimal fix, full gate, one
+commit. Two prior rounds' plans are superseded; the audit trail lives in decisions.md / PROJECT_STATE.md.
 
 ## Phases
 
-| # | Finding | Change | Test that catches it |
-|---|---------|--------|----------------------|
-| 1 | H3 | Redaction matches `sk-proj-`/`sk-svcacct-`/`sk-admin-` keys; bound the email host regex | `sk-proj-...` redacted |
-| 2 | H1 | Rate-limit identity from left-most `X-Forwarded-For` (Railway edge), labeled demo-grade | distinct XFF clients get distinct buckets |
-| 3 | H2 | Streaming body-size cap (not Content-Length only) + `Field(max_length)` on answer keys/values | chunked oversize rejected; long value 422 |
-| 4 | H4 | Add `LICENSE` (Apache-2.0) and `CHANGELOG.md` | n/a (governance files) |
-| 5 | M5 | Capstone guardrails recurse dicts/lists, redact + scan every reachable string | nested secret redacted |
-| 6 | M6 | Honest pagination: `cursor`/`next_cursor` -> `offset`/`next_offset`; note MCP cursors are opaque | offset pagination tests |
-| 7 | M8 | k8s `find_pods` maps `ApiException` to `ToolError` like its sibling | 403 from list -> ToolError |
-| 8 | M10 | Enforce the type bar: mypy `disallow_untyped_defs`, `tsc --noEmit` in Taskfile check, tsconfig `noUncheckedIndexedAccess` | mypy/tsc gate |
-| 9 | M11 | `report_progress` reports genuinely incremental progress (or is removed) | progress is incremental |
-| 10 | M7 + low | Soften `arguments_fingerprint` docstring; fix `server.json` `$schema` to baseline | n/a (doc/data) |
-| 11 | low | Lock contracts: OpenAPI hides answer/rationale; detector-bypass test; rate-limit `hits` eviction | new tests |
+1. **H1: registry $schema is stale.** server.json pins 2025-09-29; 2025-12-11 exists (verified live
+   2026-06-27) and the repo's own spike already documents it. Bump to 2025-12-11 and add a test that
+   asserts the shipped $schema matches the expected current version so CI catches future drift.
+2. **H3: capstone discards injection findings.** finding_sink defaults to discard and no test observes
+   a finding. Default the capstone to a real (structlog) sink and add a test proving a detected
+   injection in a tool result produces an observable finding.
+3. **H2: rate limiter keys on the spoofable leftmost XFF.** Flip to the right-most entry (Michael's
+   call) and add a multi-hop XFF test. Comment notes the contested Railway nuance and that edge
+   rate-limiting is the production control.
+4. **M1: eval harness crashes on required-param tools.** It calls every tool with {}. Make the call
+   best-effort: on a ToolError, skip the response-size probe (log it), still score the static metrics.
+   Add a required-param tool to the test server and assert no crash.
+5. **M2: A2A demo ships a canned delegate in production source.** Move LocalSpecialist into the test
+   tier, drop it from the package __init__ exports, keep the AgentDelegate Protocol seam shipped.
+6. **M3: redaction docstring overclaims input coverage.** The composed middleware sanitizes egress
+   only. Align the docstring with what the path actually does.
+7. **M4: registry validator accepts uninstallable entries.** packages: [{}] passes. Validate each
+   package has identifier / registryType / transport; fix the test that baked the empty object as valid.
+8. **M5: get_pod_status error mapping is asymmetric and untested.** Map 403/500 to labeled ToolErrors
+   like find_pods; add tests for the 403/500 paths.
+9. **Nits cluster.** Strengthen wrong-invariant tests (/exam checks every item, findings assert real
+   content, gateway/passthrough/A2A tests assert behavior not tautology); narrow the Ed25519 except;
+   one-line guidebook notes for the policy allow-rule foot-gun and OAuth signed-byte caveat.
+10. **Config/pin drift.** packageManager pnpm pin vs CLAUDE.md, TS caret ranges → exact pins,
+    exactOptionalPropertyTypes on, reconcile Node version note. Close the open dependabot remote branch.
 
-## Deferred (with reason)
-
-- **M9 (eval namespacing metric):** `"_" in name` is a weak proxy for MCP namespacing, but the eval is
-  only ever applied to the contacts demo pair, where the verdict is correct. Theoretical; not worth the churn.
-- **Low A2A async:** making the delegate Protocol/tool `async` is a reasonable production note but churns
-  the teaching seam; the synchronous demo is clearly labeled. Defer.
-- **Low pagination DRY:** a shared `pagination.py` cannot be shared across the independent per-package
-  projects without introducing a cross-package dependency, which the design deliberately avoids. Defer.
+## Deferred (carried)
+- M9 eval-namespacing metric, A2A async seam, pagination DRY (from round 4).
+- Taskfile ts:test `pnpm -r` bug (CI loops per-package; unaffected).

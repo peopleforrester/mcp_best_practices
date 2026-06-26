@@ -87,7 +87,14 @@ def build_k8s_server(api: Any) -> FastMCP:
         except ApiException as exc:
             if exc.status == 404:
                 raise ToolError(f"no pod named {name!r} in namespace {namespace!r}") from exc
-            raise
+            if exc.status == 403:
+                raise ToolError(
+                    f"forbidden: not allowed to read pod {name!r} in namespace {namespace!r}"
+                ) from exc
+            raise ToolError(
+                f"kubernetes API error reading pod {name!r} in namespace {namespace!r} "
+                f"(status {exc.status})"
+            ) from exc
         return _view(pod)
 
     return mcp

@@ -20,16 +20,6 @@ class AgentDelegate(Protocol):
         ...
 
 
-class LocalSpecialist:
-    """A concrete in-process delegate standing in for a remote A2A agent."""
-
-    def __init__(self, name: str):
-        self.name = name
-
-    def ask(self, question: str) -> str:
-        return f"[{self.name}] answer to: {question}"
-
-
 def build_delegating_server(delegate: AgentDelegate) -> FastMCP:
     """Build an MCP server whose tool delegates to a specialist agent over the AgentDelegate seam."""
     mcp = FastMCP("usecases-a2a-bridge")

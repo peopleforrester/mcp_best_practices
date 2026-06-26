@@ -37,7 +37,7 @@ exam-prep. Each track ships working code + `guidebook.md` + a Reveal.js deck und
 | Secondary | TypeScript | `@modelcontextprotocol/sdk@^1.29` |
 | Polyglot accent | Go (preferred) or Rust | `go-sdk@v1.6.1` / `rmcp@1.7` |
 | Python tooling | uv | `0.11.x` |
-| TS tooling | pnpm | `11.8.x` (Node >=22) |
+| TS tooling | pnpm | `11.9.x` (Node >=22) |
 | Task runner | Taskfile (go-task) | `3.51.x` |
 | Docs | MkDocs Material | `9.7.x` (maintenance mode) |
 | Slides | Reveal.js | `6.0.1` |

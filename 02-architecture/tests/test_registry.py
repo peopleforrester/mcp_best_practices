@@ -8,9 +8,20 @@ from mcp_architecture.registry import validate_server_json
 _SERVER_JSON = Path(__file__).resolve().parents[1] / "registry-demo" / "server.json"
 
 
+# The current registry server.schema.json revision, verified live against the CDN on 2026-06-27 and
+# documented in docs/research/spikes/architecture-registry.md. Locking it here so CI catches drift if
+# the shipped artifact falls behind the published schema again.
+_EXPECTED_SCHEMA = "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json"
+
+
 def test_shipped_server_json_is_valid():
     data = json.loads(_SERVER_JSON.read_text())
     assert validate_server_json(data) == []
+
+
+def test_shipped_server_json_pins_the_current_schema():
+    data = json.loads(_SERVER_JSON.read_text())
+    assert data["$schema"] == _EXPECTED_SCHEMA
 
 
 def test_missing_name_is_reported():
@@ -21,3 +32,19 @@ def test_missing_name_is_reported():
 def test_missing_install_target_is_reported():
     errors = validate_server_json({"name": "io.example/x", "description": "x", "version": "1.0.0"})
     assert any("packages" in e or "remotes" in e for e in errors)
+
+
+def test_empty_package_object_is_rejected():
+    # A non-empty packages list whose entry has no identifier/registryType/transport is uninstallable;
+    # the validator must reject it rather than accepting the list's length as proof of a real target.
+    errors = validate_server_json(
+        {"name": "io.example/x", "description": "x", "version": "1.0.0", "packages": [{}]}
+    )
+    assert any("identifier" in e for e in errors)
+
+
+def test_remote_without_type_or_url_is_rejected():
+    errors = validate_server_json(
+        {"name": "io.example/x", "description": "x", "version": "1.0.0", "remotes": [{}]}
+    )
+    assert any("remotes" in e for e in errors)
