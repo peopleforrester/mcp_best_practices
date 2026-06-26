@@ -36,7 +36,9 @@ The threat models point at four control points. Each is a separate, tested packa
    an allowlist, OPA-style deny rules, and a consent gate, plus a SIEM-ready audit record per
    decision. Wired into FastMCP as `PolicyMiddleware.on_call_tool`, so it sits in the request path of
    every tool call. Closes shadow servers (MCP09), rug-pulls (MCP03), scope creep (MCP02), and the
-   audit gap (MCP08).
+   audit gap (MCP08). Caveat: a matching `ALLOW` rule is a pre-authorization that satisfies the consent
+   gate, including for a `DESTRUCTIVE` tool, so allow predicates must be tightly scoped (a specific
+   client, server, and tool), never broad. Deny rules are evaluated first and always win.
 2. **Guardrails** (`guardrails/`). The content control: detect indirect-prompt-injection patterns in
    untrusted text, and redact secrets and PII before anything is logged or re-shared. The gateway
    calls these on arguments and results. Closes injection paths (MCP03, MCP06, MCP10) and secret
@@ -46,7 +48,11 @@ The threat models point at four control points. Each is a separate, tested packa
    is the container path). Closes supply-chain tampering (MCP04) and shadow servers (MCP09).
 4. **OAuth confused-deputy demo** (`oauth-confused-deputy/`). The authorization control: RFC 8707
    audience-bound tokens, so a token minted for one server is rejected at another, and token exchange
-   instead of the forbidden passthrough. Closes the confused deputy (MCP02, MCP07).
+   instead of the forbidden passthrough. Closes the confused deputy (MCP02, MCP07). Caveat: the demo
+   verifies a signature by re-serializing the claims and checking them, which is sound only because the
+   token never crosses a serialization boundary here. Production must verify the literal received bytes
+   (a real JWS over the encoded header and payload), because re-serialization can differ from the bytes
+   that were actually signed once a transport is involved.
 
 Composed, the picture is: the signed registry decides which servers may exist; the gateway decides
 which tool calls may run and records them; guardrails sanitize the content crossing the boundary; and
