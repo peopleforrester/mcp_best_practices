@@ -8,9 +8,20 @@ from mcp_architecture.registry import validate_server_json
 _SERVER_JSON = Path(__file__).resolve().parents[1] / "registry-demo" / "server.json"
 
 
+# The current registry server.schema.json revision, verified live against the CDN on 2026-06-27 and
+# documented in docs/research/spikes/architecture-registry.md. Locking it here so CI catches drift if
+# the shipped artifact falls behind the published schema again.
+_EXPECTED_SCHEMA = "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json"
+
+
 def test_shipped_server_json_is_valid():
     data = json.loads(_SERVER_JSON.read_text())
     assert validate_server_json(data) == []
+
+
+def test_shipped_server_json_pins_the_current_schema():
+    data = json.loads(_SERVER_JSON.read_text())
+    assert data["$schema"] == _EXPECTED_SCHEMA
 
 
 def test_missing_name_is_reported():

@@ -1,25 +1,16 @@
-# Remediation Progress
+# Remediation Progress — Round 5 (senior review 2026-06-26)
 
-- [x] Phase 1 (H3): redaction covers sk-proj/sk-svcacct/sk-admin + bounded email host
-- [x] Phase 2 (H1): rate-limit identity from X-Forwarded-For
-- [x] Phase 3 (H2): streaming body cap + answer key/value length bounds
-- [x] Phase 4 (H4): LICENSE (Apache-2.0) + CHANGELOG
-- [x] Phase 5 (M5): capstone recursive redaction/scan
-- [x] Phase 6 (M6): honest pagination naming (offset)
-- [x] Phase 7 (M8): k8s find_pods error contract
-- [x] Phase 8 (M10): type enforcement (mypy/tsc/tsconfig)
-  - surfaced: Taskfile `ts:test` uses `pnpm -r` which fails at repo root (no workspace);
-    CI loops per-package instead. New finding, deferred (pre-existing, out of M10 scope).
-- [x] Phase 9 (M11): incremental report_progress
-- [x] Phase 10 (M7 + low): fingerprint docstring softened; server.json $schema verified
-  - server.json $schema left at 2025-09-29: probed the CDN on 2026-06-26, the 2025-11-25
-    registry schema does not exist (404). Registry schema versions independently of the
-    protocol revision; 2025-09-29 is the latest published. The finding's date was wrong.
-- [x] Phase 11 (low): lock contracts (OpenAPI hide, detector bypass, hits eviction)
+- [ ] R1 (H1): registry server.json $schema → 2025-12-11 + currency-lock test
+- [ ] R2 (H3): capstone defaults to a real injection-finding sink + observing test
+- [ ] R3 (H2): rate limiter keys on right-most XFF + multi-hop test
+- [ ] R4 (M1): eval harness best-effort tool call (no crash on required params)
+- [ ] R5 (M2): move LocalSpecialist to the test tier, keep the Protocol seam shipped
+- [ ] R6 (M3): align redaction docstring with egress-only reality
+- [ ] R7 (M4): registry validator checks package internals + fix the baked test
+- [ ] R8 (M5): get_pod_status maps 403/500 to labeled ToolError + tests
+- [ ] R9 (nits): strengthen wrong-invariant tests; narrow Ed25519 except; guidebook caveats
+- [ ] R10 (config): pnpm/Node/TS pin drift, exactOptionalPropertyTypes, close dependabot branch
 
-## Deferred
-- M9 eval namespacing metric (only applied where correct)
-- A2A async seam (labeled demo)
-- pagination DRY (cross-package independence is intentional)
-- Taskfile `ts:test` uses `pnpm -r` which fails at repo root (no pnpm workspace); CI loops
-  per-package and is unaffected. Surfaced during Phase 8. Pre-existing; fix separately.
+## Deferred (carried)
+- M9 eval namespacing metric; A2A async seam; pagination DRY
+- Taskfile ts:test `pnpm -r` bug (CI loops per-package; unaffected)
