@@ -140,3 +140,14 @@ def test_rate_limit_is_keyed_per_client_not_the_shared_proxy():
     assert client.get("/health", headers={"X-Forwarded-For": "1.1.1.1"}).status_code == 200
     assert client.get("/health", headers={"X-Forwarded-For": "1.1.1.1"}).status_code == 429
     assert client.get("/health", headers={"X-Forwarded-For": "2.2.2.2"}).status_code == 200
+
+
+def test_rate_limit_keys_on_the_trusted_rightmost_xff_hop():
+    # The edge appends the real client IP on the right; the left-most entry is whatever the client sent
+    # and is forgeable. The limiter must key on the right-most (trusted) entry, so an attacker rotating
+    # the left-most value cannot mint a fresh bucket per request and slip the limit.
+    client = TestClient(create_app(rate_limit=1))
+    first = client.get("/health", headers={"X-Forwarded-For": "9.9.9.9, 5.5.5.5"})
+    second = client.get("/health", headers={"X-Forwarded-For": "8.8.8.8, 5.5.5.5"})
+    assert first.status_code == 200
+    assert second.status_code == 429  # same trusted hop (5.5.5.5), spoofed left-most ignored
