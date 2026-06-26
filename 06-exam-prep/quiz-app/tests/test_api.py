@@ -79,6 +79,23 @@ def test_oversized_request_body_is_rejected():
     assert client.post("/exam/submit", json={"answers": {"a": "bbbbbbb"}}).status_code == 413
 
 
+def test_submit_rejects_an_overlong_answer_value():
+    client = TestClient(create_app())
+    assert client.post("/exam/submit", json={"answers": {"q1": "x" * 5000}}).status_code == 422
+
+
+def test_chunked_oversized_body_is_rejected():
+    # A Transfer-Encoding: chunked request has no Content-Length; the cap must enforce on the stream.
+    client = TestClient(create_app(max_body_bytes=32))
+
+    def streamed_body():
+        yield b'{"answers": {"a": "'
+        yield b"x" * 200
+        yield b'"}}'
+
+    assert client.post("/exam/submit", content=streamed_body()).status_code == 413
+
+
 def test_rate_limit_is_enforced():
     client = TestClient(create_app(rate_limit=2))
     assert client.get("/health").status_code == 200
