@@ -2,7 +2,7 @@
 # ABOUTME: Question validates that its answer is one of its options, so a bad bank fails on load.
 from __future__ import annotations
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -59,10 +59,15 @@ class SubmitRequest(BaseModel):
     """A submitted exam: a mapping of question id to the chosen option.
 
     Bounded so an unauthenticated caller cannot post an arbitrarily large object; a real exam has far
-    fewer than 500 questions, and the body-size cap in the app is the coarser outer guard.
+    fewer than 500 questions, and the body-size cap in the app is the coarser outer guard. The key and
+    value lengths are capped too, so the 500-entry limit cannot be turned into megabytes of strings:
+    ids and option labels are short, so 128 and 256 are generous.
     """
 
-    answers: dict[str, str] = Field(max_length=500)
+    answers: dict[
+        Annotated[str, Field(max_length=128)],
+        Annotated[str, Field(max_length=256)],
+    ] = Field(max_length=500)
 
 
 class DomainScore(BaseModel):

@@ -8,7 +8,7 @@ Two servers that teach the MCP primitives:
 - `hello.py` : `build_hello_server()` with an `echo` tool, a templated `greeting://{name}` resource,
   and a `summarize` prompt.
 - `catalog.py` : `build_catalog_server()` with a paginated, search-focused `search_items` tool
-  (cursor + next_cursor, progress reporting, typed `SearchPage`) and a typed `get_item` tool that
+  (offset + next_offset, progress reporting, typed `SearchPage`) and a typed `get_item` tool that
   raises `ToolError` on an unknown id.
 
 Tests use the in-memory `Client`, so they assert the protocol surface (capability negotiation, list,

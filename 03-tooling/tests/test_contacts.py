@@ -21,17 +21,17 @@ async def test_search_filters_by_team():
     assert all(c["team"] == "flight" for c in page["contacts"])
 
 
-async def test_search_paginates_with_cursor():
+async def test_search_paginates_with_offset():
     async with Client(build_contacts_server()) as client:
-        first = (await client.call_tool("contacts_search", {"limit": 3, "cursor": 0})).structured_content
+        first = (await client.call_tool("contacts_search", {"limit": 3, "offset": 0})).structured_content
     assert len(first["contacts"]) == 3
-    assert first["next_cursor"] == 3
+    assert first["next_offset"] == 3
 
 
-async def test_last_page_has_no_next_cursor():
+async def test_last_page_has_no_next_offset():
     async with Client(build_contacts_server()) as client:
-        page = (await client.call_tool("contacts_search", {"limit": 100, "cursor": 0})).structured_content
-    assert page["next_cursor"] is None
+        page = (await client.call_tool("contacts_search", {"limit": 100, "offset": 0})).structured_content
+    assert page["next_offset"] is None
 
 
 async def test_results_omit_internal_ids():
@@ -45,4 +45,4 @@ async def test_invalid_pagination_is_rejected():
         with pytest.raises(ToolError):
             await client.call_tool("contacts_search", {"limit": 0})
         with pytest.raises(ToolError):
-            await client.call_tool("contacts_search", {"cursor": -1})
+            await client.call_tool("contacts_search", {"offset": -1})

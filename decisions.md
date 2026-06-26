@@ -45,3 +45,23 @@ amendments require `/prd-amend` + re-approval. Advanced to Phase 2.2 to finish P
 2.1 Test is CONDITIONAL-skipped for the config scaffolding (root CLAUDE.md, settings.json, Taskfile,
 CI shell, mkdocs.yml, README): no application logic to test yet. Test infrastructure (pytest/vitest)
 lands with Phase 1 security code, where 2.1 becomes mandatory.
+
+## 2026-06-26T01:30:00Z · 3.x · /remediate round 4 over the senior review
+
+Executed the /remediate TDD loop against the 2026-06-25 senior/architecture review. Eleven phases,
+each a single red→green→gate→commit cycle on `staging`: H3 redaction prefixes, H1 forwarded-client
+rate key, H2 streaming body cap + answer length bounds, H4 LICENSE + CHANGELOG, M5 recursive guardrail
+redaction, M6 cursor→offset rename, M8 k8s find_pods error contract, M10 type enforcement
+(disallow_untyped_defs, tsc --noEmit in check, noUncheckedIndexedAccess), M11 incremental progress,
+M7 fingerprint docstring + server.json schema verification, and the low-priority lock contracts.
+
+Two findings were corrected rather than implemented as written, with evidence:
+- server.json `$schema`: the review said bump to 2025-11-25. Probed the CDN on 2026-06-26; that
+  registry schema returns 404. The registry schema versions independently of the protocol revision,
+  and 2025-09-29 is the latest published, so the file is left unchanged. Recorded in todo.md.
+- A new Taskfile `ts:test` bug surfaced (uses `pnpm -r`, which fails at the repo root with no pnpm
+  workspace; CI loops per-package and is unaffected). Deferred, not fixed in this pass (out of scope).
+
+Deferred items unchanged: M9 eval-namespacing metric, A2A async seam, pagination DRY. Repo is at 118
+tests, all green. Staging is ahead of main; promotion pending per the standing "keep promoting to main"
+directive.

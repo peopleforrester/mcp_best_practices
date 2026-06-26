@@ -59,8 +59,19 @@ def build_k8s_server(api: Any) -> FastMCP:
         """Search pods in a namespace, optionally filtered by a label selector (e.g. app=web).
 
         Returns trimmed pod views (name, namespace, phase, node), not raw API objects. Read-only.
+        Maps a Kubernetes API error to a labeled ToolError (namespace not found, forbidden, or a
+        generic API failure) so the caller gets an actionable reason instead of a masked stack.
         """
-        result = api.list_namespaced_pod(namespace, label_selector=label_selector)
+        try:
+            result = api.list_namespaced_pod(namespace, label_selector=label_selector)
+        except ApiException as exc:
+            if exc.status == 404:
+                raise ToolError(f"namespace {namespace!r} not found") from exc
+            if exc.status == 403:
+                raise ToolError(f"forbidden: not allowed to list pods in namespace {namespace!r}") from exc
+            raise ToolError(
+                f"kubernetes API error listing pods in namespace {namespace!r} (status {exc.status})"
+            ) from exc
         views = [_view(pod) for pod in result.items]
         return {"pods": views, "count": len(views)}
 

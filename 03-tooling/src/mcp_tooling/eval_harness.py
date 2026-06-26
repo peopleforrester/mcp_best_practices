@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from typing import Any
 
 from fastmcp import Client
 
@@ -36,7 +37,7 @@ def _estimate_tokens(text: str) -> int:
     return len(text) // 4
 
 
-def _response_text(result) -> str:
+def _response_text(result: Any) -> str:
     """Serialize a tool result to text for sizing, preferring structured content."""
     if result.structured_content is not None:
         return json.dumps(result.structured_content)

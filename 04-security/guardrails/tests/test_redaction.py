@@ -26,6 +26,18 @@ def test_redacts_github_and_aws_tokens():
     assert "aws_access_key" in kinds
 
 
+def test_redacts_modern_openai_key_prefixes():
+    # sk-proj-/sk-svcacct-/sk-admin- are today's dominant formats; the hyphen must not end the match.
+    for secret in (
+        "sk-proj-abcdef0123456789ABCDEF0123",
+        "sk-svcacct-abcdef0123456789ABCD",
+        "sk-admin-abcdef0123456789ABCDEF",
+    ):
+        result = redact(f"the key is {secret} keep it safe")
+        assert secret not in result.text, secret
+        assert any(r.kind == "api_key" for r in result.redactions)
+
+
 def test_redacts_github_pat_jwt_and_pem():
     text = (
         "github_pat_" + "A" * 70 + " "
