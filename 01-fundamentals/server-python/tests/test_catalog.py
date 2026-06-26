@@ -14,17 +14,17 @@ async def test_search_returns_only_matches():
     assert all("widget" in item["name"].lower() for item in result.structured_content["items"])
 
 
-async def test_search_paginates_with_cursor():
+async def test_search_paginates_with_offset():
     async with Client(build_catalog_server()) as client:
-        first = (await client.call_tool("search_items", {"query": "", "limit": 3, "cursor": 0})).structured_content
+        first = (await client.call_tool("search_items", {"query": "", "limit": 3, "offset": 0})).structured_content
     assert len(first["items"]) == 3
-    assert first["next_cursor"] == 3
+    assert first["next_offset"] == 3
 
 
-async def test_search_last_page_has_no_next_cursor():
+async def test_search_last_page_has_no_next_offset():
     async with Client(build_catalog_server()) as client:
-        page = (await client.call_tool("search_items", {"query": "", "limit": 100, "cursor": 0})).structured_content
-    assert page["next_cursor"] is None
+        page = (await client.call_tool("search_items", {"query": "", "limit": 100, "offset": 0})).structured_content
+    assert page["next_offset"] is None
 
 
 async def test_get_item_returns_typed_view():
@@ -41,9 +41,9 @@ async def test_get_unknown_item_raises_tool_error():
 
 
 async def test_invalid_pagination_is_rejected():
-    # limit=0 would advance the cursor by 0 forever; cursor<0 is nonsensical. Both must fail loudly.
+    # limit=0 would advance the offset by 0 forever; offset<0 is nonsensical. Both must fail loudly.
     async with Client(build_catalog_server()) as client:
         with pytest.raises(ToolError):
             await client.call_tool("search_items", {"limit": 0})
         with pytest.raises(ToolError):
-            await client.call_tool("search_items", {"cursor": -1})
+            await client.call_tool("search_items", {"offset": -1})
