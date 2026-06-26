@@ -15,9 +15,11 @@
   - server.json $schema left at 2025-09-29: probed the CDN on 2026-06-26, the 2025-11-25
     registry schema does not exist (404). Registry schema versions independently of the
     protocol revision; 2025-09-29 is the latest published. The finding's date was wrong.
-- [ ] Phase 11 (low): lock contracts (OpenAPI hide, detector bypass, hits eviction)
+- [x] Phase 11 (low): lock contracts (OpenAPI hide, detector bypass, hits eviction)
 
 ## Deferred
 - M9 eval namespacing metric (only applied where correct)
 - A2A async seam (labeled demo)
 - pagination DRY (cross-package independence is intentional)
+- Taskfile `ts:test` uses `pnpm -r` which fails at repo root (no pnpm workspace); CI loops
+  per-package and is unaffected. Surfaced during Phase 8. Pre-existing; fix separately.
