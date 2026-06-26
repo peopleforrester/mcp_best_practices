@@ -6,7 +6,7 @@
 - [x] Phase 4 (H4): LICENSE (Apache-2.0) + CHANGELOG
 - [x] Phase 5 (M5): capstone recursive redaction/scan
 - [x] Phase 6 (M6): honest pagination naming (offset)
-- [ ] Phase 7 (M8): k8s find_pods error contract
+- [x] Phase 7 (M8): k8s find_pods error contract
 - [ ] Phase 8 (M10): type enforcement (mypy/tsc/tsconfig)
 - [ ] Phase 9 (M11): incremental report_progress
 - [ ] Phase 10 (M7 + low): fingerprint docstring + server.json $schema

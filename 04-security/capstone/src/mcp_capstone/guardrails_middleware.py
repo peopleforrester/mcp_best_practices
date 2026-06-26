@@ -2,7 +2,8 @@
 # ABOUTME: Scans result text for injection signals and redacts secret/PII shapes (composes with the gateway).
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 from mcp_guardrails import redact, scan_for_injection
@@ -37,7 +38,9 @@ class GuardrailsMiddleware(Middleware):
             return tuple(self._sanitize(item) for item in value)
         return value
 
-    async def on_call_tool(self, context: MiddlewareContext, call_next):
+    async def on_call_tool(
+        self, context: MiddlewareContext, call_next: Callable[[MiddlewareContext], Awaitable[Any]]
+    ) -> Any:
         """Forward the call, then scan and redact the returned content."""
         result = await call_next(context)
 

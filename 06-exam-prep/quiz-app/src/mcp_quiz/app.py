@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import os
 import time
+from collections.abc import Awaitable, Callable
 from pathlib import Path
 
 import structlog
@@ -134,7 +135,9 @@ def create_app(
     hits: dict[str, list[float]] = {}
 
     @app.middleware("http")
-    async def guard(request: Request, call_next):
+    async def guard(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         path = request.url.path
         # Behind Railway's edge, request.client.host is the proxy for every visitor, so keying the
         # limiter on it throttles everyone into one bucket and lets an IP-rotating attacker past. The
