@@ -8,7 +8,9 @@
 - [x] R6 (M3): align redaction docstring with egress-only reality
 - [x] R7 (M4): registry validator checks package internals + fix the baked test
 - [x] R8 (M5): get_pod_status maps 403/500 to labeled ToolError + tests
-- [ ] R9 (nits): strengthen wrong-invariant tests; narrow Ed25519 except; guidebook caveats
+- [x] R9 (nits): strengthen wrong-invariant tests; narrow Ed25519 except; guidebook caveats
+  - note: the OAuth gateway_forward / passthrough tests are real behavioral contracts, not
+    tautologies; left as-is (respectful disagreement with that nit).
 - [ ] R10 (config): pnpm/Node/TS pin drift, exactOptionalPropertyTypes, close dependabot branch
 
 ## Deferred (carried)

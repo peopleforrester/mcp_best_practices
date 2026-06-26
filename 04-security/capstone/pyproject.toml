@@ -24,7 +24,7 @@ mcp-guardrails = { path = "../guardrails", editable = true }
 mcp-signed-registry = { path = "../signed-registry", editable = true }
 
 [dependency-groups]
-dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.6", "mypy>=1.11"]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.15.20", "mypy>=1.11"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -27,7 +27,7 @@ packages = ["src/mcp_quiz"]
 "src/mcp_quiz/static/app.js" = "mcp_quiz/static/app.js"
 
 [dependency-groups]
-dev = ["pytest>=8", "ruff>=0.6", "httpx>=0.27", "mypy>=1.11"]
+dev = ["pytest>=8", "ruff>=0.15.20", "httpx>=0.27", "mypy>=1.11"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
