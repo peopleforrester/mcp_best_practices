@@ -84,3 +84,12 @@ def test_rate_limit_is_enforced():
     assert client.get("/health").status_code == 200
     assert client.get("/health").status_code == 200
     assert client.get("/health").status_code == 429
+
+
+def test_rate_limit_is_keyed_per_client_not_the_shared_proxy():
+    # Behind Railway's edge, request.client.host is the proxy for everyone. The limiter must key on
+    # the forwarded client, so one visitor cannot consume another's budget (or throttle everyone).
+    client = TestClient(create_app(rate_limit=1))
+    assert client.get("/health", headers={"X-Forwarded-For": "1.1.1.1"}).status_code == 200
+    assert client.get("/health", headers={"X-Forwarded-For": "1.1.1.1"}).status_code == 429
+    assert client.get("/health", headers={"X-Forwarded-For": "2.2.2.2"}).status_code == 200

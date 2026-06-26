@@ -89,7 +89,16 @@ def create_app(
     @app.middleware("http")
     async def guard(request: Request, call_next):
         path = request.url.path
-        client = request.client.host if request.client else "unknown"
+        # Behind Railway's edge, request.client.host is the proxy for every visitor, so keying the
+        # limiter on it throttles everyone into one bucket and lets an IP-rotating attacker past. The
+        # platform edge is a trusted hop, so use the left-most X-Forwarded-For entry (the real client).
+        # Demo-grade: a forgeable header is acceptable only because the one trusted hop sets it; in
+        # production the rate limit belongs at the edge.
+        forwarded = request.headers.get("x-forwarded-for")
+        if forwarded:
+            client = forwarded.split(",")[0].strip()
+        else:
+            client = request.client.host if request.client else "unknown"
         start = time.monotonic()
 
         def finish(response: Response) -> Response:
