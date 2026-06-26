@@ -36,12 +36,14 @@ _RULES: list[tuple[str, str, re.Pattern[str]]] = [
     ("github_token", "[REDACTED_GITHUB_TOKEN]", re.compile(r"\bghp_[A-Za-z0-9]{36}\b")),
     ("aws_access_key", "[REDACTED_AWS_KEY]", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
     ("jwt", "[REDACTED_JWT]", re.compile(r"\beyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+")),
-    ("api_key", "[REDACTED_API_KEY]", re.compile(r"\bsk-[A-Za-z0-9]{20,}\b")),
+    # Covers legacy sk-<alnum> and modern sk-proj-/sk-svcacct-/sk-admin- (hyphen and underscore allowed).
+    ("api_key", "[REDACTED_API_KEY]", re.compile(r"\bsk-[A-Za-z0-9_-]{20,}")),
     ("bearer_token", "Bearer [REDACTED_TOKEN]", re.compile(r"\bBearer\s+[A-Za-z0-9._\-]+", re.I)),
     (
         "email",
         "[REDACTED_EMAIL]",
-        re.compile(r"\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b"),
+        # Host and TLD lengths are bounded to avoid pathological backtracking on adversarial input.
+        re.compile(r"\b[A-Za-z0-9._%+\-]{1,64}@[A-Za-z0-9.\-]{1,255}\.[A-Za-z]{2,24}\b"),
     ),
 ]
 
