@@ -29,4 +29,20 @@ def validate_server_json(data: dict) -> list[str]:
     if not (has_packages or has_remotes):
         errors.append("at least one install target is required: packages or remotes")
 
+    # A non-empty list is not enough: each entry must carry the fields that make it installable, or the
+    # entry is uninstallable despite passing the presence check above.
+    if isinstance(data.get("packages"), list):
+        for i, pkg in enumerate(data["packages"]):
+            if not isinstance(pkg, dict):
+                errors.append(f"packages[{i}] must be an object")
+                continue
+            for field in ("identifier", "registryType", "transport"):
+                if not pkg.get(field):
+                    errors.append(f"packages[{i}] is missing required field {field!r}")
+
+    if isinstance(data.get("remotes"), list):
+        for i, remote in enumerate(data["remotes"]):
+            if not isinstance(remote, dict) or not remote.get("type") or not remote.get("url"):
+                errors.append(f"remotes[{i}] must have a type and a url")
+
     return errors
