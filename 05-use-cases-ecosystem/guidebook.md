@@ -22,7 +22,8 @@ a mutating tool would gate behind the security track's gateway and consent rathe
 
 The composition the ecosystem converged on: MCP connects an agent to tools, A2A connects agents to each
 other. The bridge is the smallest honest version: `ask_specialist` is an MCP tool that delegates to an
-`AgentDelegate`. The delegate is a Protocol; `LocalSpecialist` is the in-process stand-in used in tests.
+`AgentDelegate`. The delegate is a Protocol; `StubSpecialist` is the in-process stand-in that lives in the
+test tier, so the shipped package carries the seam without a canned implementation.
 In production the concrete delegate is an A2A client (resolve the agent card at
 `/.well-known/agent-card.json`, send a message, read the task result via the `a2a-sdk`). The seam is the
 point; the transport is documented in `docs/research/spikes/a2a-integration.md`.
