@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "An MCP exam quiz app: a versioned question bank, pure scoring, and a FastAPI service"
 requires-python = ">=3.11"
 dependencies = [
-    "fastapi>=0.115",
+    "fastapi>=0.138.2",
     "uvicorn>=0.30",
     "pyyaml>=6",
     "structlog>=24",
