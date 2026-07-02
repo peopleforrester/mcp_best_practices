@@ -10,6 +10,7 @@ from mcp_policy_gateway.policy import (
     Rule,
     ToolClass,
 )
+from mcp_policy_gateway.ratelimit import TokenBucket
 
 __all__ = [
     "Decision",
@@ -19,6 +20,7 @@ __all__ = [
     "PolicyResult",
     "Rule",
     "ToolClass",
+    "TokenBucket",
     "arguments_fingerprint",
     "audit_record",
 ]
