@@ -137,4 +137,8 @@ class PolicyEngine:
                 tool_class,
             )
 
-        return PolicyResult(Decision.ALLOW, "allowlisted and consented", "allowlist", tool_class)
+        # Attribute the allow to the control that actually carried it, so a SIEM can tell a read-only
+        # allowlist pass from a call that only proceeded because consent was on record.
+        if tool_class is ToolClass.READ_ONLY:
+            return PolicyResult(Decision.ALLOW, "allowlisted read-only tool", "allowlist", tool_class)
+        return PolicyResult(Decision.ALLOW, "allowlisted and consented", "consent", tool_class)
