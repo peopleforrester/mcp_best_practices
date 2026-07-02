@@ -5,7 +5,7 @@
 - [x] T3 (boot crash): YAML bank loader hardening (clear errors, catch YAMLError)
 - [x] T4 (side-effect): eval invokes only readOnlyHint tools; annotate demo read tools; concise unmeasured state
 - [x] T5 (doc accuracy): eval namespaced/invokes-once/no-side-effects; guardrails README ingress claim
-- [ ] T6 (observability): body-cap 413 path emits a structured log line
+- [x] T6 (observability): body-cap 413 path emits a structured log line
 - [ ] T7 (stale docs): use-cases README test count 5 -> 7
 - [ ] T8 (systemic claim drift): reconcile threat-model gateway claims; fixed-identity caveat;
       structured-redaction on any value; consent audit rule; server-card.json
