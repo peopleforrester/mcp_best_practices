@@ -6,6 +6,9 @@ from pathlib import Path
 from mcp_architecture.registry import validate_server_json
 
 _SERVER_JSON = Path(__file__).resolve().parents[1] / "registry-demo" / "server.json"
+_SERVER_CARD = (
+    Path(__file__).resolve().parents[1] / "registry-demo" / ".well-known" / "mcp" / "server-card.json"
+)
 
 
 # The current registry server.schema.json revision, verified live against the CDN on 2026-06-27 and
@@ -22,6 +25,15 @@ def test_shipped_server_json_is_valid():
 def test_shipped_server_json_pins_the_current_schema():
     data = json.loads(_SERVER_JSON.read_text())
     assert data["$schema"] == _EXPECTED_SCHEMA
+
+
+def test_server_card_identity_matches_the_registry_entry():
+    # The shadow-server mitigation relies on the .well-known server-card identity matching the registry
+    # record. Lock the name and version so the two shipped artifacts cannot drift apart silently.
+    card = json.loads(_SERVER_CARD.read_text())
+    server = json.loads(_SERVER_JSON.read_text())
+    assert card["name"] == server["name"]
+    assert card["version"] == server["version"]
 
 
 def test_missing_name_is_reported():

@@ -17,8 +17,8 @@ inline as preview.
 
 | Threat | OWASP MCP Top 10 | NSA CSI rec | Mitigation |
 |---|---|---|---|
-| A client presents a token that was issued for a different audience (or a self-minted/forged token) and the server accepts it, allowing an attacker to impersonate a legitimately authorized caller. | MCP07 Insufficient Authn/Authz | 2 | Validate the JWT signature, `iss`, `exp`, and `aud` on every request; reject any token whose `aud` is not this server's canonical URI (RFC 8707). Demonstrated in the `oauth-confused-deputy/` correct-flow path; enforced at the edge by the policy gateway before any tool dispatch. |
-| A rogue process registers itself as a trusted server (shadow server) on a discovery surface and clients connect to it believing it is the real one. | MCP09 Shadow MCP Servers | 3 | Pre-connection validation against a `signed-registry/` entry: cosign-verified image digest and a `.well-known/mcp/server-card.json` whose identity matches the registry record before the client is allowed to connect. |
+| A client presents a token that was issued for a different audience (or a self-minted/forged token) and the server accepts it, allowing an attacker to impersonate a legitimately authorized caller. | MCP07 Insufficient Authn/Authz | 2 | Validate the JWT signature, `iss`, `exp`, and `aud` on every request; reject any token whose `aud` is not this server's canonical URI (RFC 8707). Demonstrated in the `oauth-confused-deputy/` correct-flow path; wiring this validation into the policy gateway adapter so it runs before tool dispatch is target design (the shipped gateway does allowlist, consent, rules, rate limiting, and audit, not token validation). See the README implemented-vs-target note. |
+| A rogue process registers itself as a trusted server (shadow server) on a discovery surface and clients connect to it believing it is the real one. | MCP09 Shadow MCP Servers | 3 | Pre-connection validation against a `signed-registry/` entry: a signature-verified artifact (Ed25519 today, cosign/sigstore planned) and a `.well-known/mcp/server-card.json` whose identity matches the registry record before the client is allowed to connect. |
 
 ### Tampering
 
