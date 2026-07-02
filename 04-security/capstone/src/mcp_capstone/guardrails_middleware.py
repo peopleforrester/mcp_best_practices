@@ -52,11 +52,16 @@ class GuardrailsMiddleware(Middleware):
                 block.text = redact(text).text
 
         structured = getattr(result, "structured_content", None)
+        # Sanitize both container shapes, not just dicts: a top-level list payload must be redacted too.
+        # Rebuild in place so the (possibly model-held) reference stays the same object.
         if isinstance(structured, dict):
-            # Rebuild in place so the (possibly model-held) reference stays the same object.
             sanitized = self._sanitize(structured)
             assert isinstance(sanitized, dict)  # a dict in always yields a dict out
             structured.clear()
             structured.update(sanitized)
+        elif isinstance(structured, list):
+            sanitized = self._sanitize(structured)
+            assert isinstance(sanitized, list)  # a list in always yields a list out
+            structured[:] = sanitized
 
         return result

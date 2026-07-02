@@ -41,6 +41,20 @@ def _build(*, consents=frozenset(), audit=None, findings=None, rate_limiter=None
     )
 
 
+def test_sanitize_redacts_secrets_inside_a_top_level_list():
+    # Structured redaction must cover a top-level list payload, not only a dict, since _sanitize
+    # already recurses lists; this locks the write-back path for the list shape.
+    from mcp_capstone.guardrails_middleware import GuardrailsMiddleware
+
+    out = GuardrailsMiddleware()._sanitize(
+        ["ok", {"key": "sk-abcdef0123456789abcdef0123"}, ["reach ada@example.com"]]
+    )
+    blob = json.dumps(out)
+    assert "sk-" not in blob
+    assert "ada@example.com" not in blob
+    assert "REDACTED" in blob
+
+
 async def test_capstone_enforces_the_gateway_rate_limit():
     # The composed flagship must actually enforce the per-client rate limit its threat models claim: a
     # one-token bucket lets the first read through and throttles the second with a policy DENY.
