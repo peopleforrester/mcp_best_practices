@@ -49,6 +49,23 @@ async def test_evaluate_server_handles_a_required_param_tool_without_crashing():
     assert scores["widget_lookup"].described
 
 
+async def test_eval_does_not_invoke_a_mutating_no_arg_tool():
+    # The harness may only invoke tools the server declares read-only. A mutating tool with no required
+    # params must not be executed just to measure response size, and its conciseness stays unmeasured.
+    mcp = FastMCP("mutating-demo")
+    calls: list[str] = []
+
+    @mcp.tool  # no readOnlyHint -> not read-only -> must not be invoked
+    def wipe_all() -> str:
+        calls.append("called")
+        return "wiped"
+
+    async with Client(mcp) as client:
+        scores = await evaluate_server(client)
+    assert calls == []
+    assert scores["wipe_all"].concise_response is None
+
+
 async def test_scorecard_is_deterministic():
     async with Client(build_contacts_server()) as client:
         first = await evaluate_server(client)

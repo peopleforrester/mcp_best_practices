@@ -10,7 +10,7 @@ ABOUTME: See guidebook.md for the narrative; this is the package quick reference
 - `registry.py` + `registry-demo/` : an offline validator for a registry `server.json`, plus a sample
   entry and an illustrative `.well-known/mcp/server-card.json` (the card SEP is draft).
 
-8 tests, ruff clean. See `guidebook.md` for the stateful-vs-stateless discussion.
+11 tests, ruff clean. See `guidebook.md` for the stateful-vs-stateless discussion.
 
 ```bash
 uv run pytest -q

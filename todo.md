@@ -1,19 +1,19 @@
-# Remediation Progress: Round 5 (senior review 2026-06-26)
+# Remediation Progress: Round 6 (senior review 2026-07-02)
 
-- [x] R1 (H1): registry server.json $schema → 2025-12-11 + currency-lock test
-- [x] R2 (H3): capstone defaults to a real injection-finding sink + observing test
-- [x] R3 (H2): rate limiter keys on right-most XFF + multi-hop test
-- [x] R4 (M1): eval harness best-effort tool call (no crash on required params)
-- [x] R5 (M2): move LocalSpecialist to the test tier, keep the Protocol seam shipped
-- [x] R6 (M3): align redaction docstring with egress-only reality
-- [x] R7 (M4): registry validator checks package internals + fix the baked test
-- [x] R8 (M5): get_pod_status maps 403/500 to labeled ToolError + tests
-- [x] R9 (nits): strengthen wrong-invariant tests; narrow Ed25519 except; guidebook caveats
-  - note: the OAuth gateway_forward / passthrough tests are real behavioral contracts, not
-    tautologies; left as-is (respectful disagreement with that nit).
-- [x] R10 (config): TS exact pins + exactOptionalPropertyTypes; ruff/fastapi bumps (PR #6 closed);
-      pnpm pin reconciled. Node engines >=22 vs CI 24 left as-is (24 satisfies the floor; not drift).
+- [x] T1 (H1 credibility): token-bucket rate limiter in the policy gateway + audit + tests
+- [x] T2 (my prior error): k8s find_pods drop dead 404 mapping; fix test; missing-ns-empty test
+- [x] T3 (boot crash): YAML bank loader hardening (clear errors, catch YAMLError)
+- [x] T4 (side-effect): eval invokes only readOnlyHint tools; annotate demo read tools; concise unmeasured state
+- [x] T5 (doc accuracy): eval namespaced/invokes-once/no-side-effects; guardrails README ingress claim
+- [x] T6 (observability): body-cap 413 path emits a structured log line
+- [x] T7 (stale docs): README test counts (use-cases 5->8, architecture 8->11)
+- [x] T8 (systemic claim drift): reconcile threat-model gateway claims; fixed-identity caveat;
+      structured-redaction on any value; consent audit rule; server-card.json drift test
 
-## Deferred (carried)
-- M9 eval namespacing metric; A2A async seam; pagination DRY
-- Taskfile ts:test `pnpm -r` bug (CI loops per-package; unaffected)
+## Deferred (carried, intentional)
+- Injection detector / redaction breadth (documented heuristic/best-effort)
+- Pagination DRY across packages; A2A async seam; Taskfile ts:test pnpm -r bug
+- TS track depth (no TS catalog analog); gateway per-request identity wiring (doc caveat only)
+
+## Also outstanding
+- Backfill round-5 + round-6 into the engineering journal at the end

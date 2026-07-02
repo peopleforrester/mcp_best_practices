@@ -27,6 +27,12 @@ class PolicyMiddleware(Middleware):
     to the upstream. All security logic lives in the framework-independent core; this class is
     only the transport adapter.
 
+    Scope caveat: `client_id` is a constructor constant, and FastMCP registers middleware server-wide,
+    so this adapter attributes every connection to one client identity. The engine keys the allowlist
+    and consents per client, but a real multi-tenant gateway must derive `client_id` per request from
+    the authenticated session/connection context rather than fixing it here. This demo is single-client
+    per server instance.
+
     Args:
         engine: The policy decision engine.
         client_id: Identity attributed to the calling client for this connection.

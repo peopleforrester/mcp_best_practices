@@ -204,6 +204,34 @@ round-4 miss. Each phase is a single TDD commit; audit trail in plan.md / todo.m
   and passthrough tests are real behavioral contracts, not tautologies, and were left as-is.
 Repo total: 127 tests (123 Python across 11 packages + 4 TS), all ruff + mypy clean, TS typecheck green.
 
+### Round 6 (2026-07-03): third senior review, full TDD pass, all 8 phases shipped
+A third /review-senior (multi-agent) ran 2026-07-02. Findings independently verified before acting; two
+touched code from my prior rounds. Each phase is a single TDD commit; audit trail in plan.md / todo.md.
+- T1 (credibility, Michael chose "implement not reword"): the policy gateway now has a token-bucket
+  per-client rate limiter (injected clock), enforced as a DENY + audit in the engine and demonstrated
+  end-to-end in the capstone. The threat models claimed gateway rate limiting that did not exist.
+- T2 (my round-4/5 error): find_pods mapped a 404 that `list_namespaced_pod` never returns for a missing
+  namespace (that is an empty 200). Dropped the dead branch, fixed the test that fed a synthetic 404,
+  added a missing-namespace-returns-empty test.
+- T3: the question-bank loader crashed at import on an empty/malformed YAML (Railway restart loop). Now
+  raises clear ValueErrors and catches YAMLError.
+- T4: the eval harness executed any no-required-param tool, so a mutating no-arg tool would run. It now
+  invokes only readOnlyHint tools; the demo read tools are annotated; concise_response is an unmeasured
+  None (excluded from score) otherwise.
+- T5: corrected the eval guidebook (namespaced is a snake_case proxy, not domain detection; the harness
+  invokes only read-only tools, not "each once") and the guardrails README ingress overclaim.
+- T6: the outermost body-cap 413 short-circuited the logging guard; it now emits its own structured line
+  so the oversized-body path is observable.
+- T7: fixed stale README test counts (use-cases 5->8, architecture 8->11).
+- T8 (systemic claim drift): the threat models attributed token/aud validation, tool-description
+  pinning, per-call audience re-check, budgets, and cosign to the gateway; none are wired (the OAuth
+  package is standalone). Added a README implemented-vs-target scope note and inline markers, an adapter
+  fixed-identity caveat, cosign->Ed25519 wording, a top-level-list structured-redaction fix, a
+  consent-vs-allowlist audit-rule distinction, and a server-card identity drift test.
+- Declined with reasons: the injection-detector/redaction breadth (documented heuristic/best-effort) and
+  the OAuth flow tautology nits; pagination DRY, A2A async, and the Taskfile ts:test bug stay deferred.
+Repo total: 141 tests (137 Python across 12 packages + 4 TS), all ruff + mypy clean, TS typecheck green.
+
 Railway deploy is CLI-based (`railway up --service mcp-exam-quiz`), not GitHub-connected, so it does
 not auto-deploy on push. Open question with Michael: connect Railway to the existing monorepo
 (`peopleforrester/mcp_best_practices`) with service root dir `06-exam-prep/quiz-app` + watch path
@@ -216,7 +244,7 @@ adapter built and tested green against the real library.
 ## Branch & Tests
 - Branch: `staging` (correct working branch). Code repo → staging-first workflow applies.
 - Working tree: clean after the round-4 remediation commits.
-- Tests: 127 total (123 Python across 11 packages + 4 TS), all green; every package ruff + mypy clean,
+- Tests: 141 total (137 Python across 11 packages + 4 TS), all green; every package ruff + mypy clean,
   TS typecheck clean. CI: prose, docs, python (ruff+mypy+pytest), typescript, lockdrift jobs.
 
 ## Verification method
@@ -237,3 +265,4 @@ _(append-only. Each phase transition adds one line, oldest first.)_
 - 2026-06-24 2.x Phase 1 (b) policy gateway started: TDD on the pure-Python policy decision core
 - 2026-06-26 3.x /remediate round 4: 11 TDD phases over the senior review shipped to staging (118 tests green)
 - 2026-06-27 3.x round 5: 10 TDD phases over the second senior review shipped to staging (127 tests green); fixed the round-4 stale-schema miss (H1)
+- 2026-07-03 3.x round 6: 8 TDD phases over the third senior review shipped to staging (141 tests green); built the gateway rate limiter, fixed the k8s 404 dead-code, reconciled threat-model claim drift

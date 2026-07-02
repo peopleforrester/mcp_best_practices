@@ -25,7 +25,9 @@ class FakeCoreV1Api:
     def list_namespaced_pod(self, namespace: str, label_selector: str = "", **_kw) -> V1PodList:
         # Note: this fake parses only a single key=value selector; the real client handles the full
         # selector grammar (comma terms, !=, set-based). Sufficient for these read-only tests.
-        pods = self._pods
+        # Real Kubernetes returns an empty 200 list for a namespace that does not exist (never a 404),
+        # so filtering by namespace models that: an unknown namespace yields no pods, not an error.
+        pods = [p for p in self._pods if p.metadata.namespace == namespace]
         if label_selector:
             key, value = label_selector.split("=", 1)
             pods = [p for p in pods if (p.metadata.labels or {}).get(key) == value]
@@ -66,6 +68,16 @@ async def test_find_pods_filters_by_label_selector():
     page = result.structured_content
     assert page["count"] == 1
     assert page["pods"][0]["name"] == "db-1"
+
+
+async def test_find_pods_on_a_missing_namespace_returns_empty_not_an_error():
+    # Listing pods in a namespace that does not exist is an empty 200 in real Kubernetes, not a 404,
+    # so find_pods returns count 0 rather than raising "namespace not found".
+    async with Client(_server()) as client:
+        result = await client.call_tool("find_pods", {"namespace": "does-not-exist"})
+    page = result.structured_content
+    assert page["count"] == 0
+    assert page["pods"] == []
 
 
 async def test_get_pod_status_returns_one_pod():
@@ -112,8 +124,9 @@ async def test_find_pods_maps_api_error_to_a_labeled_tool_error():
     # FastMCP masks any unhandled exception as a generic ToolError, so the contract that matters is the
     # message: find_pods must raise an explicit ToolError that names the namespace and the reason,
     # rather than letting a raw ApiException be masked into a detail-free error. The generic mask never
-    # contains the namespace, so asserting it appears proves the labeled error path ran.
-    for status in (404, 403, 500):
+    # contains the namespace, so asserting it appears proves the labeled error path ran. A list call
+    # never 404s on a missing namespace (that is an empty 200), so only 403 and 5xx are error modes.
+    for status in (403, 500):
         async with Client(build_k8s_server(_RaisingApi(status))) as client:
             with pytest.raises(ToolError) as exc_info:
                 await client.call_tool("find_pods", {"namespace": "nope"})

@@ -7,6 +7,29 @@ from mcp_quiz.bank import load_bank
 from mcp_quiz.models import Question
 
 
+def test_empty_bank_file_raises_a_clear_value_error(tmp_path):
+    # An empty file makes yaml.safe_load return None; the loader must give a clear error, not a
+    # TypeError at import time that crashes the app into a restart loop.
+    bank = tmp_path / "empty.yaml"
+    bank.write_text("")
+    with pytest.raises(ValueError, match="questions"):
+        load_bank(bank)
+
+
+def test_bank_missing_questions_key_raises_a_clear_value_error(tmp_path):
+    bank = tmp_path / "no-key.yaml"
+    bank.write_text("version: 2\nitems: []\n")
+    with pytest.raises(ValueError, match="questions"):
+        load_bank(bank)
+
+
+def test_malformed_yaml_raises_a_clear_value_error(tmp_path):
+    bank = tmp_path / "broken.yaml"
+    bank.write_text("questions: [unclosed\n")
+    with pytest.raises(ValueError):
+        load_bank(bank)
+
+
 def test_bank_loads_and_has_enough_questions():
     questions = load_bank()
     assert len(questions) >= 10
