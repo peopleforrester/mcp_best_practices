@@ -82,6 +82,18 @@ def test_oversized_request_body_is_rejected():
     assert client.post("/exam/submit", json={"answers": {"a": "bbbbbbb"}}).status_code == 413
 
 
+def test_oversized_request_body_is_logged():
+    # The body-cap middleware is outermost, so its 413 short-circuits before the logging guard. The
+    # rejection must still be observable, so the middleware emits its own structured line.
+    from structlog.testing import capture_logs
+
+    client = TestClient(create_app(max_body_bytes=10))
+    with capture_logs() as logs:
+        response = client.post("/exam/submit", json={"answers": {"a": "bbbbbbb"}})
+    assert response.status_code == 413
+    assert any(entry.get("event") == "request_body_too_large" for entry in logs)
+
+
 def test_submit_rejects_an_overlong_answer_value():
     client = TestClient(create_app())
     assert client.post("/exam/submit", json={"answers": {"q1": "x" * 5000}}).status_code == 422
