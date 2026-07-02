@@ -38,9 +38,21 @@ All notable changes to this project are recorded here. The format follows
 - Pagination parameters renamed `cursor` to `offset` (a numeric offset, named honestly).
 - TypeScript dependencies pinned to exact versions; `exactOptionalPropertyTypes` and
   `noUncheckedIndexedAccess` enabled. `ruff` and `fastapi` bumped to current patches.
+- `find_pods` no longer maps a 404 that a namespaced list never returns; a missing namespace is an
+  empty result, not an error. The eval harness invokes only tools the server declares read-only, so it
+  cannot execute a mutating tool while scoring; `concise_response` is left unmeasured otherwise. The
+  question-bank loader reports empty/malformed YAML as a clear error instead of crashing at import.
+  The oversized-body 413 path emits a structured log line.
 
 ### Security
 
+- The policy gateway enforces a per-client token-bucket rate limit (a DENY plus an audit record),
+  demonstrated end-to-end in the capstone, so the rate-limiting control the threat models describe is
+  real rather than claimed. The threat-model and README wording now distinguishes what the gateway
+  implements (allowlist, consent, rules, rate limit, audit) from target design (per-request token
+  validation, tool-description pinning, per-call audience re-check, budgets, cosign).
+- Structured redaction covers a top-level list payload, not only a dict; audit records attribute a
+  consent-satisfied allow to the consent gate rather than the allowlist.
 - The composed capstone's injection scan defaults to a logging sink instead of discarding findings, so
   the detector is observable out of the box, not a silent no-op. Nested structured tool output is
   scanned and redacted recursively.

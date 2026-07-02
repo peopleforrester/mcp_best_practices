@@ -6,7 +6,7 @@ import logging
 from collections.abc import Callable
 
 from fastmcp import FastMCP
-from mcp_policy_gateway import PolicyEngine, ToolClass
+from mcp_policy_gateway import PolicyEngine, ToolClass, TokenBucket
 from mcp_policy_gateway.adapter import PolicyMiddleware
 from mcp_signed_registry import ServerEntry, SignedRegistry
 
@@ -34,6 +34,7 @@ def build_capstone_server(
     consents_for: Callable[[str], frozenset[str]],
     audit_sink: Callable[[dict], None],
     finding_sink: Callable[[object], None] | None = None,
+    rate_limiter: TokenBucket | None = None,
 ) -> FastMCP:
     """Build a server only if the signed registry admits it, with policy + guardrails in the path.
 
@@ -78,6 +79,8 @@ def build_capstone_server(
         """Delete a record by id (destructive; requires per-client consent)."""
         return f"deleted record {record_id}"
 
+    # Default to a generous per-client bucket so the composed flagship demonstrates the gateway rate
+    # limit its threat models describe; a caller can inject a tighter bucket (a test does, to prove it).
     engine = PolicyEngine(
         allowlist={
             (_CLIENT_ID, _SERVER_ID): {"lookup_record", "lookup_record_detail", "delete_record"}
@@ -87,6 +90,7 @@ def build_capstone_server(
             "lookup_record_detail": ToolClass.READ_ONLY,
             "delete_record": ToolClass.DESTRUCTIVE,
         },
+        rate_limiter=rate_limiter or TokenBucket(capacity=120, refill_per_second=2.0),
     )
     # Order is an onion: the policy gateway is outermost, so it denies and audits before the tool runs;
     # the guardrails are innermost, so they sanitize the result on the way back out.

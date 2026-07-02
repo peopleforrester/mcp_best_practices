@@ -18,8 +18,16 @@ def load_bank(path: Path | None = None) -> list[Question]:
     shipped one) fails fast: a duplicate id would otherwise be double-counted by the scorer.
     """
     source = path or _DEFAULT_BANK
-    data = yaml.safe_load(source.read_text())
-    questions = [Question(**entry) for entry in data["questions"]]
+    try:
+        data = yaml.safe_load(source.read_text())
+    except yaml.YAMLError as exc:
+        raise ValueError(f"question bank {source} is not valid YAML: {exc}") from exc
+    if not isinstance(data, dict) or "questions" not in data:
+        raise ValueError(f"question bank {source} must be a mapping with a 'questions' key")
+    entries = data["questions"]
+    if not isinstance(entries, list):
+        raise ValueError(f"'questions' in {source} must be a list, got {type(entries).__name__}")
+    questions = [Question(**entry) for entry in entries]
     ids = [q.id for q in questions]
     duplicates = sorted({qid for qid in ids if ids.count(qid) > 1})
     if duplicates:

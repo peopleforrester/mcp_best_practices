@@ -8,12 +8,32 @@ decomposition follows the NSA guidance to treat agents, plugins, models, and use
 zones (NSA CSI recommendation 2). Each component is analyzed with STRIDE (Spoofing, Tampering,
 Repudiation, Information disclosure, Denial of service, Elevation of privilege). Every threat is
 mapped to an OWASP MCP Top 10 category and to the relevant NSA CSI recommendation, with a concrete
-mitigation that this portfolio's security track demonstrates in code.
+mitigation.
 
-These models are the design input for the policy gateway, guardrails, and signed registry built in
-the rest of `04-security/`. They are written against the stable `2025-11-25` spec; where the
-`2026-07-28` RC changes the attack surface (the stateless core, removed handshake, new transport
-headers), that is noted inline as preview.
+### Implemented here vs target design
+
+The mitigation column describes the full defense-in-depth design for each threat, which is deliberately
+larger than what this teaching repo ships. Read every mitigation as the target design; the parts this
+portfolio actually implements are:
+
+- **Policy gateway** (`policy-gateway/`, composed in `capstone/`): allowlist, per-client consent gate,
+  OPA-style deny/allow rules, a token-bucket per-client rate limit, and a sha256 audit record per
+  decision.
+- **Audience-bound tokens** (`oauth-confused-deputy/`): RFC 8707 validation of signature, `iss`, `exp`,
+  and `aud`, plus the passthrough-vs-exchange demonstration. This package is standalone; it is not
+  imported by the gateway, so per-request token validation at the gateway is target design, not wired.
+- **Signed provenance** (`signed-registry/`): Ed25519 verification and admission. cosign/sigstore is
+  planned, not built; where a mitigation says "cosign" today it means the Ed25519 stand-in.
+- **Guardrails** (`guardrails/`): injection detection and secret/PII redaction applied to tool results
+  (egress).
+
+Controls named in the mitigations but **not** implemented in this repo (they are target design): the
+gateway validating tokens or re-checking audience per call, pinning tool descriptions and re-checking
+on `tools/list`, and per-session action or token budgets. These are marked inline where they appear.
+
+These models are the design input for the packages built in the rest of `04-security/`. They are
+written against the stable `2025-11-25` spec; where the `2026-07-28` RC changes the attack surface (the
+stateless core, removed handshake, new transport headers), that is noted inline as preview.
 
 ## Components
 

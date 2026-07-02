@@ -59,6 +59,21 @@ class BodySizeLimitMiddleware:
             body += message.get("body", b"")
             more_body = message.get("more_body", False)
             if len(body) > self.max_bytes:
+                # This middleware is outermost, so the 413 short-circuits before the logging guard.
+                # Emit a structured line here so the oversized-body path is not an invisible, un-logged
+                # public request; the client is the left-most forwarded hop if present, else the peer.
+                headers = {k.decode("latin-1"): v.decode("latin-1") for k, v in scope.get("headers", [])}
+                forwarded = headers.get("x-forwarded-for", "")
+                client = forwarded.split(",")[-1].strip() or "unknown"
+                _log.warning(
+                    "request_body_too_large",
+                    method=scope.get("method"),
+                    path=scope.get("path"),
+                    status=413,
+                    received_bytes=len(body),
+                    client=client,
+                    commit=GIT_SHA,
+                )
                 response = JSONResponse({"detail": "request body too large"}, status_code=413)
                 await response(scope, receive, send)  # type: ignore[arg-type]
                 return

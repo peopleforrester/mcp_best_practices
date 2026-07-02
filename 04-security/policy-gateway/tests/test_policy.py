@@ -39,6 +39,13 @@ def test_deny_tool_not_in_allowlist():
 def test_allow_readonly_tool_without_consent():
     result = make_engine().evaluate(req("search_docs"))
     assert result.decision is Decision.ALLOW
+    assert result.matched_rule == "allowlist"  # allowed by the allowlist alone, no consent involved
+
+
+def test_allow_mutating_tool_with_consent_is_attributed_to_consent():
+    result = make_engine().evaluate(req("delete_file", consents={"delete_file"}))
+    assert result.decision is Decision.ALLOW
+    assert result.matched_rule == "consent"  # proceeded only because consent was on record
 
 
 def test_deny_mutating_tool_without_consent():

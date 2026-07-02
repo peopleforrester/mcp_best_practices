@@ -21,19 +21,23 @@ _TOKEN_BUDGET = 150
 
 @dataclass(frozen=True)
 class Scorecard:
-    """The measured design qualities of one tool. score is the count of passed checks (0 to 5)."""
+    """The measured design qualities of one tool. score is the count of passed checks.
+
+    concise_response is None when it was not measured (the harness only invokes read-only tools, so a
+    non-read-only or required-param tool is never called). An unmeasured metric never earns its point,
+    so score never credits an unverified property.
+    """
 
     namespaced: bool
     described: bool
     clear_params: bool
     paginated: bool
-    concise_response: bool
+    concise_response: bool | None
 
     @property
     def score(self) -> int:
-        return sum(
-            [self.namespaced, self.described, self.clear_params, self.paginated, self.concise_response]
-        )
+        checks = [self.namespaced, self.described, self.clear_params, self.paginated, self.concise_response]
+        return sum(1 for c in checks if c is True)
 
 
 def _estimate_tokens(text: str) -> int:
@@ -68,19 +72,20 @@ async def evaluate_server(client: Client) -> dict[str, Scorecard]:
         clear_params = param_names.isdisjoint(_VAGUE_PARAM_NAMES)
         paginated = bool(param_names & {"limit", "cursor", "page", "offset"})
 
-        # Only the response-size metric needs a call, and it is only callable with {} when nothing is
-        # required. A required-param tool is not penalized for being uncallable here (required params
-        # are good design); its conciseness is simply unmeasured.
-        if required:
-            _log.info(
-                "eval: %s has required params %s; skipping the response-size probe",
-                tool.name,
-                sorted(required),
-            )
-            concise_response = True
-        else:
+        # Measuring response size means executing the tool, so it is gated on safety: invoke only a
+        # tool the server declares read-only (readOnlyHint) and that takes no required arguments. A
+        # non-read-only or required-param tool is never called (so the harness cannot mutate state), and
+        # its conciseness is left unmeasured (None) rather than assumed to pass.
+        annotations = tool.annotations
+        read_only = bool(annotations is not None and annotations.readOnlyHint)
+        concise_response: bool | None
+        if read_only and not required:
             result = await client.call_tool(tool.name, {})
             concise_response = _estimate_tokens(_response_text(result)) <= _TOKEN_BUDGET
+        else:
+            skip = "not read-only" if not read_only else f"required params {sorted(required)}"
+            _log.info("eval: %s response size unmeasured (%s)", tool.name, skip)
+            concise_response = None
 
         scores[tool.name] = Scorecard(
             namespaced=namespaced,
