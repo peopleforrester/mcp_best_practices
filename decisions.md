@@ -92,3 +92,34 @@ ten phases TDD. Three decisions worth recording:
 Two of the review's nits were declined with reasons: the OAuth gateway_forward / passthrough tests are
 behavioral contracts, not tautologies; and the Node engines >=22 vs CI Node 24 pairing is a valid
 floor-plus-tested-version setup, not drift.
+
+## 2026-07-03T00:00:00Z · 3.x · Round 6: third senior review, full TDD pass
+
+Ran a third multi-agent /review-senior, independently verified every finding before acting, then
+remediated all eight phases TDD. Decisions worth recording:
+
+- Rate limiter: Michael chose to implement the control rather than soften the docs, so the policy
+  gateway gained a per-client token bucket (injected clock) enforced as a DENY + audit and demonstrated
+  in the capstone. The threat models had claimed gateway rate limiting that did not exist.
+
+- k8s find_pods 404 was my own round-4/5 error: `list_namespaced_pod` returns an empty 200 for a
+  missing namespace, never a 404, so the mapping was dead and the round-5 test fed a 404 the real API
+  never produces. Removed the branch, corrected the test, added a missing-namespace-empty test.
+
+- Threat-model claim drift (the flagship's biggest credibility gap): the models attributed token
+  validation, tool-description pinning, per-call audience re-check, action/token budgets, and cosign to
+  the shipped gateway; none are wired (the OAuth package is standalone; Ed25519, not cosign, is built).
+  Implementing all of those was out of scope, and a full rewrite of six threat-model files was too
+  broad, so the reconciliation is a README implemented-vs-target scope note plus inline markers on the
+  most definitive present-tense over-claims (token validation "at the gateway", per-call audience
+  re-check, description pinning, cosign present-tense). The mitigations still describe the target
+  defense-in-depth design; the note makes the implemented subset explicit.
+
+- Declined two nits with reasons: the injection detector / redaction breadth is documented as
+  heuristic/best-effort (not a false claim), and the OAuth gateway_forward / passthrough tests are
+  behavioral contracts, not tautologies. Deferred (unchanged): pagination DRY, A2A async seam, the
+  Taskfile ts:test `pnpm -r` bug, and wiring per-request identity into the gateway adapter (now a
+  docstring caveat).
+
+Repo at 141 tests, all green. The round-5 session was also never journaled; backfilling round 5 + 6
+into the engineering journal alongside this.

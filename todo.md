@@ -1,4 +1,4 @@
-# Remediation Progress — Round 6 (senior review 2026-07-02)
+# Remediation Progress: Round 6 (senior review 2026-07-02)
 
 - [x] T1 (H1 credibility): token-bucket rate limiter in the policy gateway + audit + tests
 - [x] T2 (my prior error): k8s find_pods drop dead 404 mapping; fix test; missing-ns-empty test
@@ -7,8 +7,8 @@
 - [x] T5 (doc accuracy): eval namespaced/invokes-once/no-side-effects; guardrails README ingress claim
 - [x] T6 (observability): body-cap 413 path emits a structured log line
 - [x] T7 (stale docs): README test counts (use-cases 5->8, architecture 8->11)
-- [ ] T8 (systemic claim drift): reconcile threat-model gateway claims; fixed-identity caveat;
-      structured-redaction on any value; consent audit rule; server-card.json
+- [x] T8 (systemic claim drift): reconcile threat-model gateway claims; fixed-identity caveat;
+      structured-redaction on any value; consent audit rule; server-card.json drift test
 
 ## Deferred (carried, intentional)
 - Injection detector / redaction breadth (documented heuristic/best-effort)
