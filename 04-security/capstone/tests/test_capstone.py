@@ -29,7 +29,7 @@ def _trusted_registry():
     return registry, _entry(sk)
 
 
-def _build(*, consents=frozenset(), audit=None, findings=None):
+def _build(*, consents=frozenset(), audit=None, findings=None, rate_limiter=None):
     registry, entry = _trusted_registry()
     return build_capstone_server(
         registry=registry,
@@ -37,7 +37,24 @@ def _build(*, consents=frozenset(), audit=None, findings=None):
         consents_for=lambda _client: frozenset(consents),
         finding_sink=(findings.append if findings is not None else None),
         audit_sink=(audit.append if audit is not None else lambda _record: None),
+        rate_limiter=rate_limiter,
     )
+
+
+async def test_capstone_enforces_the_gateway_rate_limit():
+    # The composed flagship must actually enforce the per-client rate limit its threat models claim: a
+    # one-token bucket lets the first read through and throttles the second with a policy DENY.
+    from mcp_policy_gateway import TokenBucket
+
+    audit: list[dict] = []
+    bucket = TokenBucket(capacity=1, refill_per_second=0.0, now=lambda: 0.0)
+    async with Client(_build(audit=audit, rate_limiter=bucket)) as client:
+        first = await client.call_tool("lookup_record", {"record_id": "r1"})
+        assert "r1" in first.data
+        with pytest.raises(ToolError):
+            await client.call_tool("lookup_record", {"record_id": "r2"})
+    assert audit[-1]["decision"] == "DENY"
+    assert audit[-1]["matched_rule"] == "rate_limit"
 
 
 def test_unadmitted_server_is_refused_to_build():

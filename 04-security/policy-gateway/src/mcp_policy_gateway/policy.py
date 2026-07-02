@@ -6,6 +6,8 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 
+from mcp_policy_gateway.ratelimit import TokenBucket
+
 
 class Decision(Enum):
     """Outcome of evaluating a request against policy."""
@@ -80,21 +82,34 @@ class PolicyEngine:
     """Evaluates tool invocations against allowlist, rules, and a consent gate.
 
     Evaluation order (secure default-deny):
+        0. Rate limit: deny (throttle) a client that has exceeded its per-client token budget, before
+           any other work, so a flood of any kind is limited at the gateway.
         1. Allowlist: deny any tool not allowlisted for the (client, server) pair.
         2. Explicit deny rules: deny wins (evaluated before any allow).
         3. Explicit allow rules: a matching allow rule grants the call and satisfies the consent
            gate (an operator pre-authorizing a specific tool or argument pattern).
         4. Consent gate: deny a non-read-only tool the client has not consented to.
         5. Default allow for an allowlisted, read-only-or-consented tool.
+
+    The rate_limiter is optional so the pure allowlist/consent behavior is unchanged when it is absent.
     """
 
     allowlist: dict[tuple[str, str], set[str]]
     tool_classes: dict[str, ToolClass]
     rules: list[Rule] = field(default_factory=list)
+    rate_limiter: TokenBucket | None = None
 
     def evaluate(self, request: PolicyRequest) -> PolicyResult:
         """Return the policy decision for a single request."""
         tool_class = self.tool_classes.get(request.tool_name, ToolClass.MUTATING)
+
+        if self.rate_limiter is not None and not self.rate_limiter.allow(request.client_id):
+            return PolicyResult(
+                Decision.DENY,
+                "rate limit exceeded for this client",
+                "rate_limit",
+                tool_class,
+            )
 
         allowed = self.allowlist.get((request.client_id, request.server_id), set())
         if request.tool_name not in allowed:
