@@ -3,11 +3,12 @@ ABOUTME: Framework-independent functions; the shipped middleware applies them to
 
 # MCP Guardrails
 
-Content-level defenses applied to the text that crosses an MCP boundary: arguments going into a
-tool, and results coming back from one. The policy gateway decides allow/deny on structure
-(allowlist, consent, rules); guardrails inspect and sanitize content. Together they implement the
-NSA CSI principle of treating every tool and model output as untrusted input to the next stage
-(recommendation 7).
+Content-level defenses applied to the text that crosses an MCP boundary. The functions are
+framework-independent and can scan or redact any text, but the shipped `GuardrailsMiddleware` applies
+them to tool results (egress) only; it does not inspect inbound tool arguments. The policy gateway
+decides allow/deny on structure (allowlist, consent, rules) and fingerprints arguments for audit;
+guardrails inspect and sanitize result content. Together they implement the NSA CSI principle of
+treating every tool and model output as untrusted input to the next stage (recommendation 7).
 
 ## Modules
 

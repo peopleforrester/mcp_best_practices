@@ -3,7 +3,7 @@
 - [x] T1 (H1 credibility): token-bucket rate limiter in the policy gateway + audit + tests
 - [x] T2 (my prior error): k8s find_pods drop dead 404 mapping; fix test; missing-ns-empty test
 - [x] T3 (boot crash): YAML bank loader hardening (clear errors, catch YAMLError)
-- [ ] T4 (side-effect): eval invokes only readOnlyHint tools; annotate demo read tools; concise unmeasured state
+- [x] T4 (side-effect): eval invokes only readOnlyHint tools; annotate demo read tools; concise unmeasured state
 - [ ] T5 (doc accuracy): eval namespaced/invokes-once/no-side-effects; guardrails README ingress claim
 - [ ] T6 (observability): body-cap 413 path emits a structured log line
 - [ ] T7 (stale docs): use-cases README test count 5 -> 7

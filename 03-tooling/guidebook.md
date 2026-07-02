@@ -24,15 +24,21 @@ with pagination.
 ## The eval harness (`eval_harness.py`)
 
 `evaluate_server(client)` connects over the in-memory transport, introspects every tool with
-`list_tools`, invokes each once, and returns a `Scorecard` per tool across five measured qualities:
+`list_tools`, scores four static qualities from each tool's schema, and measures a fifth
+(`concise_response`) by invoking the tool. It returns a `Scorecard` per tool:
 
 | Metric | What it checks |
 |---|---|
-| namespaced | name is `domain_action` (snake case with a separator) |
+| namespaced | name follows the snake_case `domain_action` convention (a proxy: it checks for a lowercase name with a separator, not a verified domain prefix, so `find_pods` scores the same as `contacts_search`) |
 | described | description is present and substantive (>= 20 chars) |
 | clear_params | no vague parameter names (`x`, `data`, `id`, `value`, ...) |
 | paginated | input exposes `limit`/`cursor`/`page`/`offset` |
-| concise_response | estimated response tokens fit a budget (a full dump blows it) |
+| concise_response | estimated response tokens fit a budget (a full dump blows it); `None` when unmeasured |
+
+Measuring `concise_response` means executing the tool, so the harness invokes a tool **only when the
+server declares it `readOnlyHint` and it takes no required arguments**. A non-read-only or required-param
+tool is never called (the harness cannot mutate state), and its `concise_response` is left `None`
+(unmeasured) rather than assumed to pass, so `score` never credits a property it did not verify.
 
 The harness is **deterministic and offline**: no model, no network. That is what makes it CI-safe and
 the tests reproducible. The tests assert that `contacts_search` outscores `getData`, that the good
