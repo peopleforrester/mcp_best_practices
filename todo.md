@@ -1,6 +1,6 @@
 # Remediation Progress — Round 6 (senior review 2026-07-02)
 
-- [ ] T1 (H1 credibility): token-bucket rate limiter in the policy gateway + audit + tests
+- [x] T1 (H1 credibility): token-bucket rate limiter in the policy gateway + audit + tests
 - [ ] T2 (my prior error): k8s find_pods drop dead 404 mapping; fix test; missing-ns-empty test
 - [ ] T3 (boot crash): YAML bank loader hardening (clear errors, catch YAMLError)
 - [ ] T4 (side-effect): eval invokes only readOnlyHint tools; annotate demo read tools; concise unmeasured state
