@@ -1,4 +1,4 @@
-# Remediation Plan — Round 6 (senior review 2026-07-02)
+# Remediation Plan: Round 6 (senior review 2026-07-02)
 
 Full pass over the round-6 senior review. Findings independently verified before acting. TDD per phase:
 red test, minimal fix, full gate, one commit. Prior rounds' plans superseded; audit trail in
