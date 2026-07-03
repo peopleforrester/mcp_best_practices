@@ -33,16 +33,19 @@ The cross-component summary is at the bottom of `threat-models/README.md`.
 The threat models point at four control points. Each is a separate, tested package.
 
 1. **Policy gateway** (`policy-gateway/`). The structural control: a secure default-deny engine over
-   an allowlist, OPA-style deny rules, and a consent gate, plus a SIEM-ready audit record per
-   decision. Wired into FastMCP as `PolicyMiddleware.on_call_tool`, so it sits in the request path of
-   every tool call. Closes shadow servers (MCP09), rug-pulls (MCP03), scope creep (MCP02), and the
-   audit gap (MCP08). Caveat: a matching `ALLOW` rule is a pre-authorization that satisfies the consent
-   gate, including for a `DESTRUCTIVE` tool, so allow predicates must be tightly scoped (a specific
-   client, server, and tool), never broad. Deny rules are evaluated first and always win.
+   a per-client token-bucket rate limit, an allowlist, OPA-style deny rules, and a consent gate, plus
+   a SIEM-ready audit record per decision (rate-limit denials included). Wired into FastMCP as
+   `PolicyMiddleware.on_call_tool`, so it sits in the request path of every tool call. Closes shadow
+   servers (MCP09), rug-pulls (MCP03), scope creep (MCP02), flood abuse (MCP05), and the audit gap
+   (MCP08). Caveat: a matching `ALLOW` rule is a pre-authorization that satisfies the consent gate,
+   including for a `DESTRUCTIVE` tool, so allow predicates must be tightly scoped (a specific client,
+   server, and tool), never broad. Deny rules are evaluated first and always win.
 2. **Guardrails** (`guardrails/`). The content control: detect indirect-prompt-injection patterns in
-   untrusted text, and redact secrets and PII before anything is logged or re-shared. The gateway
-   calls these on arguments and results. Closes injection paths (MCP03, MCP06, MCP10) and secret
-   exposure (MCP01).
+   untrusted text, and redact secrets and PII before anything is logged or re-shared. The functions
+   are standalone; the capstone composes them as their own middleware applied to tool results
+   (egress). The gateway itself never inspects content (it fingerprints arguments for audit, without
+   scanning them). Closes injection paths (MCP03, MCP06, MCP10) and secret exposure (MCP01) on the
+   egress side.
 3. **Signed registry** (`signed-registry/`). The supply-chain control: admit a server only when a
    trusted signer produced a valid signature over its entry (real Ed25519; a cosign/sigstore backend
    is the container path). Closes supply-chain tampering (MCP04) and shadow servers (MCP09).

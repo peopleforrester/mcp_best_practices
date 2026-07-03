@@ -12,7 +12,11 @@
 - [x] R5: 413-log comment (right-most) + peer-address fallback (T-M2/T-L5)
 - [x] R6: small code cluster (k8s fake ns-read, is False, getData comment, basket annotations,
       Token.audience typing, defensive-branch comment)
-- [ ] R7: exam bank (header wording, weak distractor rewrite, NSA CSI verification attempt)
+- [x] R7: exam bank (header wording, weak distractor rewrite, NSA CSI verification attempt)
+  - NSA CSI: primary PDF is bot-gated (403); substance verified 2026-07-03 via the NSA press release
+    + independent summaries; rationale now cites U/OO/6030316-26, 2026-05-20 and stays honest that
+    the wording is paraphrase. check-exam-conventions skill not applicable (its CONVENTIONS.md is the
+    kraken repo's); this bank's gates are test_quality.py + model validation, green.
 - [ ] R8: security-track docs truth pass 2 (3 threat models' audit wording + markers, README table,
       guidebook sentence, gateway README eval order + scope note, capstone README, control lists)
 - [ ] R9: front-door truth (README status/live URL/teaching index/cosign/Go-Rust/elicitation,
