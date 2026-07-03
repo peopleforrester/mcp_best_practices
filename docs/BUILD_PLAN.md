@@ -3,6 +3,11 @@ ABOUTME: Sequencing, tech stack, and milestones; PROJECT_STATE.md tracks live st
 
 # Build Plan: MCP SME Portfolio Monorepo
 
+!!! note "Sealed contract (2026-06-23)"
+    This plan was approved and sealed on 2026-06-23; its body is a point-in-time contract and is
+    not updated as work completes. All six tracks have since shipped. Live status, including the
+    review-remediation rounds that followed, lives in `PROJECT_STATE.md` at the repo root.
+
 Derived from `docs/research/mcp-sme-portfolio-research-2026-06.md`. This plan sequences the
 work and records the decisions that govern every competency. Live status lives in
 `/PROJECT_STATE.md`.
@@ -37,7 +42,7 @@ work and records the decisions that govern every competency. Live status lives i
 > **Sequence rationale:** security first (the differentiator + most original-code surface),
 > then primitives → systems for the teaching narrative.
 
-### Phase 0: Foundations & spec lock  ← current
+### Phase 0: Foundations & spec lock
 - [x] Repo init, remote, staging workflow
 - [x] Ingest research report into `docs/research/`
 - [x] Polyglot `.gitignore`
