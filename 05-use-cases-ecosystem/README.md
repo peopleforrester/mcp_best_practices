@@ -9,7 +9,7 @@ ABOUTME: See guidebook.md for the narrative; this is the package quick reference
   injected `AgentDelegate` seam (an A2A client in production).
 - `ecosystem-map.md` : an MCP ecosystem snapshot labeling each claim verified vs self-reported.
 
-8 tests, ruff clean. See `guidebook.md`.
+Tested and lint-clean (counts live in CI, not prose). See `guidebook.md`.
 
 ```bash
 uv run pytest -q

@@ -17,7 +17,7 @@
     + independent summaries; rationale now cites U/OO/6030316-26, 2026-05-20 and stays honest that
     the wording is paraphrase. check-exam-conventions skill not applicable (its CONVENTIONS.md is the
     kraken repo's); this bank's gates are test_quality.py + model validation, green.
-- [ ] R8: security-track docs truth pass 2 (3 threat models' audit wording + markers, README table,
+- [x] R8: security-track docs truth pass 2 (3 threat models' audit wording + markers, README table,
       guidebook sentence, gateway README eval order + scope note, capstone README, control lists)
 - [ ] R9: front-door truth (README status/live URL/teaching index/cosign/Go-Rust/elicitation,
       docs index, CLAUDE.md map, quiz-app README, drop hardcoded test counts)
