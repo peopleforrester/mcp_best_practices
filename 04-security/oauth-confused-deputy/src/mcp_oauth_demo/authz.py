@@ -25,7 +25,9 @@ class Token:
     signature: bytes
 
     @property
-    def audience(self) -> str:
+    def audience(self) -> str | list[str]:
+        # RFC 8707 permits an array audience; the resource server handles both shapes, so the type
+        # must not pretend the claim is always a single string.
         return self.claims["aud"]
 
     def with_claim(self, key: str, value: object) -> Token:
@@ -56,8 +58,10 @@ class AuthorizationServer:
             serialization.Encoding.Raw, serialization.PublicFormat.Raw
         )
 
-    def issue(self, *, subject: str, audience: str, scope: str, expires_at: int) -> Token:
-        """Issue a token audience-bound to a single resource server (RFC 8707)."""
+    def issue(
+        self, *, subject: str, audience: str | list[str], scope: str, expires_at: int
+    ) -> Token:
+        """Issue a token audience-bound to one or more resource servers (RFC 8707 allows a list)."""
         claims = {
             "iss": self.issuer,
             "sub": subject,

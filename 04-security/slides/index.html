@@ -38,7 +38,7 @@ Trust-zone decomposition is NSA CSI recommendation 2. The lethal trifecta conver
 
 ### Four controls
 
-1. Policy gateway: allowlist, consent, OPA-style rules, SIEM audit
+1. Policy gateway: rate limit, allowlist, consent, OPA-style rules, SIEM audit
 2. Guardrails: injection detection, secret/PII redaction
 3. Signed registry: Ed25519 provenance before admission
 4. OAuth: RFC 8707 audience binding, no passthrough
@@ -63,7 +63,7 @@ class PolicyMiddleware(Middleware):
 ```
 
 Note:
-Secure default-deny: allowlist, then deny rules, then consent gate. Arguments are sha256-hashed in the
+Secure default-deny: rate limit first, then allowlist, deny rules, allow rules, consent gate. Arguments are sha256-hashed in the
 audit record, never logged in plaintext.
 
 ---

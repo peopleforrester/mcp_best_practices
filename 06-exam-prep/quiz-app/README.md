@@ -1,5 +1,5 @@
 <!-- ABOUTME: The MCP exam quiz app: a validated question bank, pure scoring, and a FastAPI service.
-ABOUTME: Tested offline with the FastAPI TestClient; Railway deploy is config-only until approved. -->
+ABOUTME: Tested offline with the FastAPI TestClient; deployed live on Railway via GitHub auto-deploy. -->
 
 # MCP Exam Quiz App
 
@@ -13,8 +13,9 @@ A small FastAPI service that administers an MCP exam.
   `POST /exam/submit` scores a submission, `GET /health` for the platform health check, and FastAPI's
   `GET /docs` gives an interactive API explorer. `create_app()` builds it; module-level `app` is the
   uvicorn entrypoint.
-- `static/index.html` : the vanilla-JS frontend (no build step) that loads `/exam`, renders radio
-  options, and posts to `/exam/submit` to show a scored, per-domain result.
+- `static/index.html` : the vanilla-JS frontend (no build step) that loads `/exam`, renders each
+  question as an accessible fieldset of radio options, and posts to `/exam/submit` to show a scored,
+  per-domain result.
 
 ```bash
 uv run pytest -q
@@ -27,17 +28,19 @@ uv run uvicorn mcp_quiz.app:app --reload   # local dev at http://127.0.0.1:8000
 Deployed on Railway: **https://mcp-exam-quiz-production.up.railway.app**
 (`/health`, `/exam`, `/exam/submit`). Project `mcp-exam-quiz`, production environment.
 
+The service is GitHub-connected: a merge to `main` auto-builds and deploys (root directory
+`06-exam-prep/quiz-app`), and `/health` reports the running commit via `RAILWAY_GIT_COMMIT_SHA`.
+No CLI deploy step is needed; `railway up` is only a manual override for ad-hoc testing.
+
 `railway.json` configures a Railpack build with the uvicorn start command bound to `0.0.0.0:$PORT`
 and `/health` as the healthcheck. Railpack detects the uv project from `uv.lock` and runs
 `uv sync --locked`. Results storage would use a Railway Postgres service exposing `DATABASE_URL`
 (not wired yet; scoring is currently stateless).
 
-Redeploy after changes from this directory:
+## Observability posture
 
-```bash
-railway up             # deploy the current directory to the linked service
-railway add -d postgres # optional: add a Postgres service for results
-```
-
-The directory is linked per-machine (`~/.railway/config.json`); on another machine,
-`railway link --project mcp-exam-quiz` re-binds it.
+Production observability is structured JSON request logs to stdout (method, path, status, duration,
+client, and the deployed commit), by design. The OpenTelemetry wiring in `app.py` is present to show
+the pattern and activates only when `OTEL_EXPORTER_OTLP_ENDPOINT` is set; no collector is configured
+for this deployment, so there is no tracing backend. Rejected oversized bodies (413) emit their own
+structured line, since that path short-circuits ahead of the request logger.

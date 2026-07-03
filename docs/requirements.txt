@@ -1,2 +1,4 @@
 # MkDocs Material is in maintenance mode (feature-frozen at 9.7.x); see docs/research/version-currency-2026-06-23.md
 mkdocs-material>=9.7,<10
+# Security floor: idna < 3.15 carries PYSEC-2026-215 / GHSA-65pc-fj4g-8rjx (transitive via requests).
+idna>=3.15

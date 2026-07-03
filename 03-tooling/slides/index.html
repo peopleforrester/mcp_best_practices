@@ -26,7 +26,7 @@ Opinions about tool design are cheap. This track ships a harness that scores it.
 ### The matched pair
 
 - `getData(x)`: vague name, meaningless param, terse description, dumps everything, leaks ids
-- `contacts_search(query, team, limit, cursor)`: namespaced, clear, paginated, structured, no ids
+- `contacts_search(query, team, limit, offset)`: namespaced, clear, paginated, structured, no ids
 
 Note:
 Search over list-everything; return meaning, not raw ids; manage tokens with pagination.

@@ -29,7 +29,9 @@ async def test_bad_tool_fails_design_metrics():
     bad = scores["getData"]
     assert not bad.namespaced
     assert not bad.paginated
-    assert not bad.concise_response
+    # `is False` on purpose: a falsy check would also pass on None (unmeasured). This must stay a
+    # measured failure; if getData lost its readOnlyHint the harness would stop measuring it silently.
+    assert bad.concise_response is False
 
 
 async def test_evaluate_server_handles_a_required_param_tool_without_crashing():

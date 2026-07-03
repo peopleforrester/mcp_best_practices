@@ -105,3 +105,81 @@ jobs:
             fi
           done
           exit $status
+
+  # Supply-chain scan of the resolved dependency trees. On-theme for a repo whose flagship teaches it.
+  osv-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Scan uv and pnpm lockfiles for known vulnerabilities
+        uses: google/osv-scanner-action/osv-scanner-action@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
+        with:
+          scan-args: |-
+            --recursive
+            ./
+
+  # Build the quiz-app wheel, install it into a clean venv, and probe the running app. Source-tree
+  # tests cannot catch a packaging regression (a static asset that ships from src but not the wheel);
+  # this closes that parity gap.
+  wheel-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: 06-exam-prep/quiz-app
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+      - name: Build wheel, clean-install, and smoke-test the deployed artifact via uvicorn
+        run: |
+          uv build --wheel
+          python3 -m venv /tmp/wheelvenv
+          /tmp/wheelvenv/bin/pip install --quiet dist/*.whl
+          # Serve the installed wheel the way Railway does (uvicorn), then probe over HTTP so the whole
+          # packaged artifact is exercised, static assets and bank included, not the source tree.
+          /tmp/wheelvenv/bin/python -m uvicorn mcp_quiz.app:app --host 127.0.0.1 --port 8931 &
+          for _ in $(seq 1 30); do curl -sf http://127.0.0.1:8931/health >/dev/null && break; sleep 0.5; done
+          set -e
+          curl -sf http://127.0.0.1:8931/health | grep -q '"status":"ok"'
+          curl -sf http://127.0.0.1:8931/ | grep -q "MCP Practice Exam"
+          curl -sf -o /dev/null http://127.0.0.1:8931/static/favicon.svg
+          curl -sf -o /dev/null http://127.0.0.1:8931/static/app.js
+          test "$(curl -sf http://127.0.0.1:8931/exam | python3 -c 'import sys,json;print(len(json.load(sys.stdin)))')" -ge 10
+          echo "wheel parity ok"
+      - name: Generate a CycloneDX SBOM for the deployed app
+        run: |
+          uv run --with cyclonedx-bom cyclonedx-py environment /tmp/wheelvenv -o /tmp/quiz-app-sbom.json
+          echo "SBOM entries: $(uv run python -c "import json;print(len(json.load(open('/tmp/quiz-app-sbom.json'))['components']))")"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: quiz-app-sbom
+          path: /tmp/quiz-app-sbom.json
+
+  # Publish the docs site to GitHub Pages, on main only, after the docs build passes.
+  pages:
+    if: github.ref == 'refs/heads/main'
+    needs: docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - name: Build the site
+        run: uv run --with-requirements docs/requirements.txt mkdocs build --strict
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0

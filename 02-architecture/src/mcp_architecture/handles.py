@@ -7,6 +7,7 @@ from typing import TypedDict
 
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
+from mcp.types import ToolAnnotations
 
 
 class BasketState(TypedDict):
@@ -33,14 +34,16 @@ def build_basket_server() -> FastMCP:
         items = baskets[basket_id]
         return {"basket_id": basket_id, "items": list(items), "count": len(items)}
 
-    @mcp.tool
+    # Annotations declared per the tooling track's own guidance: create/add are mutating (and add is
+    # not idempotent: repeating it appends again); get_basket is a safe idempotent read.
+    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=False, idempotentHint=False))
     def create_basket() -> str:
         """Create a basket and return its handle (basket_id) for use in later calls."""
         basket_id = uuid.uuid4().hex
         baskets[basket_id] = []
         return basket_id
 
-    @mcp.tool
+    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=False, idempotentHint=False))
     def add_item(basket_id: str, item: str) -> BasketState:
         """Add an item to the basket named by the handle. Raises if the handle is unknown."""
         if basket_id not in baskets:
@@ -48,7 +51,7 @@ def build_basket_server() -> FastMCP:
         baskets[basket_id].append(item)
         return _state(basket_id)
 
-    @mcp.tool
+    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True, idempotentHint=True))
     def get_basket(basket_id: str) -> BasketState:
         """Read the basket named by the handle. Raises if the handle is unknown."""
         if basket_id not in baskets:
