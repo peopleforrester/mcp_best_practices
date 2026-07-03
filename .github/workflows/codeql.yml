@@ -1,0 +1,42 @@
+# ABOUTME: CodeQL static analysis for the portfolio's Python and TypeScript source (free for public repos).
+# ABOUTME: On-theme for a repo whose flagship track teaches secure design; results land in the Security tab.
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * 1" # weekly, Monday 06:00 UTC
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python, javascript-typescript]
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@e8e8e51caba890f74f97e228d00b0b81b666ee4c # v3
+        with:
+          languages: ${{ matrix.language }}
+          # security-and-quality is the broadest built-in suite; appropriate for a teaching repo.
+          queries: security-and-quality
+      - name: Analyze
+        uses: github/codeql-action/analyze@e8e8e51caba890f74f97e228d00b0b81b666ee4c # v3
+        with:
+          category: "/language:${{ matrix.language }}"

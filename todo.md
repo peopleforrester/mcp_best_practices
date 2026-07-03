@@ -23,8 +23,9 @@
       docs index, CLAUDE.md map, quiz-app README, drop hardcoded test counts; also MEMORY.md cosign)
 - [x] R10: decks (03 offset, 06 live URL, 04 rate limiter)
 - [x] R11: sealed-plan banner on BUILD_PLAN
-- [ ] R12: site content (guidebooks/threat models/ecosystem/curriculum in nav, decks as assets,
-      site_url, strict green)
+- [x] R12: Teaching Material nav page linking guidebooks/threat models/decks/ecosystem/curriculum;
+      site_url + repo_url set; strict build green. (Rendering full guidebooks inline deferred: their
+      track-relative links to sibling code do not resolve off-tree; noted in decisions.)
 - [ ] R13: CI (Pages deploy, security scanning, wheel parity + SBOM, RC backstop cron)
 - [ ] R14: Railway Wait-for-CI on (checkSuites was false)
 - [ ] R15: wrap (gate, state, push, PR, verify deploys, journal)
