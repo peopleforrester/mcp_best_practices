@@ -21,7 +21,7 @@
       guidebook sentence, gateway README eval order + scope note, capstone README, control lists)
 - [x] R9: front-door truth (README status/live URL/teaching index/cosign/Go-Rust/elicitation,
       docs index, CLAUDE.md map, quiz-app README, drop hardcoded test counts; also MEMORY.md cosign)
-- [ ] R10: decks (03 offset, 06 live URL, 04 rate limiter)
+- [x] R10: decks (03 offset, 06 live URL, 04 rate limiter)
 - [ ] R11: sealed-plan banner on BUILD_PLAN
 - [ ] R12: site content (guidebooks/threat models/ecosystem/curriculum in nav, decks as assets,
       site_url, strict green)
