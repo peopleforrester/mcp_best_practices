@@ -108,7 +108,10 @@ def test_oversized_request_body_is_logged():
     with capture_logs() as logs:
         response = client.post("/exam/submit", json={"answers": {"a": "bbbbbbb"}})
     assert response.status_code == 413
-    assert any(entry.get("event") == "request_body_too_large" for entry in logs)
+    events = [entry for entry in logs if entry.get("event") == "request_body_too_large"]
+    assert events
+    # With no X-Forwarded-For, the log falls back to the ASGI peer address, not a useless "unknown".
+    assert events[0]["client"] not in ("", "unknown")
 
 
 def test_submit_rejects_an_overlong_answer_value():
