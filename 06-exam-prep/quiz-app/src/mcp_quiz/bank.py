@@ -27,6 +27,13 @@ def load_bank(path: Path | None = None) -> list[Question]:
     entries = data["questions"]
     if not isinstance(entries, list):
         raise ValueError(f"'questions' in {source} must be a list, got {type(entries).__name__}")
+    for i, entry in enumerate(entries):
+        # Guarded here because a non-mapping entry fails in Python's ** call machinery with a
+        # context-free TypeError; the loader's contract is a labeled ValueError naming file and index.
+        if not isinstance(entry, dict):
+            raise ValueError(
+                f"questions[{i}] in {source} must be a mapping, got {type(entry).__name__}"
+            )
     questions = [Question(**entry) for entry in entries]
     ids = [q.id for q in questions]
     duplicates = sorted({qid for qid in ids if ids.count(qid) > 1})
