@@ -56,6 +56,9 @@ def build_contacts_server() -> FastMCP:
         """gets data"""
         # Anti-pattern: vague name and param, terse description, no pagination, dumps everything
         # as one opaque text blob that the model must parse, including raw internal ids.
+        # The readOnlyHint is the one thing done right, deliberately: it is truthful (this only
+        # reads), and it is what lets the eval harness safely invoke the tool and measure its worst
+        # trait (the unbounded dump); without it, conciseness would be unmeasured, not failed.
         lines = [f"{c['id']}|{c['name']}|{c['email']}|{c['team']}" for c in _CONTACTS]
         return "\n".join(lines)
 

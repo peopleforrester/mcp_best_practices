@@ -9,7 +9,7 @@
   - surfaced: the wheel force-include block was redundant (hatchling default inclusion already ships
     every file under src/mcp_quiz, verified by wheel inspection); removed it. R13c's parity smoke
     remains the durable guard.
-- [ ] R5: 413-log comment (right-most) + peer-address fallback (T-M2/T-L5)
+- [x] R5: 413-log comment (right-most) + peer-address fallback (T-M2/T-L5)
 - [ ] R6: small code cluster (k8s fake ns-read, is False, getData comment, basket annotations,
       Token.audience typing, defensive-branch comment)
 - [ ] R7: exam bank (header wording, weak distractor rewrite, NSA CSI verification attempt)
