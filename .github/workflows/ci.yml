@@ -120,7 +120,6 @@ jobs:
         with:
           scan-args: |-
             --recursive
-            --skip-git
             ./
 
   # Build the quiz-app wheel, install it into a clean venv, and probe the running app. Source-tree
