@@ -35,7 +35,7 @@ the transport (a thin FastMCP adapter). This keeps the security logic provable a
   and implements `on_call_tool`: it builds a `PolicyRequest` from the call, evaluates the engine,
   writes one audit record, and either denies with a `fastmcp.exceptions.ToolError` or forwards to the
   upstream via `call_next`. Verified end-to-end against FastMCP 3.x with the in-memory `Client`
-  (4 async tests). The security logic stays in the framework-independent core; this class is only the
+  (async in-memory-client tests). The security logic stays in the framework-independent core; this class is only the
   transport seam. Register with `mcp.add_middleware(PolicyMiddleware(engine, ...))`.
 
 ### Verified FastMCP 3.x API (2026-06-24)

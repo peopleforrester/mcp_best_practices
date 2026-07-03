@@ -6,7 +6,8 @@ ABOUTME: Conversation context is lost across sessions; this and PROJECT_STATE.md
 ## What this is
 A security-first, polyglot MCP subject-matter-expert portfolio for Michael. Goal: establish
 credible SME authorship through original working code (servers, an MCP policy gateway,
-guardrails, a cosign-signed registry), original threat models, and teaching decks, not forked
+guardrails, an Ed25519-signed registry with a cosign backend planned), original threat models, and
+teaching decks, not forked
 reference servers. Built against MCP spec `2025-11-25` (stable), forward-compatible with the
 `2026-07-28` RC.
 
