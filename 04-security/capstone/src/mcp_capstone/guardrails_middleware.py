@@ -52,8 +52,10 @@ class GuardrailsMiddleware(Middleware):
                 block.text = redact(text).text
 
         structured = getattr(result, "structured_content", None)
-        # Sanitize both container shapes, not just dicts: a top-level list payload must be redacted too.
-        # Rebuild in place so the (possibly model-held) reference stays the same object.
+        # Sanitize both container shapes. The list branch is defensive: FastMCP 3.4.2 constrains
+        # structured_content to dict | None (its constructor rejects anything else), so a top-level
+        # list is unreachable today; it is kept in case a future FastMCP or an upstream middleware
+        # relaxes that. Rebuild in place so the (possibly model-held) reference stays the same object.
         if isinstance(structured, dict):
             sanitized = self._sanitize(structured)
             assert isinstance(sanitized, dict)  # a dict in always yields a dict out

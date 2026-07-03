@@ -34,8 +34,9 @@ class FakeCoreV1Api:
         return V1PodList(items=pods)
 
     def read_namespaced_pod(self, name: str, namespace: str, **_kw) -> V1Pod:
+        # Namespace-scoped like the real API: a name match in the wrong namespace is still a 404.
         for pod in self._pods:
-            if pod.metadata.name == name:
+            if pod.metadata.name == name and pod.metadata.namespace == namespace:
                 return pod
         from kubernetes.client.exceptions import ApiException
 
@@ -90,6 +91,13 @@ async def test_get_unknown_pod_raises():
     async with Client(_server()) as client:
         with pytest.raises(ToolError):
             await client.call_tool("get_pod_status", {"namespace": "default", "name": "ghost"})
+
+
+async def test_get_pod_in_the_wrong_namespace_is_a_404():
+    # Reads are namespace-scoped: an existing pod name does not resolve from another namespace.
+    async with Client(_server()) as client:
+        with pytest.raises(ToolError):
+            await client.call_tool("get_pod_status", {"namespace": "other", "name": "db-1"})
 
 
 class _RaisingApi:
