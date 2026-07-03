@@ -19,7 +19,7 @@
 ### A curriculum and a quiz app
 
 Note:
-Define what to know, then test it. Both shipped, the app tested and Railway-ready.
+Define what to know, then test it. Both shipped, the app tested and live on Railway.
 
 ---
 
@@ -59,7 +59,8 @@ The taker gets a QuestionView, never the answer or rationale. Scoring has no IO,
   "deploy": { "startCommand": "uvicorn mcp_quiz.app:app --host 0.0.0.0 --port $PORT" } }
 ```
 
-Config shipped; creating the project is an account action, left for go-ahead.
+Live at https://mcp-exam-quiz-production.up.railway.app (GitHub-connected auto-deploy from main;
+/health reports the running commit).
 
 Note:
 PORT is injected by Railway. Postgres would store results; scoring is stateless today.
