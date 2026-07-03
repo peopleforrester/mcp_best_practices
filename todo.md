@@ -29,11 +29,10 @@
 - [x] R13: CI (Pages deploy, security scanning, wheel parity + SBOM, RC backstop cron)
   - Pages enabled on the repo (build_type=workflow) -> https://peopleforrester.github.io/mcp_best_practices/
   - actionlint clean; osv-scanner/cyclonedx/wheel-smoke validated locally
-- [~] R14: Railway Wait-for-CI: DEFERRED to a dashboard toggle. The GraphQL read that confirmed
-      checkSuites=false at session start now 500s intermittently (INTERNAL_SERVER_ERROR), so I could
-      not read the deployment-trigger id to run deploymentTriggerUpdate(checkSuites:true) safely.
-      Manual fix: Railway -> mcp-exam-quiz service -> Settings -> enable "Wait for CI" (or
-      "Check Suites"). One click, reversible. Not fabricating an API success.
+- [x] R14: Railway Wait-for-CI ENABLED (2026-07-03). Michael toggled it in the dashboard; I also set
+      it via deploymentTriggerUpdate(id: dad5e97a..., checkSuites: true), which returned checkSuites:true
+      (the authoritative post-write value). A red main CI now blocks the auto-deploy. The confirming
+      read intermittently 500s (the same flaky project query), so the mutation echo is the source of truth.
 - [x] R15: wrap (gate, state, push, PR, verify deploys, journal)
 
 ## Deferred (with reasons)

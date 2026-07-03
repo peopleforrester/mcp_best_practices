@@ -256,8 +256,9 @@ regression-free, so most of this round was presentation-layer and CI-posture tru
   Material nav page (R12); CI gained osv-scanner + CodeQL scanning, a wheel-parity smoke test that
   serves the built wheel over uvicorn and probes it (closing the source-vs-wheel gap), a CycloneDX SBOM
   artifact, and a spec-currency reminder cron for the 2026-07-28 RC-final flip (R13).
-- Deferred with reason: Railway "Wait for CI" (checkSuites=false, confirmed) is a one-click dashboard
-  toggle; the GraphQL path 500'd intermittently so it was not automated (R14). Carried: pagination DRY,
+- Railway "Wait for CI" is now ENABLED (2026-07-03): toggled in the dashboard and confirmed via
+  deploymentTriggerUpdate(checkSuites:true), so a red main CI blocks the auto-deploy (R14). Carried:
+  pagination DRY,
   A2A async seam, Taskfile ts:test pnpm -r bug, TS track depth, injection-detector breadth, cosign
   backend, gateway per-request identity (docstring caveat), rendering full guidebooks inline on the site
   (their track-relative links do not resolve off-tree).
