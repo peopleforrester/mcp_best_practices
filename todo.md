@@ -1,19 +1,26 @@
-# Remediation Progress: Round 6 (senior review 2026-07-02)
+# Remediation Progress: Round 7 (end-to-end review, 2026-07-03)
 
-- [x] T1 (H1 credibility): token-bucket rate limiter in the policy gateway + audit + tests
-- [x] T2 (my prior error): k8s find_pods drop dead 404 mapping; fix test; missing-ns-empty test
-- [x] T3 (boot crash): YAML bank loader hardening (clear errors, catch YAMLError)
-- [x] T4 (side-effect): eval invokes only readOnlyHint tools; annotate demo read tools; concise unmeasured state
-- [x] T5 (doc accuracy): eval namespaced/invokes-once/no-side-effects; guardrails README ingress claim
-- [x] T6 (observability): body-cap 413 path emits a structured log line
-- [x] T7 (stale docs): README test counts (use-cases 5->8, architecture 8->11)
-- [x] T8 (systemic claim drift): reconcile threat-model gateway claims; fixed-identity caveat;
-      structured-redaction on any value; consent audit rule; server-card.json drift test
+- [ ] R1: TokenBucket eviction + param validation + event-loop note (S-M1/S-L7)
+- [ ] R2: bank loader per-entry isinstance -> labeled ValueError (T-M1)
+- [ ] R3: real ctx.elicit HITL demo in 03-tooling + fix false claims (WS-H3)
+- [ ] R4: frontend a11y fieldset/legend + title/meta/favicon/backlink (T-M3/WS-L3)
+- [ ] R5: 413-log comment (right-most) + peer-address fallback (T-M2/T-L5)
+- [ ] R6: small code cluster (k8s fake ns-read, is False, getData comment, basket annotations,
+      Token.audience typing, defensive-branch comment)
+- [ ] R7: exam bank (header wording, weak distractor rewrite, NSA CSI verification attempt)
+- [ ] R8: security-track docs truth pass 2 (3 threat models' audit wording + markers, README table,
+      guidebook sentence, gateway README eval order + scope note, capstone README, control lists)
+- [ ] R9: front-door truth (README status/live URL/teaching index/cosign/Go-Rust/elicitation,
+      docs index, CLAUDE.md map, quiz-app README, drop hardcoded test counts)
+- [ ] R10: decks (03 offset, 06 live URL, 04 rate limiter)
+- [ ] R11: sealed-plan banner on BUILD_PLAN
+- [ ] R12: site content (guidebooks/threat models/ecosystem/curriculum in nav, decks as assets,
+      site_url, strict green)
+- [ ] R13: CI (Pages deploy, security scanning, wheel parity + SBOM, RC backstop cron)
+- [ ] R14: Railway Wait-for-CI on (checkSuites was false)
+- [ ] R15: wrap (gate, state, push, PR, verify deploys, journal)
 
-## Deferred (carried, intentional)
-- Injection detector / redaction breadth (documented heuristic/best-effort)
-- Pagination DRY across packages; A2A async seam; Taskfile ts:test pnpm -r bug
-- TS track depth (no TS catalog analog); gateway per-request identity wiring (doc caveat only)
-
-## Also outstanding
-- Backfill round-5 + round-6 into the engineering journal at the end
+## Deferred (with reasons)
+- Deck CDN-only assets (fine once published); cosign real backend (planned; SBOM is the near-term nod)
+- Carried: pagination DRY, A2A async seam, ts:test pnpm -r, TS depth, k8s Protocol typing, handles TTL,
+  detector/redaction breadth
