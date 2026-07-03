@@ -30,6 +30,15 @@ def test_malformed_yaml_raises_a_clear_value_error(tmp_path):
         load_bank(bank)
 
 
+def test_non_mapping_question_entry_raises_a_labeled_value_error(tmp_path):
+    # A bare string (or list) inside `questions` would otherwise fail in Python's ** call machinery
+    # with a context-free TypeError at import time. The loader must name the file and the entry index.
+    bank = tmp_path / "bad-entry.yaml"
+    bank.write_text("questions:\n  - just-a-string\n")
+    with pytest.raises(ValueError, match=r"questions\[0\]"):
+        load_bank(bank)
+
+
 def test_bank_loads_and_has_enough_questions():
     questions = load_bank()
     assert len(questions) >= 10
