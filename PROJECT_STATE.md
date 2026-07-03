@@ -232,6 +232,37 @@ touched code from my prior rounds. Each phase is a single TDD commit; audit trai
   the OAuth flow tautology nits; pagination DRY, A2A async, and the Taskfile ts:test bug stay deferred.
 Repo total: 141 tests (137 Python across 12 packages + 4 TS), all ruff + mypy clean, TS typecheck green.
 
+### Round 7 (2026-07-03): end-to-end architecture + code + website review, 15 phases
+Four parallel reviewers (architecture five-pillar, website/presentation, security flagship fresh pass,
+non-security tracks fresh pass). Findings verified before acting; the round-6 code changes all verified
+regression-free, so most of this round was presentation-layer and CI-posture truth plus a few code fixes.
+- Code: TokenBucket now bounds its principal map (stale-sweep past a cap) and validates params (R1);
+  the bank loader rejects a non-mapping question entry with a labeled error (R2); a real `ctx.elicit`
+  human-in-the-loop confirmation demo now backs the elicitation claim the docs had made with no code
+  (R3); the quiz frontend groups questions in fieldsets with legends and the public page got a title,
+  meta description, favicon, and repo backlink (R4); the 413-log comment/fallback were corrected (R5);
+  a small cluster of test/typing fixes (R6); exam-bank item polish with the NSA CSI source verified
+  and cited (R7).
+- Docs truth: the three threat models round 6 had not edited described an audit record with raw
+  parameters and a result hash, contradicting the shipped fingerprint-only design; corrected, with
+  target-design markers, the README table, the gateway README evaluation order (now lists the rate
+  limiter and the allow-rule step), a tools/call-only scope note, and the guidebook (R8). The front
+  door was rewritten: the README status no longer says "Phase 0 closing out" (it said that with all six
+  tracks shipped), the live quiz URL and a teaching-material index were added, and cosign / Go-Rust /
+  elicitation wording is now honest; docs index, CLAUDE.md map, and the quiz-app README (observability
+  posture, retired railway-up flow) match reality; hardcoded test counts were dropped from track
+  READMEs (R9). Decks corrected (R10); a sealed-contract banner sits atop the published build plan (R11).
+- Site + CI: the MkDocs site is now published to GitHub Pages via a deploy job on main, with a Teaching
+  Material nav page (R12); CI gained osv-scanner + CodeQL scanning, a wheel-parity smoke test that
+  serves the built wheel over uvicorn and probes it (closing the source-vs-wheel gap), a CycloneDX SBOM
+  artifact, and a spec-currency reminder cron for the 2026-07-28 RC-final flip (R13).
+- Deferred with reason: Railway "Wait for CI" (checkSuites=false, confirmed) is a one-click dashboard
+  toggle; the GraphQL path 500'd intermittently so it was not automated (R14). Carried: pagination DRY,
+  A2A async seam, Taskfile ts:test pnpm -r bug, TS track depth, injection-detector breadth, cosign
+  backend, gateway per-request identity (docstring caveat), rendering full guidebooks inline on the site
+  (their track-relative links do not resolve off-tree).
+Repo total: 150 tests (146 Python across 12 packages + 4 TS), all ruff + mypy clean, TS typecheck green.
+
 Railway deploy is CLI-based (`railway up --service mcp-exam-quiz`), not GitHub-connected, so it does
 not auto-deploy on push. Open question with Michael: connect Railway to the existing monorepo
 (`peopleforrester/mcp_best_practices`) with service root dir `06-exam-prep/quiz-app` + watch path
@@ -244,8 +275,10 @@ adapter built and tested green against the real library.
 ## Branch & Tests
 - Branch: `staging` (correct working branch). Code repo → staging-first workflow applies.
 - Working tree: clean after the round-4 remediation commits.
-- Tests: 141 total (137 Python across 11 packages + 4 TS), all green; every package ruff + mypy clean,
-  TS typecheck clean. CI: prose, docs, python (ruff+mypy+pytest), typescript, lockdrift jobs.
+- Tests: 150 total (146 Python across 12 packages + 4 TS), all green; every package ruff + mypy clean,
+  TS typecheck clean. CI: prose, docs, python, typescript, lockdrift, osv-scan, wheel-parity, and a
+  Pages deploy (main); separate CodeQL and spec-currency-reminder workflows. Docs site published to
+  GitHub Pages.
 
 ## Verification method
 - Research report: provided by Michael (June 2026), treated as authoritative source-of-record.
@@ -266,3 +299,4 @@ _(append-only. Each phase transition adds one line, oldest first.)_
 - 2026-06-26 3.x /remediate round 4: 11 TDD phases over the senior review shipped to staging (118 tests green)
 - 2026-06-27 3.x round 5: 10 TDD phases over the second senior review shipped to staging (127 tests green); fixed the round-4 stale-schema miss (H1)
 - 2026-07-03 3.x round 6: 8 TDD phases over the third senior review shipped to staging (141 tests green); built the gateway rate limiter, fixed the k8s 404 dead-code, reconciled threat-model claim drift
+- 2026-07-03 3.x round 7: 15 phases over a full architecture + code + website review (150 tests green); published the docs site to Pages, added security scanning + wheel-parity CI, backed the elicitation claim with a real demo, and reconciled the front-door + threat-model presentation drift

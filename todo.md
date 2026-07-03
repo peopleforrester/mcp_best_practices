@@ -26,9 +26,15 @@
 - [x] R12: Teaching Material nav page linking guidebooks/threat models/decks/ecosystem/curriculum;
       site_url + repo_url set; strict build green. (Rendering full guidebooks inline deferred: their
       track-relative links to sibling code do not resolve off-tree; noted in decisions.)
-- [ ] R13: CI (Pages deploy, security scanning, wheel parity + SBOM, RC backstop cron)
-- [ ] R14: Railway Wait-for-CI on (checkSuites was false)
-- [ ] R15: wrap (gate, state, push, PR, verify deploys, journal)
+- [x] R13: CI (Pages deploy, security scanning, wheel parity + SBOM, RC backstop cron)
+  - Pages enabled on the repo (build_type=workflow) -> https://peopleforrester.github.io/mcp_best_practices/
+  - actionlint clean; osv-scanner/cyclonedx/wheel-smoke validated locally
+- [~] R14: Railway Wait-for-CI: DEFERRED to a dashboard toggle. The GraphQL read that confirmed
+      checkSuites=false at session start now 500s intermittently (INTERNAL_SERVER_ERROR), so I could
+      not read the deployment-trigger id to run deploymentTriggerUpdate(checkSuites:true) safely.
+      Manual fix: Railway -> mcp-exam-quiz service -> Settings -> enable "Wait for CI" (or
+      "Check Suites"). One click, reversible. Not fabricating an API success.
+- [x] R15: wrap (gate, state, push, PR, verify deploys, journal)
 
 ## Deferred (with reasons)
 - Deck CDN-only assets (fine once published); cosign real backend (planned; SBOM is the near-term nod)
