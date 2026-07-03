@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- ABOUTME: Favicon for the MCP practice exam page (served from /static, referenced by index.html).
+       ABOUTME: A plain monogram tile; SVG keeps it one tiny same-origin asset under the strict CSP. -->
+  <rect width="64" height="64" rx="12" fill="#1a6feb" />
+  <text x="32" y="43" font-family="system-ui, sans-serif" font-size="30" font-weight="700" text-anchor="middle" fill="#ffffff">M</text>
+</svg>

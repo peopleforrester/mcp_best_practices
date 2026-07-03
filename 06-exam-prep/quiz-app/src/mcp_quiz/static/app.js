@@ -6,19 +6,21 @@ const resultEl = document.getElementById("result");
 
 // Build one question block via the DOM API. Every field is set with textContent or as an input
 // value, never interpolated into markup, so question content cannot inject HTML or script.
+// Each question is a fieldset whose legend is the stem, so the radio group is programmatically
+// associated with its question and a screen reader announces the stem when focus enters an option.
 function renderQuestion(q) {
-  const div = document.createElement("div");
-  div.className = "q";
+  const fieldset = document.createElement("fieldset");
+  fieldset.className = "q";
+
+  const legend = document.createElement("legend");
+  legend.className = "stem";
+  legend.textContent = q.stem;
 
   const tag = document.createElement("div");
   tag.className = "tag";
   tag.textContent = `${q.domain} · ${q.difficulty}`;
 
-  const stem = document.createElement("div");
-  stem.className = "stem";
-  stem.textContent = q.stem;
-
-  div.append(tag, stem);
+  fieldset.append(legend, tag);
 
   for (const option of q.options) {
     const label = document.createElement("label");
@@ -28,9 +30,9 @@ function renderQuestion(q) {
     input.name = q.id;
     input.value = option;
     label.append(input, document.createTextNode(" " + option));
-    div.append(label);
+    fieldset.append(label);
   }
-  return div;
+  return fieldset;
 }
 
 async function loadExam() {

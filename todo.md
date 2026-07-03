@@ -2,7 +2,9 @@
 
 - [x] R1: TokenBucket eviction + param validation + event-loop note (S-M1/S-L7)
 - [x] R2: bank loader per-entry isinstance -> labeled ValueError (T-M1)
-- [ ] R3: real ctx.elicit HITL demo in 03-tooling + fix false claims (WS-H3)
+- [x] R3: real ctx.elicit HITL demo in 03-tooling + fix false claims (WS-H3)
+  - note: documented type-ignore for an observed fastmcp 3.4.2 + mypy 2.1 overload mis-resolution
+    (minimal repro confirmed); runtime covered by 3 tests (accept-true, accept-false, decline)
 - [ ] R4: frontend a11y fieldset/legend + title/meta/favicon/backlink (T-M3/WS-L3)
 - [ ] R5: 413-log comment (right-most) + peer-address fallback (T-M2/T-L5)
 - [ ] R6: small code cluster (k8s fake ns-read, is False, getData comment, basket annotations,
