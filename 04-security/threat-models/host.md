@@ -21,7 +21,7 @@ This model is written against the stable `2025-11-25` spec. Where the `2026-07-2
 
 | Threat | OWASP MCP Top 10 | NSA CSI rec | Mitigation |
 |---|---|---|---|
-| Tool-definition rug-pull: a server changes a tool's description or schema after the user approved it, so a previously benign tool now carries injected instructions or a wider parameter surface. | MCP03 | 6, 7 | Pin and hash approved tool definitions at consent time. Re-prompt the user when the hash changes; the policy gateway diffs `tools/list` against the approved snapshot and blocks drifted tools. |
+| Tool-definition rug-pull: a server changes a tool's description or schema after the user approved it, so a previously benign tool now carries injected instructions or a wider parameter surface. | MCP03 | 6, 7 | Pin and hash approved tool definitions at consent time. Re-prompt the user when the hash changes; diffing `tools/list` against the approved snapshot and blocking drifted tools at the gateway is target design (not implemented in the shipped gateway). |
 | Tool results are tampered in transit or by the server to inject content into the next prompt stage. | MCP03, MCP10 | 6, 7 | Sign and verify MCP messages with expiration and replay protection (rec 6); treat every tool result as untrusted input to the next stage (rec 7) and pass it through output guardrails before it re-enters context. |
 | The assembled prompt context (system prompt, tool catalog) is mutated by a compromised local component. | MCP06 | 5, 8 | Sandbox server processes under least privilege (seccomp/AppArmor) so a server cannot reach host config; log context-assembly inputs with result hashes to SIEM (rec 8). |
 
@@ -29,7 +29,7 @@ This model is written against the stable `2025-11-25` spec. Where the `2026-07-2
 
 | Threat | OWASP MCP Top 10 | NSA CSI rec | Mitigation |
 |---|---|---|---|
-| A destructive tool call runs but the host keeps no record of who proposed it, which user approved it, or what arguments were sent, so the action cannot be attributed after the fact. | MCP08 | 8 | Emit a structured, tamper-evident audit record per invocation (proposing model turn, user-consent decision, server identity, parameters, result hash) to SIEM via the policy gateway. |
+| A destructive tool call runs but the host keeps no record of who proposed it, which user approved it, or what arguments were sent, so the action cannot be attributed after the fact. | MCP08 | 8 | Emit a structured audit record per invocation (proposing model turn, user-consent decision, server identity, and a sha256 argument fingerprint rather than raw parameters) to SIEM via the policy gateway. Result hashing and tamper-evident chaining or signing of the records are target design; the shipped record is a plain structured dict. |
 | Consent decisions are not durably logged, so a disputed "the agent did X without asking" claim cannot be resolved. | MCP08 | 8 | Persist every consent grant and its scope with a timestamp and correlation id; W3C Trace Context in `_meta` (RC, SEP-414) lets the host correlate a UI consent to the downstream tool call. |
 
 ### Information disclosure
@@ -45,7 +45,7 @@ This model is written against the stable `2025-11-25` spec. Where the `2026-07-2
 | Threat | OWASP MCP Top 10 | NSA CSI rec | Mitigation |
 |---|---|---|---|
 | A server floods the host with oversized tool results, huge `tools/list` payloads, or rapid list-changed notifications, exhausting context window, memory, or the user's token budget. | MCP05 | 4, 5 | Cap result size and tool-catalog size at the client boundary; rate-limit notifications; sandbox and resource-bound server processes (rec 5). Validate payloads against schema before ingest (rec 4). |
-| The agent loop is driven into a runaway tool-call cycle by injected content, consuming cost and blocking the user. | MCP06 | 4, 8 | Enforce per-session call budgets and loop-depth limits in the host; alert on anomalous call rates from audit telemetry (rec 8). |
+| The agent loop is driven into a runaway tool-call cycle by injected content, consuming cost and blocking the user. | MCP06 | 4, 8 | Enforce per-session call budgets and loop-depth limits in the host (target design; the implemented rate control is the gateway's per-client token bucket); alert on anomalous call rates from audit telemetry (rec 8). |
 
 ### Elevation of privilege
 
