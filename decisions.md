@@ -123,3 +123,36 @@ remediated all eight phases TDD. Decisions worth recording:
 
 Repo at 141 tests, all green. The round-5 session was also never journaled; backfilling round 5 + 6
 into the engineering journal alongside this.
+
+## 2026-07-03T06:00:00Z · 3.x · Round 7: end-to-end architecture + code + website review
+
+Four parallel reviewers. The round-6 code verified regression-free, so the round was mostly truth
+work: presentation-layer claim drift and CI posture. Decisions worth recording:
+
+- Publish the docs site. The MkDocs site was strict-built in CI but deployed nowhere, so the
+  portfolio's most credibility-bearing surface was invisible. Added a Pages deploy job (main only) and
+  enabled Pages (build_type=workflow). This makes the site public, which "remediate all of it"
+  authorized; flagged beforehand with no objection. Rendering the full track guidebooks inline was
+  deferred: their links point at sibling source and do not resolve off-tree, so the site gets a
+  Teaching Material index that links to source rather than a broken inline copy.
+
+- Implement the elicitation demo rather than delete the claim. The docs claimed elicitation/HITL and
+  even said it was "used in the security track", with zero `ctx.elicit` calls in the repo. Built a real
+  `archive_report` confirmation tool (accept-true acts; decline, cancel, and accept-false do not) with
+  three tests over the in-memory client's elicitation handler, then made the docs describe it. A
+  documented `type: ignore` covers a confirmed fastmcp 3.4.2 + mypy 2.1 overload mis-resolution.
+
+- Add security scanning to the repo that teaches supply-chain security. osv-scanner over the lockfiles
+  and CodeQL (python + javascript-typescript) now run in CI; a wheel-parity job serves the built wheel
+  over uvicorn and probes it, closing the class of packaging regression that source-tree tests cannot
+  see; a CycloneDX SBOM is published as an artifact. On-theme for the flagship, and it makes the repo
+  practice what it teaches.
+
+- Threat-model audit wording. The three threat models round 6 had not touched described an audit record
+  with raw parameters and a result hash. That contradicts the shipped fingerprint-only design and the
+  portfolio's own MCP01 stance even as target design, so the wording was corrected to the sha256
+  fingerprint and the result-hash / tamper-evidence framed as target design.
+
+- Railway "Wait for CI" (checkSuites) was left off and deferred to a dashboard toggle: the read that
+  confirmed checkSuites=false at session start began returning INTERNAL_SERVER_ERROR, so the trigger id
+  could not be read to run the mutation safely. Not fabricating an API success for a one-click setting.

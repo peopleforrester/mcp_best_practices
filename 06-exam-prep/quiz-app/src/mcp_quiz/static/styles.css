@@ -4,9 +4,10 @@
 body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
 h1 { margin-bottom: 0.2rem; }
 .meta { color: #888; margin-top: 0; }
-.q { border: 1px solid #8884; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+/* .q is a fieldset (legend = the question stem), so the radio group is announced with its question. */
+.q { border: 1px solid #8884; border-radius: 8px; padding: 1rem; margin: 1rem 0; min-inline-size: auto; }
 .q .tag { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.04em; }
-.q .stem { font-weight: 600; margin: 0.3rem 0 0.6rem; }
+.q .stem { font-weight: 600; margin: 0.3rem 0 0.6rem; padding: 0; }
 .opt { display: block; padding: 0.25rem 0; cursor: pointer; }
 button { font-size: 1rem; padding: 0.6rem 1.2rem; border-radius: 8px; border: 1px solid #8886; cursor: pointer; }
 #result { border: 1px solid #8884; border-radius: 8px; padding: 1rem; margin: 1rem 0; }

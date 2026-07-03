@@ -51,7 +51,7 @@ def test_root_serves_the_browser_quiz():
     response = TestClient(create_app()).get("/")
     assert response.status_code == 200
     assert "text/html" in response.headers["content-type"]
-    assert "MCP Exam" in response.text
+    assert "MCP Practice Exam" in response.text
     assert "/static/app.js" in response.text
     assert "/static/styles.css" in response.text
 
@@ -61,6 +61,23 @@ def test_frontend_script_builds_dom_without_innerhtml():
     js = TestClient(create_app()).get("/static/app.js").text
     assert ".innerHTML" not in js
     assert "createElement" in js
+
+
+def test_frontend_groups_each_question_in_a_fieldset_with_a_legend():
+    # Accessibility: the radio group must be programmatically associated with its question stem, so a
+    # screen reader announces the question when focus enters an option (fieldset + legend).
+    js = TestClient(create_app()).get("/static/app.js").text
+    assert 'createElement("fieldset")' in js
+    assert 'createElement("legend")' in js
+
+
+def test_index_carries_public_page_metadata_and_a_repo_backlink():
+    # The live demo is a public page: it needs a description for link unfurls, a favicon so the
+    # browser does not 404, and a backlink so a visitor who finds the demo can find the portfolio.
+    html = TestClient(create_app()).get("/").text
+    assert 'name="description"' in html
+    assert "/static/favicon.svg" in html
+    assert "github.com/peopleforrester/mcp_best_practices" in html
 
 
 def test_security_headers_present():
@@ -91,7 +108,10 @@ def test_oversized_request_body_is_logged():
     with capture_logs() as logs:
         response = client.post("/exam/submit", json={"answers": {"a": "bbbbbbb"}})
     assert response.status_code == 413
-    assert any(entry.get("event") == "request_body_too_large" for entry in logs)
+    events = [entry for entry in logs if entry.get("event") == "request_body_too_large"]
+    assert events
+    # With no X-Forwarded-For, the log falls back to the ASGI peer address, not a useless "unknown".
+    assert events[0]["client"] not in ("", "unknown")
 
 
 def test_submit_rejects_an_overlong_answer_value():

@@ -8,6 +8,15 @@ All notable changes to this project are recorded here. The format follows
 
 ### Added
 
+- The docs site is published to GitHub Pages (deploy job on `main`), with a Teaching Material index
+  linking every guidebook, the threat models, the decks, the ecosystem map, and the curriculum.
+- An elicitation human-in-the-loop demo (`archive_report` confirms via `ctx.elicit` before acting),
+  backing the tooling track's elicitation claim with real, tested code.
+- CI security scanning (osv-scanner over the lockfiles, CodeQL for Python and TypeScript), a
+  wheel-parity smoke test that serves the built wheel over uvicorn and probes it, a CycloneDX SBOM
+  artifact for the quiz app, and a scheduled reminder for the 2026-07-28 RC-final refresh.
+- The quiz page carries a title, meta description, favicon, and a portfolio backlink, and groups each
+  question in a `fieldset`/`legend` for screen-reader association.
 - Security track (flagship): policy gateway, guardrails (injection scan and secret/PII redaction),
   Ed25519 signed registry, OAuth confused-deputy demo with RFC 8707 audience binding, original threat
   models, and a composed capstone server that gates a build on registry admission and wraps requests in
@@ -56,6 +65,10 @@ All notable changes to this project are recorded here. The format follows
 - The composed capstone's injection scan defaults to a logging sink instead of discarding findings, so
   the detector is observable out of the box, not a silent no-op. Nested structured tool output is
   scanned and redacted recursively.
+- The gateway rate limiter bounds its per-principal state (stale-sweep past a cap), so the DoS control
+  is not itself a memory-DoS vector, and validates its parameters.
+- Threat-model and gateway docs describe the shipped audit record as a sha256 argument fingerprint
+  (never raw parameters), with result hashing and tamper-evidence marked target design.
 - The Ed25519 registry verifier fails closed on a wrong-type signer key, not just a wrong-length one.
 - `get_pod_status` and `find_pods` both map Kubernetes API errors (404/403/other) to labeled tool
   errors instead of leaking a raw exception.

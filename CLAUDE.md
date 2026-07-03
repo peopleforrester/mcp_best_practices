@@ -17,7 +17,7 @@ each session; it is the live status. The approved plan is `docs/BUILD_PLAN.md` (
 
 | Path | What |
 |---|---|
-| `docs/` | MkDocs Material site: build plan, spec-currency guide, research, glossary |
+| `docs/` | MkDocs Material site: build plan, spec-currency guide, research |
 | `docs/research/` | Founding report + verified-currency + exam-curriculum spikes |
 | `04-security/` | FLAGSHIP: policy gateway, guardrails, signed registry, threat models, OAuth demo |
 | `01-fundamentals/` | FastMCP + TS hello-world and non-trivial servers, minimal client, conformance tests |

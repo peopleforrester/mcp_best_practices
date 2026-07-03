@@ -29,7 +29,9 @@ portfolio actually implements are:
 
 Controls named in the mitigations but **not** implemented in this repo (they are target design): the
 gateway validating tokens or re-checking audience per call, pinning tool descriptions and re-checking
-on `tools/list`, and per-session action or token budgets. These are marked inline where they appear.
+on `tools/list`, per-session action or token budgets, URL-level egress allowlists and resource-URL
+pinning, per-tool token scoping, and result hashing or tamper-evident chaining of audit records. These
+are marked inline where they appear.
 
 These models are the design input for the packages built in the rest of `04-security/`. They are
 written against the stable `2025-11-25` spec; where the `2026-07-28` RC changes the attack surface (the
@@ -57,21 +59,22 @@ stateless core, removed handshake, new transport headers), that is noted inline 
 
 ## Cross-component summary
 
-How each OWASP MCP Top 10 category surfaces across the trust zones and which built control closes it.
-Component models carry the per-threat detail; this is the one-view map from risk to mitigation.
+How each OWASP MCP Top 10 category surfaces across the trust zones and which control closes it (built
+in this repo unless a row says target design). Component models carry the per-threat detail; this is
+the one-view map from risk to mitigation.
 
 | OWASP | Risk | Primary zones | Control that closes it |
 |---|---|---|---|
-| MCP01 | Token mismanagement & secret exposure | server, host, auth-server, data-stores | Guardrails redaction; gateway audit hashes arguments |
+| MCP01 | Token mismanagement & secret exposure | server, host, auth-server, data-stores | Guardrails redaction; gateway audit fingerprints arguments (never raw) |
 | MCP02 | Privilege escalation via scope creep | host, auth-server | Gateway consent gate; OAuth audience binding |
-| MCP03 | Tool poisoning (description injection) | LLM, client, host | Guardrails injection detection; signed registry; gateway tool-definition pinning |
+| MCP03 | Tool poisoning (description injection) | LLM, client, host | Guardrails injection detection; signed registry admission (tool-definition pinning is target design) |
 | MCP04 | Supply chain & dependency tampering | server | Signed registry (provenance verification) |
-| MCP05 | Command injection & execution | server | Schema validation + sandboxing (server-side); gateway allowlist |
+| MCP05 | Command injection & execution | server | Schema-validated parameters (FastMCP/pydantic); gateway allowlist + per-client rate limit (sandboxing is target design) |
 | MCP06 | Intent flow subversion | LLM, host | Guardrails injection detection; gateway per-action consent |
 | MCP07 | Insufficient authn/authz | server, auth-server | OAuth resource-server validation; gateway policy |
 | MCP08 | Lack of audit & telemetry | host, server | Gateway SIEM-ready audit record per decision |
 | MCP09 | Shadow MCP servers | host, server | Signed registry admission; gateway allowlist |
-| MCP10 | Context injection & over-sharing | LLM, data-stores | Guardrails redaction; gateway per-server data-flow policy |
+| MCP10 | Context injection & over-sharing | LLM, data-stores | Guardrails redaction (egress); URL-level data-flow policy is target design |
 
 NSA CSI recommendations map across the same controls: rec 2 (trust boundaries) is the zone
 decomposition itself; rec 4 (validate parameters) and rec 5 (sandbox) are server-side; rec 6 (sign and

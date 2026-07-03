@@ -61,8 +61,12 @@ the gateway, not in annotations.
 - Pagination: the `offset` / `next_offset` pattern in `contacts_search`.
 - Elicitation (human-in-the-loop): a server requests structured input mid-call with
   `await ctx.elicit(message, response_type)`, which returns an action of accept, decline, or cancel
-  plus the data. It is used in the security track's confirmation flows; the verified API shape is in
-  `docs/research/spikes/fastmcp-advanced.md`.
+  plus the data. Demonstrated in `hitl.py`: `archive_report` is a destructive-classed tool that pauses
+  for a boolean confirmation and acts only on an explicit accepted True; decline, cancel, and an
+  accepted False all leave state untouched (silence is never consent). All three paths are tested with
+  the in-memory client's `elicitation_handler`. The verified API shape is in
+  `docs/research/spikes/fastmcp-advanced.md`. (The security track's consent gate is a policy-engine
+  check, a separate control; elicitation is the interactive counterpart.)
 
 ## Code execution with MCP
 

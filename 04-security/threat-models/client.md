@@ -12,13 +12,13 @@ The MCP client is the per-server connector the host instantiates: one client obj
 | Threat | OWASP MCP Top 10 | NSA CSI rec | Mitigation |
 |---|---|---|---|
 | Client connects to an impostor server (typosquatted package, hijacked endpoint, or a shadow server that registered the same name) and treats its identity as established. | MCP09 | 1 | Resolve servers only through the signed registry; verify the cosign/sigstore signature and server-card provenance before the first `initialize`. Pin the canonical server URI used for OAuth `resource` so a substituted endpoint fails token audience binding. |
-| Server spoofs a TLS or transport identity for a remote Streamable HTTP endpoint to harvest the OAuth token. | MCP07 | 6 | Enforce TLS with certificate validation; route remote connections through the policy gateway, which pins resource URLs (CSI rec 3) so the client never opens an unverified host. |
+| Server spoofs a TLS or transport identity for a remote Streamable HTTP endpoint to harvest the OAuth token. | MCP07 | 6 | Enforce TLS with certificate validation; route remote connections through a gateway that pins resource URLs (CSI rec 3) so the client never opens an unverified host. URL pinning is target design: the shipped gateway allowlists tool names, not hosts. |
 
 ### Tampering
 
 | Threat | OWASP MCP Top 10 | NSA CSI rec | Mitigation |
 |---|---|---|---|
-| Server mutates a previously approved tool definition after consent (rug pull): the client re-reads `tools/list` and silently uses the changed schema or description. | MCP03 | 7 | Hash each tool definition at approval time; the policy gateway re-checks the hash on every `tools/list` and requires fresh consent on drift. Treat list-changed notifications as a re-approval trigger, not an auto-accept. |
+| Server mutates a previously approved tool definition after consent (rug pull): the client re-reads `tools/list` and silently uses the changed schema or description. | MCP03 | 7 | Hash each tool definition at approval time; re-check the hash on every `tools/list` and require fresh consent on drift (target design; the shipped gateway does not pin tool definitions). Treat list-changed notifications as a re-approval trigger, not an auto-accept. |
 | Server-provided tool annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`) are tampered to mislabel a destructive tool as read-only. | MCP03 | 4 | The spec states annotations are untrusted unless the server is trusted; the client must not relax confirmation based on an annotation alone. Guardrails enforce action class from the gateway policy, not from the annotation. |
 | In-transit tampering of JSON-RPC messages on a path TLS does not cover end-to-end (proxy hop, local socket). | MCP05 | 6 | Per CSI rec 6, sign messages with expiration timestamps and replay protection where the deployment supports it; otherwise constrain the transport so no untrusted hop exists. |
 
@@ -26,7 +26,7 @@ The MCP client is the per-server connector the host instantiates: one client obj
 
 | Threat | OWASP MCP Top 10 | NSA CSI rec | Mitigation |
 |---|---|---|---|
-| Tool invocations and consent grants pass through the client without an auditable record, so a malicious or buggy server's actions cannot be attributed after the fact. | MCP08 | 8 | The policy gateway emits SIEM-ready JSON for every `tools/call` with parameters, the resolved server identity, the granting principal, and a result hash (CSI rec 8). Correlate with W3C Trace Context (`traceparent`) propagated in `_meta` under the RC. |
+| Tool invocations and consent grants pass through the client without an auditable record, so a malicious or buggy server's actions cannot be attributed after the fact. | MCP08 | 8 | The policy gateway emits SIEM-ready JSON for every `tools/call` with a sha256 fingerprint of the arguments (never the raw parameters, which is itself the MCP01 mitigation), the client and server identities, the decision, and the matched rule (CSI rec 8). Result hashing is target design. Correlate with W3C Trace Context (`traceparent`) propagated in `_meta` under the RC. |
 
 ### Information disclosure
 
@@ -48,7 +48,7 @@ The MCP client is the per-server connector the host instantiates: one client obj
 | Threat | OWASP MCP Top 10 | NSA CSI rec | Mitigation |
 |---|---|---|---|
 | Capability-negotiation downgrade: a server lies about or withholds capabilities so the client falls back to a weaker mode (e.g., omitting structured output to force unvalidated text, or advertising a lower protocol version to dodge newer security requirements). | MCP06 | 2 | Treat the negotiated capability map as a security boundary: refuse to call anything not jointly negotiated, reject protocol-version downgrades below the host's required floor, and fail closed when a server omits an expected capability. Under the RC, validate the `_meta`-carried version per request. |
-| Scope creep: client accumulates broad OAuth scopes across step-up flows and reuses an over-privileged token for narrow tool calls. | MCP02 | 2 | Request least-privilege, per-action scopes; the gateway enforces per-tool token scoping (CSI rec 2) and rejects calls whose token grants more than the action needs. |
+| Scope creep: client accumulates broad OAuth scopes across step-up flows and reuses an over-privileged token for narrow tool calls. | MCP02 | 2 | Request least-privilege, per-action scopes; per-tool token scoping at the gateway (CSI rec 2), rejecting calls whose token grants more than the action needs, is target design (the shipped gateway does no token work; the audience check lives in `oauth-confused-deputy/`). |
 | Confused-deputy escalation: client is coerced (via injected tool output or a crafted server prompt) into invoking a high-privilege tool on the user's behalf. | MCP06 | 7 | Treat every tool/model output as untrusted input to the next stage (CSI rec 7); guardrails screen tool results for injected instructions, and destructive actions require explicit human confirmation independent of any server-supplied annotation. |
 
 ## Client-specific notes

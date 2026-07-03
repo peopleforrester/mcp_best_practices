@@ -14,20 +14,28 @@ the transport (a thin FastMCP adapter). This keeps the security logic provable a
 
 - **`policy.py` (the core).** `PolicyEngine.evaluate(request)` returns an allow/deny decision with a
   reason. Evaluation is secure default-deny, in order:
-  1. **Allowlist**: deny any tool not allowlisted for the `(client_id, server_id)` pair (mitigates
+  1. **Rate limit** (`ratelimit.py`): deny a client over its per-client token-bucket budget, before
+     any other work, so floods of any shape are throttled at the gateway (a DoS mitigation, MCP05).
+  2. **Allowlist**: deny any tool not allowlisted for the `(client_id, server_id)` pair (mitigates
      shadow servers and tool-name shadowing, OWASP MCP09; with definition pinning, rug-pulls, MCP03).
-  2. **Explicit deny rules** (OPA-style predicates): a deny wins over any later allow.
-  3. **Consent gate**: deny a non-read-only tool the client has not consented to (mitigates
+  3. **Explicit deny rules** (OPA-style predicates): a deny wins over any later allow.
+  4. **Explicit allow rules**: a matching allow rule grants the call and satisfies the consent gate
+     (operator pre-authorization; scope allow predicates tightly).
+  5. **Consent gate**: deny a non-read-only tool the client has not consented to (mitigates
      over-broad consent and scope creep, MCP02). Undeclared tools default to needing consent.
-  4. Default allow only for an allowlisted, consented tool.
+  6. Default allow only for an allowlisted, consented tool.
 - **`audit.py`.** `audit_record(...)` builds a structured record (NSA CSI recommendation 8). Arguments
   are fingerprinted with sha256, never logged in plaintext, so secrets passed as arguments do not
-  leak (OWASP MCP01).
+  leak (OWASP MCP01). Rate-limited requests still produce one audit record each (log-every-invocation
+  by design), so a flood is shifted from tool execution to the audit sink, not silenced.
+- **Scope.** The middleware gates `tools/call` only. Resources and prompts registered on a gated
+  server are not policy-checked or redacted by this control; a deployment exposing those primitives
+  needs the corresponding hooks.
 - **`adapter.py` (FastMCP middleware).** `PolicyMiddleware` subclasses `fastmcp.server.middleware.Middleware`
   and implements `on_call_tool`: it builds a `PolicyRequest` from the call, evaluates the engine,
   writes one audit record, and either denies with a `fastmcp.exceptions.ToolError` or forwards to the
   upstream via `call_next`. Verified end-to-end against FastMCP 3.x with the in-memory `Client`
-  (4 async tests). The security logic stays in the framework-independent core; this class is only the
+  (async in-memory-client tests). The security logic stays in the framework-independent core; this class is only the
   transport seam. Register with `mcp.add_middleware(PolicyMiddleware(engine, ...))`.
 
 ### Verified FastMCP 3.x API (2026-06-24)

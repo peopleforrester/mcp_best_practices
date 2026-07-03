@@ -1,0 +1,51 @@
+# ABOUTME: Machine backstop for the MCP spec-currency refresh, so version discipline is not memory-bound.
+# ABOUTME: When the 2026-07-28 RC goes final, this opens (or updates) a dated tracking issue.
+name: Spec currency reminder
+
+on:
+  schedule:
+    - cron: "0 8 * * 1" # weekly, Monday 08:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Open or update the RC-final refresh issue once 2026-07-28 is near or past
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          # The RC is final on 2026-07-28. Fire from two weeks before, so the refresh is not forgotten.
+          target="2026-07-28"
+          now=$(date -u +%Y-%m-%d)
+          window=$(date -u -d "$target - 14 days" +%Y-%m-%d)
+          if [[ "$now" < "$window" ]]; then
+            echo "Not yet within the two-week window (opens $window); nothing to do."
+            exit 0
+          fi
+          title="Refresh spec currency for the 2026-07-28 RC final"
+          existing=$(gh issue list --repo "$REPO" --state open --search "$title in:title" --json number --jq '.[0].number')
+          body=$(cat <<'EOF'
+          The MCP `2026-07-28` revision is at or near final. Per `docs/spec-currency.md`, refresh the portfolio:
+
+          - [ ] Re-verify SDK pins (`mcp`, `fastmcp`, `@modelcontextprotocol/sdk`) against current stable.
+          - [ ] Flip the "stable baseline = 2025-11-25 / RC = 2026-07-28" framing in `README.md`, `docs/index.md`, and `docs/spec-currency.md`.
+          - [ ] Promote the RC-labeled preview notes (stateless core, `_meta`, `server/discover`) from preview to baseline where they now apply.
+          - [ ] Re-run the version-currency spike and date it.
+
+          Opened automatically by the spec-currency-reminder workflow.
+          EOF
+          )
+          if [[ -n "$existing" ]]; then
+            echo "Tracking issue #$existing already open; leaving it."
+          else
+            gh issue create --repo "$REPO" --title "$title" --body "$body"
+          fi
