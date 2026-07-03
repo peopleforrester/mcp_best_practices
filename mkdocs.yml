@@ -1,7 +1,9 @@
 # ABOUTME: MkDocs Material site config for the MCP portfolio docs.
 # ABOUTME: Material is in maintenance mode (pinned 9.7.x); revisit Zensical when it reaches GA.
 site_name: MCP Best Practices
-site_description: A security-first, polyglot Model Context Protocol subject-matter-expertise portfolio
+site_description: A security-first Model Context Protocol subject-matter-expertise portfolio
+site_url: https://peopleforrester.github.io/mcp_best_practices/
+repo_url: https://github.com/peopleforrester/mcp_best_practices
 docs_dir: docs
 
 theme:
@@ -22,6 +24,7 @@ markdown_extensions:
 
 nav:
   - Home: index.md
+  - Teaching Material: teaching-material.md
   - Build Plan: BUILD_PLAN.md
   - Spec Currency: spec-currency.md
   - Best-Practice Verification: best-practice-verification-2026-06-24.md
