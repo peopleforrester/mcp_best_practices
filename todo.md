@@ -5,7 +5,10 @@
 - [x] R3: real ctx.elicit HITL demo in 03-tooling + fix false claims (WS-H3)
   - note: documented type-ignore for an observed fastmcp 3.4.2 + mypy 2.1 overload mis-resolution
     (minimal repro confirmed); runtime covered by 3 tests (accept-true, accept-false, decline)
-- [ ] R4: frontend a11y fieldset/legend + title/meta/favicon/backlink (T-M3/WS-L3)
+- [x] R4: frontend a11y fieldset/legend + title/meta/favicon/backlink (T-M3/WS-L3)
+  - surfaced: the wheel force-include block was redundant (hatchling default inclusion already ships
+    every file under src/mcp_quiz, verified by wheel inspection); removed it. R13c's parity smoke
+    remains the durable guard.
 - [ ] R5: 413-log comment (right-most) + peer-address fallback (T-M2/T-L5)
 - [ ] R6: small code cluster (k8s fake ns-read, is False, getData comment, basket annotations,
       Token.audience typing, defensive-branch comment)
