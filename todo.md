@@ -19,8 +19,8 @@
     kraken repo's); this bank's gates are test_quality.py + model validation, green.
 - [x] R8: security-track docs truth pass 2 (3 threat models' audit wording + markers, README table,
       guidebook sentence, gateway README eval order + scope note, capstone README, control lists)
-- [ ] R9: front-door truth (README status/live URL/teaching index/cosign/Go-Rust/elicitation,
-      docs index, CLAUDE.md map, quiz-app README, drop hardcoded test counts)
+- [x] R9: front-door truth (README status/live URL/teaching index/cosign/Go-Rust/elicitation,
+      docs index, CLAUDE.md map, quiz-app README, drop hardcoded test counts; also MEMORY.md cosign)
 - [ ] R10: decks (03 offset, 06 live URL, 04 rate limiter)
 - [ ] R11: sealed-plan banner on BUILD_PLAN
 - [ ] R12: site content (guidebooks/threat models/ecosystem/curriculum in nav, decks as assets,
