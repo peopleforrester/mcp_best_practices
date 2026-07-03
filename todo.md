@@ -22,7 +22,7 @@
 - [x] R9: front-door truth (README status/live URL/teaching index/cosign/Go-Rust/elicitation,
       docs index, CLAUDE.md map, quiz-app README, drop hardcoded test counts; also MEMORY.md cosign)
 - [x] R10: decks (03 offset, 06 live URL, 04 rate limiter)
-- [ ] R11: sealed-plan banner on BUILD_PLAN
+- [x] R11: sealed-plan banner on BUILD_PLAN
 - [ ] R12: site content (guidebooks/threat models/ecosystem/curriculum in nav, decks as assets,
       site_url, strict green)
 - [ ] R13: CI (Pages deploy, security scanning, wheel parity + SBOM, RC backstop cron)
