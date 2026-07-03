@@ -1,7 +1,7 @@
 # Remediation Progress: Round 7 (end-to-end review, 2026-07-03)
 
 - [x] R1: TokenBucket eviction + param validation + event-loop note (S-M1/S-L7)
-- [ ] R2: bank loader per-entry isinstance -> labeled ValueError (T-M1)
+- [x] R2: bank loader per-entry isinstance -> labeled ValueError (T-M1)
 - [ ] R3: real ctx.elicit HITL demo in 03-tooling + fix false claims (WS-H3)
 - [ ] R4: frontend a11y fieldset/legend + title/meta/favicon/backlink (T-M3/WS-L3)
 - [ ] R5: 413-log comment (right-most) + peer-address fallback (T-M2/T-L5)

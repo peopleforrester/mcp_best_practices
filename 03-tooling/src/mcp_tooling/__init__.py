@@ -3,10 +3,12 @@
 from mcp_tooling.annotations import build_annotations_server
 from mcp_tooling.contacts import build_contacts_server
 from mcp_tooling.eval_harness import Scorecard, evaluate_server
+from mcp_tooling.hitl import build_hitl_server
 
 __all__ = [
     "Scorecard",
     "build_annotations_server",
     "build_contacts_server",
+    "build_hitl_server",
     "evaluate_server",
 ]
