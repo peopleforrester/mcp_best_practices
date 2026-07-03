@@ -5,7 +5,8 @@
 #  - docs/research/spikes/mcp-question-content.md (sourced, defensible answer keys per domain)
 #
 # Construction rules applied to every item: exactly four options, parallel and roughly equal length
-# (the key is never the longest), distractors are real misconceptions (plausible but wrong), the
+# (the key is not systematically the longest; tests enforce it is the uniquely-longest option in at
+# most 40% of items), distractors are real misconceptions (plausible but wrong), the
 # rationale explains why the key is right AND why each distractor is wrong, and the correct answer is
 # balanced across positions A/B/C/D at the bank level. Application items lean over pure recall, in the
 # Linux Foundation associate (knowledge-based) style. RC-only items are flagged in the stem and must
@@ -288,9 +289,11 @@ questions:
     answer: "Untrusted sessions, least-privilege tokens, and filtered egress logging"
     rationale: >-
       The guidance recommends treating each session as untrusted until verified, least-privilege per-tool
-      tokens, registry pinning, egress through a filtering proxy, and audit logging. Allowing all egress,
-      disabling auth, and trusting TLS each invert one of those. The verbatim CSI wording is paraphrased
-      pending a direct read of the PDF. Source: NSA AISC CSI (press release and summaries).
+      tokens, registry pinning, egress through a filtering outgoing proxy, and audit logging. Allowing all
+      egress, disabling auth, and trusting TLS each invert one of those. Paraphrased (the PDF is
+      browser-gated); substance verified 2026-07-03 against the NSA press release and independent
+      summaries. Source: NSA AISC CSI "Model Context Protocol (MCP): Security Design Considerations for
+      AI-Driven Automation", U/OO/6030316-26, 2026-05-20.
 
   # ---- Ecosystem ----
   - id: q-governance
@@ -321,9 +324,10 @@ questions:
       - "MCP for both, since MCP already also covers all agent-to-agent traffic"
       - "A2A for both, since A2A also covers an agent's tool access"
       - "MCP for the database tool; A2A to collaborate with the agent"
-      - "Neither; this needs one proprietary single-vendor protocol"
+      - "A2A for the database tool; MCP to collaborate with the agent"
     answer: "MCP for the database tool; A2A to collaborate with the agent"
     rationale: >-
       MCP connects an agent to tools; A2A connects agents to each other; the two compose. Claiming either
-      protocol covers both overstates its scope, and a single proprietary protocol is unnecessary because
-      MCP and A2A are open Linux Foundation projects. Sources: a2a-protocol.org; AAIF governance posts.
+      protocol covers both overstates its scope, and reversing the assignment misplaces both: A2A does not
+      define tool access and MCP does not define agent-to-agent collaboration. Sources: a2a-protocol.org;
+      AAIF governance posts.
