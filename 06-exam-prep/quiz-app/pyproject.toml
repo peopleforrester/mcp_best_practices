@@ -4,8 +4,8 @@ version = "0.1.0"
 description = "An MCP exam quiz app: a versioned question bank, pure scoring, and a FastAPI service"
 requires-python = ">=3.11"
 dependencies = [
-    "fastapi>=0.115",
-    "uvicorn>=0.30",
+    "fastapi>=0.139.0",
+    "uvicorn>=0.50.2",
     "pyyaml>=6",
     "structlog>=24",
     "opentelemetry-sdk>=1.27",
@@ -25,7 +25,7 @@ build-backend = "hatchling.build"
 packages = ["src/mcp_quiz"]
 
 [dependency-groups]
-dev = ["pytest>=8", "ruff>=0.15.20", "httpx>=0.27", "mypy>=1.11"]
+dev = ["pytest>=8", "ruff>=0.15.20", "httpx>=0.27", "mypy>=2.2.0"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

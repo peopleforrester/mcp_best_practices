@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Composed capstone: signed-registry admission + policy gateway + guardrails + audit in one MCP server"
 requires-python = ">=3.11"
 dependencies = [
-    "fastmcp>=3.4,<4",
+    "fastmcp>=3.4.3,<4",
     "cryptography>=42",
     "mcp-policy-gateway",
     "mcp-guardrails",
@@ -24,7 +24,7 @@ mcp-guardrails = { path = "../guardrails", editable = true }
 mcp-signed-registry = { path = "../signed-registry", editable = true }
 
 [dependency-groups]
-dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.15.20", "mypy>=1.11"]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.15.20", "mypy>=2.2.0"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

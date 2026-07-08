@@ -3,7 +3,7 @@ name = "mcp-architecture"
 version = "0.1.0"
 description = "Architecture: stateless handle pattern, server composition, and a registry/server-card demo"
 requires-python = ">=3.11"
-dependencies = ["fastmcp>=3.4,<4"]
+dependencies = ["fastmcp>=3.4.3,<4"]
 
 [build-system]
 requires = ["hatchling"]
@@ -13,7 +13,7 @@ build-backend = "hatchling.build"
 packages = ["src/mcp_architecture"]
 
 [dependency-groups]
-dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.15.20", "mypy>=1.11"]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.15.20", "mypy>=2.2.0"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
