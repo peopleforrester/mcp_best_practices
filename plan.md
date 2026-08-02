@@ -1,80 +1,44 @@
-# Remediation Plan: Round 7 (end-to-end architecture + code + website review, 2026-07-03)
+# Plan: adopt MCP 2026-07-28 (now final) as the current spec + a labeled stateless-core preview
 
-Full pass over four parallel review reports (architecture five-pillar, website/presentation, security
-flagship fresh pass, non-security tracks fresh pass). Findings independently verified before acting.
-TDD per phase where testable; one commit per phase; staging -> CI -> PR to main. Prior rounds' plans
-superseded; audit trail in decisions.md / PROJECT_STATE.md.
+The `2026-07-28` MCP revision went **final** on 2026-07-28 (verified live against blog.modelcontextprotocol.io
+and the SEP set the repo already documented). It replaces `2025-11-25`. The repo currently calls it a
+"Release Candidate" everywhere; that is now factually wrong.
 
-## Code phases (risk-first)
+## Verified SDK reality (2026-07-28 / PyPI + npm + uv resolution)
+- Official Python `mcp` SDK: **2.0.0** final (a compat `1.29.0` shipped the same day).
+- **FastMCP** (every Python server here uses it): stable **3.4.5 -> mcp 1.29** (2025-11-25 line);
+  **4.0.0b1 -> mcp 2.0** is the 2026-07-28 line but is **beta**.
+- TS `@modelcontextprotocol/sdk`: 1.30.0.
 
-- **R1 (S-M1/S-L7): TokenBucket hardening.** The gateway's DoS control is itself a memory-DoS vector
-  under attacker-controlled client ids: `_state` never evicts (the quiz app's limiter does). Add
-  stale-entry eviction past a max_principals cap, validate capacity/refill in __post_init__, and add a
-  one-sentence single-threaded-event-loop note. Tests for eviction and bad params.
-- **R2 (T-M1): bank loader per-entry type check.** A non-dict question entry escapes round 6's
-  hardening as a context-free TypeError at import. isinstance per entry -> labeled ValueError + test.
-- **R3 (WS-H3): implement the elicitation/HITL demo the docs already claim.** Zero `elicit` calls
-  exist repo-wide while README/docs/CLAUDE.md/guidebook claim it (the guidebook falsely says it is
-  used in the security track). Build a small real `ctx.elicit` confirmation flow in 03-tooling
-  (verify the installed FastMCP 3.4.2 API first), tested with the in-memory client's
-  elicitation_handler; then fix the wording everywhere to point at the real module.
-- **R4 (T-M3/WS-L3): public frontend a11y + polish.** fieldset/legend per question (radio groups are
-  not associated with stems), plus title, meta description, favicon, and a repo backlink. Lock with
-  asset tests.
-- **R5 (T-M2/T-L5): 413-log consistency.** Fix my round-7 comment that says "left-most" XFF where the
-  code (correctly) takes right-most; fall back to the ASGI peer address instead of "unknown".
-- **R6 (small code cluster):** k8s fake read_namespaced_pod filters by namespace (T-L4);
-  test_eval `is False` not falsy (T-L1); comment explaining getData's readOnlyHint (T-L2);
-  ToolAnnotations on the basket tools (T-L8); `Token.audience: str | list[str]` typing (S-L8);
-  honest "defensive, unreachable under FastMCP 3.4.2" comment on the list write-back branch (S-L6).
-- **R7 (exam bank): item quality.** Header overclaim ("never the longest" -> matches the enforced
-  <=40% rule) (T-L6); rewrite the throwaway q-mcp-vs-a2a distractor into a real misconception (T-L9);
-  attempt primary-source verification of the q-nsa-egress NSA CSI paraphrase (T-L7), time-boxed:
-  verified -> tighten wording, unverifiable -> keep the honest caveat and log it.
+## Decision (Michael, framing flip + labeled preview)
+The current spec is now 2026-07-28. The working code stays on **stable FastMCP 3.4.x** because the only
+FastMCP that supports 2026-07-28 is 4.0-beta, and the repo's rule is "never ship preview as the default."
+Add ONE clearly-labeled preview server on fastmcp 4.0-beta / mcp 2.0 to demonstrate the stateless core.
+So the posture inverts: 2026-07-28 used to be the future preview; now it is the present, and the SDK
+support (FastMCP 4.0 / mcp 2.0) is what is in preview.
 
-## Documentation-truth phases
+## Phases
+1. **P1 spec-currency.md** rewritten: 2026-07-28 = current final; 2025-11-25 = prior stable; the
+   examples run on FastMCP 3.4.x (through 2025-11-25 semantics); FastMCP 4.0 / mcp 2.0 is the beta
+   2026-07-28 line demonstrated in the preview; refresh trigger becomes "FastMCP 4.0 stable".
+2. **P2 front door**: README, docs/index.md, CLAUDE.md, AGENTS.md, PROJECT_STATE.md, MEMORY.md,
+   mkdocs description. Flip stable/RC wording; add the honest SDK-support note and the preview pointer.
+3. **P3 threat models + guidebooks + decks**: the six threat models' inline "under the RC" / "the RC"
+   notes become "2026-07-28 (final)"; guidebook and deck spec-boundary lines updated.
+4. **P4 spikes + reminder cron**: supersede/reframe `mcp-rc-2026-07-28-readiness.md` (the RC is now
+   final), note the currency in version-currency spike framing, and repoint the
+   spec-currency-reminder workflow from "RC goes final" to "FastMCP 4.0 reaches stable".
+5. **P5 preview server** (`01-fundamentals/server-python-preview/`, or `preview/stateless-core/`):
+   fastmcp 4.0-beta / mcp 2.0, demonstrating the stateless request form + server/discover + a
+   handle-based tool. VERIFY the fastmcp 4.0 API first (adopting-new-tech). Own pyproject allowing
+   prereleases; README marks it PREVIEW. Tests. EXCLUDE from the lockdrift CI check (intentional SDK
+   divergence) and confirm the CI python matrix still passes with a beta dep installed.
+6. **P6 exam bank + curriculum**: questions flagged "RC, not final" are now wrong. Update the affected
+   items, stems, and rationales to 2026-07-28-final facts; re-verify keys; curriculum README RC notes.
+7. **P7 verify + wrap**: full gate, state/decisions/changelog, push staging, CI green (watch lockdrift
+   and the new preview job), PR to main, verify deploys, journal.
 
-- **R8 (S-M2/S-M3/S-M4/S-L5/S-L9/WS-M4): security-track claim reconciliation, part 2.** The three
-  threat models round 6 did not edit describe an audit record with raw parameters + result hash,
-  contradicting the shipped fingerprint-only design (wrong even as target design); the README's
-  "marked inline" promise is false for those files, and its "built control" table lists unbuilt
-  controls. Fix client.md/host.md/data-stores.md audit wording + inline markers, correct the README
-  table, fix the guidebook's "gateway calls these on arguments and results" sentence, add the rate
-  limiter to the gateway README evaluation order (now factually wrong), capstone README, guidebook
-  control list, and a tools/call-only scope note.
-- **R9 (WS-H1/WS-H2/W3/WS-M1/W4/WS-L2/WS-L4/A-M2 + count policy): front-door truth.** Rewrite the
-  README status (six tracks shipped, in review/maintenance), add the live quiz URL + a
-  teaching-material index, fix cosign -> "Ed25519 today, cosign planned", Go/Rust -> planned, update
-  elicitation wording to point at R3's real code, "conformance-style" in docs/index, fix CLAUDE.md
-  map (glossary, elicitation row), quiz-app README (ABOUTME contradiction, retired railway-up flow,
-  logs-only observability posture), and drop hardcoded test counts from track READMEs (third
-  staleness in three rounds; counts live in CI, not prose).
-- **R10 (WS-M3/WS-M5 + rate-limit deck row): deck touch-ups.** 03 deck cursor -> offset; 06 deck
-  Railway slide -> live URL; 04 deck control list gains the rate limiter.
-- **R11 (WS-M2): sealed-plan banner.** Admonition atop docs/BUILD_PLAN.md: sealed 2026-06-23, live
-  status in PROJECT_STATE.md; remove ambiguity of the "current" marker without editing the sealed
-  body. Logged in decisions.md (banner is a reading note, not a plan change).
-
-## Site + CI + infra phases
-
-- **R12 (W1/W2/WS-H5): publish the teaching content on the site.** Bring guidebooks, threat models,
-  ecosystem map, and curriculum into the MkDocs nav (wrapper/symlink mechanism; convert code-relative
-  links that strict mode flags into GitHub blob URLs), ship the six Reveal decks as static assets,
-  set site_url. Strict build green locally.
-- **R13 (A-H1/A-H2/A-M1/A-L2): CI upgrades.** (a) Pages deploy job on main + enable Pages
-  (build_type workflow); (b) security scanning: osv-scanner/pip-audit over the uv locks + CodeQL
-  (python, js/ts), SHA-pinned per repo convention; (c) quiz-app wheel parity smoke (build wheel,
-  clean-install, hit /health and /) + CycloneDX SBOM artifact; (d) scheduled RC-final backstop
-  (cron opens/updates a dated issue ahead of 2026-07-28).
-- **R14 (A-L1, verified checkSuites:false): enable Railway "Wait for CI"** via the service
-  repo-trigger mutation. Infra mutation, reversible, called out in the summary.
-- **R15: wrap.** Full repo gate, PROJECT_STATE/decisions/CHANGELOG, push staging, CI green, PR to
-  main, merge, verify Railway deploy + Pages live, journal the session.
-
-## Deferred (with reasons)
-
-- Decks load Reveal from CDN only (WS-L5): acceptable once published online; offline presenting is
-  not a current use case.
-- Carried from prior rounds: pagination DRY, A2A async seam, Taskfile ts:test pnpm -r bug, TS track
-  depth, k8s Any-vs-Protocol, handles TTL, injection-detector/redaction breadth.
-- Cosign/sigstore real backend: still planned; SBOM step in R13c is the near-term provenance nod.
+## Guardrails
+- No numerical regression and no fabricated support: the default code stays on the SDK line that
+  actually implements what it claims; the preview is labeled and isolated.
+- Recency: every version claim carries its 2026-07-28 verification and source.
