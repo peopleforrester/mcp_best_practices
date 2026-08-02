@@ -1,7 +1,8 @@
 # MCP Best Practices
 
-> **Spec baseline:** built against MCP `2025-11-25` (latest stable). Forward-compatible notes for the
-> `2026-07-28` Release Candidate; RC-only code is labeled preview. See
+> **Spec:** the current MCP revision is `2026-07-28` (final 2026-07-28), which this repo tracks. The
+> default examples run on stable FastMCP 3.4.x (implementing through the prior `2025-11-25` semantics);
+> a labeled preview rides the FastMCP 4.0 beta line for the stateless core. See
 > [`docs/spec-currency.md`](docs/spec-currency.md).
 
 A security-first portfolio demonstrating Model Context Protocol expertise through original working

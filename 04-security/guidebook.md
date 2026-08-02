@@ -7,7 +7,7 @@ The flagship track. It starts from a threat model of an MCP deployment and build
 the model demands, as original, tested code. The order is deliberate: understand the attack surface
 first, then build the control points that close it.
 
-Built against the stable MCP `2025-11-25` spec; `2026-07-28` RC deltas are noted as preview. See
+Built against the stable MCP `2025-11-25` spec; `2026-07-28` deltas are noted inline. See
 `docs/spec-currency.md`.
 
 ## 1. The trust-zone model
@@ -90,9 +90,10 @@ cd 04-security/oauth-confused-deputy && uv run pytest -q
 
 Each package has its own README with the design detail and the OWASP/NSA mapping.
 
-## 5. Where the RC changes the picture
+## 5. Where 2026-07-28 changes the picture
 
-The `2026-07-28` RC moves session state into explicit tool-argument handles and adds `Mcp-Method` /
-`Mcp-Name` routing headers, both of which suit a gateway (it can route and apply policy without
-inspecting the body). It also hardens authorization (issuer validation per RFC 9207). These are
-preview; the controls here are built on the stable baseline and will gain RC paths as labeled preview.
+The now-final `2026-07-28` revision moves session state into explicit tool-argument handles and adds
+`Mcp-Method` / `Mcp-Name` routing headers, both of which suit a gateway (it can route and apply policy
+without inspecting the body). It also hardens authorization (issuer validation per RFC 9207). The
+shipped controls run on stable FastMCP 3.4.x (prior `2025-11-25` semantics); the stateless-core paths
+are the labeled forward direction, and the fundamentals preview package demonstrates them today.

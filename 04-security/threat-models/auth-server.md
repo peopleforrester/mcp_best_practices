@@ -5,7 +5,7 @@ ABOUTME: Maps each threat to an OWASP MCP Top 10 ID and an NSA CSI recommendatio
 
 The authorization server (AS) is the trust zone that interacts with the resource owner and issues and validates the access tokens an MCP client presents to a remote MCP server. In this deployment the MCP server is an OAuth 2.1 resource server (since spec revision `2025-06-18`); RFC 8707 Resource Indicators bind every token to a single MCP server audience via the canonical-URI `resource` parameter; and token passthrough is forbidden, so a server accepts only tokens minted for itself and never transits a foreign token. The AS holds the consent state, the client registry, the signing keys, and the refresh-token store, which makes it the highest-value target for confused-deputy, audience-confusion, and consent-phishing attacks.
 
-This model is written against the stable `2025-11-25` spec. Where the `2026-07-28` release candidate (RC, final July 28, 2026) changes the authorization attack surface, that is flagged inline as preview.
+This model is written against the stable `2025-11-25` spec. Where the `2026-07-28` revision (final 2026-07-28) changes the authorization attack surface, that is flagged inline.
 
 ## STRIDE
 
@@ -13,7 +13,7 @@ This model is written against the stable `2025-11-25` spec. Where the `2026-07-2
 
 | Threat | OWASP MCP Top 10 | NSA CSI rec | Mitigation |
 |---|---|---|---|
-| Authorization-server mix-up: a client is induced to send an authorization code (and later a token request) to an attacker-controlled AS impersonating the legitimate one, so the code is redeemed by the attacker. | MCP07 | 2 | Validate the `iss` parameter on the authorization response against the issuer recorded from validated AS metadata, using exact string comparison with no normalization (RFC 9207). Reject when `iss` is absent and the AS advertised `authorization_response_iss_parameter_supported=true`. (RC preview, SEP-2468 hardens this.) |
+| Authorization-server mix-up: a client is induced to send an authorization code (and later a token request) to an attacker-controlled AS impersonating the legitimate one, so the code is redeemed by the attacker. | MCP07 | 2 | Validate the `iss` parameter on the authorization response against the issuer recorded from validated AS metadata, using exact string comparison with no normalization (RFC 9207). Reject when `iss` is absent and the AS advertised `authorization_response_iss_parameter_supported=true`. (`2026-07-28`, SEP-2468 hardens this.) |
 | A consent-phishing client registers via Dynamic Client Registration with a name or logo cloned from a trusted client, so the user approves it believing it is the real one. | MCP07 | 2 | Prefer Client ID Metadata Documents (HTTPS-URL client IDs) over open Dynamic Client Registration; treat the DCR path as deprecated and rate-limit it. Bind the displayed client identity to verified metadata, not self-asserted registration fields. |
 | A client presents a token at the AS introspection or token endpoint that was issued for a different MCP server audience. | MCP07, MCP01 | 2 | Issue audience-bound tokens (RFC 8707 `aud`/`resource`) and validate audience on introspection; the resource server independently rejects any token whose audience is not its own canonical URI. |
 
@@ -28,7 +28,7 @@ This model is written against the stable `2025-11-25` spec. Where the `2026-07-2
 
 | Threat | OWASP MCP Top 10 | NSA CSI rec | Mitigation |
 |---|---|---|---|
-| A token is issued but the AS keeps no durable record of which client, which user-consent decision, which scopes, and which `resource` audience it was bound to, so a disputed grant cannot be attributed later. | MCP08 | 8 | Emit a structured, tamper-evident audit record per issuance (client id, subject, granted scopes, audience, grant type, jti, timestamp) to SIEM. Correlate to the downstream tool call via W3C Trace Context in `_meta` (RC, SEP-414). |
+| A token is issued but the AS keeps no durable record of which client, which user-consent decision, which scopes, and which `resource` audience it was bound to, so a disputed grant cannot be attributed later. | MCP08 | 8 | Emit a structured, tamper-evident audit record per issuance (client id, subject, granted scopes, audience, grant type, jti, timestamp) to SIEM. Correlate to the downstream tool call via W3C Trace Context in `_meta` (`2026-07-28`, SEP-414). |
 | A refresh-token rotation or revocation event is not logged, so theft-and-replay of a refresh token cannot be reconstructed during incident response. | MCP08, MCP01 | 8 | Log every refresh rotation, reuse-detection trip, and revocation with the prior and new `jti`; feed reuse alerts to SIEM (rec 8) so a replayed rotated token is both rejected and recorded. |
 
 ### Information disclosure
@@ -36,7 +36,7 @@ This model is written against the stable `2025-11-25` spec. Where the `2026-07-2
 | Threat | OWASP MCP Top 10 | NSA CSI rec | Mitigation |
 |---|---|---|---|
 | Token and secret exposure: access tokens, refresh tokens, client secrets, or signing keys are written to logs, error responses, query strings, or plaintext config. | MCP01 | 8 | Never place tokens in the URI query string (spec MUST NOT); reference signing keys and client secrets from a secrets store, never config files; redact token-shaped values before logging (guardrails). See the OAuth/confused-deputy demo for the correct secret-handling flow. |
-| Refresh-token theft from client storage or transit grants long-lived offline access to the bound MCP server audience. | MCP01 | 8 | Require refresh tokens to be kept confidential in transit and storage (OAuth 2.1 Section 4.3); enforce sender-constrained or rotating refresh tokens with reuse detection so a stolen token is single-use and trips revocation on replay. (RC preview, SEP-2207 refresh-token guidance.) |
+| Refresh-token theft from client storage or transit grants long-lived offline access to the bound MCP server audience. | MCP01 | 8 | Require refresh tokens to be kept confidential in transit and storage (OAuth 2.1 Section 4.3); enforce sender-constrained or rotating refresh tokens with reuse detection so a stolen token is single-use and trips revocation on replay. (`2026-07-28`, SEP-2207 refresh-token guidance.) |
 | AS or Protected Resource Metadata over-discloses internal scopes, endpoints, or client lists to an anonymous discovery request. | MCP07, MCP10 | 3 | Expose only the minimal `scopes_supported` needed for basic functionality (scope minimization); serve discovery documents through the filtering egress proxy with pinned resource URLs (rec 3) so metadata cannot leak to unapproved destinations. |
 
 ### Denial of service
@@ -53,7 +53,7 @@ This model is written against the stable `2025-11-25` spec. Where the `2026-07-2
 | Confused deputy via a proxy MCP server: the proxy holds a static, pre-registered client ID at a third-party AS; an attacker, exploiting the AS's consent cookie from a prior legitimate approval, sends the user a crafted authorization link with a malicious `redirect_uri`, and the AS skips the consent screen and redirects the code to the attacker. | MCP07, MCP02 | 2 | Do not let a proxy reuse one static client ID across users; the AS MUST obtain explicit user consent for each dynamically registered client before redirecting, even when a consent cookie exists for the static proxy client. Demonstrated in the OAuth/confused-deputy demo. |
 | Token passthrough: a server forwards a client-supplied token to a downstream MCP server or API, letting the downstream act with privileges the upstream token was never audience-scoped for. | MCP02, MCP07 | 2 | Forbidden by spec: a server MUST only accept tokens issued for itself and MUST NOT accept or transit any other token; clients MUST NOT send a server any token not issued by that server's AS. Mint a fresh audience-bound token (token exchange), never pass through. |
 | Audience confusion: a token issued for a low-privilege MCP server is replayed against a high-privilege server that fails to validate audience. | MCP07, MCP02 | 2, 4 | RFC 8707 audience binding plus mandatory resource-server validation: the AS audience-restricts the token to the `resource` URI, and the server MUST validate the token was issued specifically for it before honoring it (demonstrated in `oauth-confused-deputy/`). Re-checking audience at the gateway per call is target design, not wired into the shipped gateway. |
-| Scope creep through step-up: repeated `insufficient_scope` step-up authorizations accumulate broad scope on a single token beyond the user's per-operation intent. | MCP02 | 2 | Challenge with only the scopes the current operation needs (least privilege); keep scope accumulation a client-side union of prior and challenged scopes so the AS stays stateless and the user re-consents on expansion. (RC preview, SEP-2350 scope accumulation on step-up.) |
+| Scope creep through step-up: repeated `insufficient_scope` step-up authorizations accumulate broad scope on a single token beyond the user's per-operation intent. | MCP02 | 2 | Challenge with only the scopes the current operation needs (least privilege); keep scope accumulation a client-side union of prior and challenged scopes so the AS stays stateless and the user re-consents on expansion. (`2026-07-28`, SEP-2350 scope accumulation on step-up.) |
 
 ## Authz-specific notes
 
@@ -65,7 +65,7 @@ This model is written against the stable `2025-11-25` spec. Where the `2026-07-2
 
 **PKCE.** OAuth 2.1 requires PKCE on the authorization-code flow for all clients, public and confidential. The client generates a `code_verifier` and sends its `code_challenge` on the authorization request, then the verifier on the token request. This binds the redeemed code to the client instance that started the flow, defeating authorization-code interception and injection even if the code leaks through a logged redirect or a malicious `redirect_uri`.
 
-**RC authorization hardening SEPs (label: preview).** The `2026-07-28` RC tightens several of the controls above. Treat all of these as in-flight until GA:
+**Authorization hardening SEPs (`2026-07-28`, now final).** The `2026-07-28` revision tightens several of the controls above:
 
 - **`iss` validation per RFC 9207 (SEP-2468):** the client validates the authorization-response issuer against the recorded issuer, hardening the AS mix-up / spoofing defense above.
 - **Credential-to-issuer binding (SEP-2352):** binds issued credentials to the issuer that minted them, narrowing cross-issuer replay.

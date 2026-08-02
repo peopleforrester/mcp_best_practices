@@ -23,9 +23,11 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Em-dash check (authored docs; verbatim research report exempt)
         run: |
+          # transcripts/ is machine-generated session-archive spillover, not authored docs; exempt it.
           if grep -rnP '\x{2014}' --include='*.md' --include='*.html' \
                --exclude='mcp-sme-portfolio-research-*.md' \
                --exclude-dir=node_modules --exclude-dir=.venv --exclude-dir=site --exclude-dir=.git \
+               --exclude-dir=transcripts \
                .; then
             echo "::error::em-dash (U+2014) found in authored docs"
             exit 1
@@ -94,13 +96,16 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Fail if a shared dependency resolves to different versions across uv.lock files
         run: |
+          # The stable packages must agree on fastmcp/mcp. The preview package intentionally rides the
+          # FastMCP 4.0 beta line (mcp 2.0) to demonstrate the 2026-07-28 spec, so its lock is excluded.
+          locks=$(find . -name uv.lock -not -path '*/server-python-preview/*')
           status=0
           for pkg in fastmcp mcp; do
-            versions=$(grep -hrA1 "^name = \"$pkg\"\$" --include=uv.lock . | grep '^version = ' | awk '{print $3}' | sort -u)
+            versions=$(grep -hA1 "^name = \"$pkg\"\$" $locks | grep '^version = ' | awk '{print $3}' | sort -u)
             distinct=$(echo "$versions" | grep -c .)
             echo "$pkg: ${versions:-(absent)}"
             if [ "$distinct" -gt 1 ]; then
-              echo "::error::$pkg resolves to multiple versions across lockfiles"
+              echo "::error::$pkg resolves to multiple versions across the stable lockfiles"
               status=1
             fi
           done
