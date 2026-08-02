@@ -15,10 +15,10 @@ app's question bank draws from these domains.
 | 3 | Lifecycle & capability negotiation | fundamentals | initialize handshake (stable), version negotiation, capability maps |
 | 4 | Transports: stdio & Streamable HTTP | architecture | stdio vs Streamable HTTP, HTTP+SSE legacy, sessions, rebinding defenses |
 | 5 | Server primitives: tools, resources, prompts | tooling | registration, list/call, output schemas |
-| 6 | Client primitives: sampling, roots, elicitation | tooling | client-side capabilities, consent, RC deprecations |
+| 6 | Client primitives: sampling, roots, elicitation | tooling | client-side capabilities, consent, 2026-07-28 deprecations |
 | 7 | Clients & hosts in practice | tooling | multi-server aggregation, SDK tiers, minimal client |
 | 8 | Architecture: stateful vs stateless, scaling, registry | architecture | sessions vs handles, load balancing, the registry |
-| 9 | The 2026-07-28 RC (stateless core + extensions) | architecture | no handshake, `_meta`, `server/discover`, extensions, MCP Apps, Tasks |
+| 9 | The 2026-07-28 revision (stateless core + extensions) | architecture | no handshake, `_meta`, `server/discover`, extensions, MCP Apps, Tasks |
 | 10 | Authorization: OAuth 2.1 + RFC 8707 | security | resource server, audience binding, token passthrough forbidden |
 | 11 | Threat model: OWASP MCP Top 10 | security | MCP01 to MCP10 |
 | 12 | NSA AISC CSI security design considerations | security | trust boundaries, least privilege, signed provenance, egress control |
@@ -33,5 +33,5 @@ across these domains; grow it toward the blueprint weights.
 
 ## Currency
 
-Version-sensitive items (the RC stateless core, deprecations, new extensions) must be re-verified when
-`2026-07-28` goes final. See `docs/spec-currency.md` and the research doc's currency notes.
+Version-sensitive items (the stateless core, deprecations, new extensions) were re-verified against the
+final `2026-07-28` spec on 2026-07-28. See `docs/spec-currency.md` and the research doc's currency notes.

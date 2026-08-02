@@ -9,8 +9,9 @@
 # most 40% of items), distractors are real misconceptions (plausible but wrong), the
 # rationale explains why the key is right AND why each distractor is wrong, and the correct answer is
 # balanced across positions A/B/C/D at the bank level. Application items lean over pure recall, in the
-# Linux Foundation associate (knowledge-based) style. RC-only items are flagged in the stem and must
-# be re-verified when the 2026-07-28 spec is final. Built against the stable 2025-11-25 spec.
+# Linux Foundation associate (knowledge-based) style. The current spec is 2026-07-28 (final 2026-07-28);
+# items sourced to 2025-11-25 test the prior-revision facts that carry forward, and 2026-07-28 items
+# were re-verified against the final spec on 2026-07-28.
 version: 2
 questions:
   # ---- Fundamentals ----
@@ -105,7 +106,7 @@ questions:
     cognitive: application
     stem: >-
       A team wants any MCP request to land on any replica with no sticky routing and no shared session
-      store. Which 2026-07-28 release-candidate change makes this possible at the protocol layer? (RC, not final.)
+      store. Which 2026-07-28 change makes this possible at the protocol layer?
     options:
       - "A required session header every replica checks against shared state"
       - "A WebSocket upgrade that pins each client to a single replica"
@@ -113,10 +114,10 @@ questions:
       - "TLS client certificates that encode the session into the connection"
     answer: "Removing the handshake and sessions; context rides per-request _meta"
     rationale: >-
-      The RC stateless core removes the initialize handshake (SEP-2575) and protocol-level sessions
+      The 2026-07-28 stateless core removes the initialize handshake (SEP-2575) and protocol-level sessions
       (SEP-2567); per-request _meta carries version, client info, and capabilities, with server/discover
-      for capabilities, so any instance can serve any request. A session header reintroduces what the RC
-      removes; the WebSocket and TLS options are inventions. RC, re-verify at GA. Source: 2026-07-28 RC blog.
+      for capabilities, so any instance can serve any request. A session header reintroduces what 2026-07-28
+      removes; the WebSocket and TLS options are inventions. Source: 2026-07-28 spec (final).
 
   - id: q-resumability
     domain: architecture
@@ -183,7 +184,7 @@ questions:
     rationale: >-
       Sampling routes inference through the client, so no server keys are needed, and a human SHOULD be
       able to deny the request. Resources are read-only data, prompts are templates that do not run
-      inference, and roots scope URI access. Sampling is deprecated in the 2026-07-28 RC. Source: 2025-11-25 client/sampling.
+      inference, and roots scope URI access. Sampling is deprecated in 2026-07-28. Source: 2025-11-25 client/sampling.
 
   # ---- Security ----
   - id: q-auth-optional
