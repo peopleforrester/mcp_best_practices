@@ -9,7 +9,7 @@ is labeled. The durable facts are governance and protocol structure, not downloa
 ## Governance and protocol (verified)
 
 - MCP was donated by Anthropic to the Linux Foundation's Agentic AI Foundation (AAIF) on 2025-12-09.
-- Latest stable spec is `2025-11-25`; `2026-07-28` is a Release Candidate (locked 2026-05-21, not final).
+- Current spec is `2026-07-28` (final 2026-07-28), which replaced `2025-11-25`.
 - A2A reached v1.0 (2026-03) and is also Linux Foundation governed. The consensus stack is MCP for
   agent-to-tool access and A2A for agent-to-agent coordination; they compose.
 - Official SDKs are AAIF-governed across Python, TypeScript, Go, C#, Rust, Java, Kotlin, Ruby, Swift,

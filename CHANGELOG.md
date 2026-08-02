@@ -8,6 +8,13 @@ All notable changes to this project are recorded here. The format follows
 
 ### Added
 
+- Adopted the now-final MCP `2026-07-28` revision as the current spec (it went final 2026-07-28,
+  replacing `2025-11-25`). All framing flips from "Release Candidate" to current across the docs, threat
+  models, guidebooks, decks, exam bank, and ecosystem map. The default examples stay on stable FastMCP
+  3.4.x (a pre-release SDK is never the default); a labeled preview package,
+  `01-fundamentals/server-python-preview/`, rides FastMCP 4.0 beta / `mcp` 2.0 to demonstrate the
+  stateless handle pattern and the SEP-2549 cache hints. The spec-currency reminder now watches for
+  FastMCP 4.0 stable, the trigger to migrate the default code.
 - The docs site is published to GitHub Pages (deploy job on `main`), with a Teaching Material index
   linking every guidebook, the threat models, the decks, the ecosystem map, and the curriculum.
 - An elicitation human-in-the-loop demo (`archive_report` confirms via `ctx.elicit` before acting),
