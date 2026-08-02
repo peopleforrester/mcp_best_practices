@@ -1,6 +1,6 @@
 # Progress: MCP 2026-07-28-final adoption (framing flip + labeled preview)
 
-- [ ] P1: rewrite docs/spec-currency.md to 2026-07-28-final reality + SDK-support state
+- [x] P1: rewrite docs/spec-currency.md to 2026-07-28-final reality + SDK-support state
 - [ ] P2: front door (README, docs/index, CLAUDE.md, AGENTS.md, PROJECT_STATE, MEMORY, mkdocs)
 - [ ] P3: threat models (6) + guidebooks + decks spec-boundary wording
 - [ ] P4: RC-readiness spike superseded; version-currency framing; reminder cron repointed
