@@ -9,8 +9,12 @@ each session; it is the live status. The approved plan is `docs/BUILD_PLAN.md` (
 
 ## Spec baseline (non-negotiable)
 
-- Default target: MCP **`2025-11-25`** (latest stable). All examples build and pass here.
-- `2026-07-28` is a Release Candidate. RC-only code is labeled **preview** and is never the default.
+- Current spec: MCP **`2026-07-28`** (final 2026-07-28). This repo tracks it.
+- Default examples run on **stable FastMCP 3.4.x** (`mcp` 1.29), which implements through the prior
+  **`2025-11-25`** semantics. A pre-release SDK is never the default path.
+- The `2026-07-28` stateless core is demonstrated in a labeled **preview** package
+  (`01-fundamentals/server-python-preview/`) on the **FastMCP 4.0 beta** line (`mcp` 2.0). It migrates
+  to the default when FastMCP 4.0 ships stable.
 - Migration detail: `docs/spec-currency.md`. Verified versions: `docs/research/version-currency-2026-06-23.md`.
 
 ## Codebase map

@@ -27,8 +27,9 @@ Approved: 2026-06-23T16:25:45Z by Michael (sha256:e0bb135ce836)
 Polyglot, security-first MCP subject-matter-expert portfolio. Six tracks:
 five competency directories (security flagship → fundamentals → tooling → architecture →
 use-cases) plus an exam-prep track (curriculum + Railway-deployable quiz app), each with working
-code + guidebook + Reveal.js deck. Built against MCP `2025-11-25` (stable) with forward-compat
-notes for the `2026-07-28` RC. Full plan in `docs/BUILD_PLAN.md`; founding research in
+code + guidebook + Reveal.js deck. Tracks MCP `2026-07-28` (current, final 2026-07-28); the default
+examples run on stable FastMCP 3.4.x (prior `2025-11-25` semantics), with a labeled FastMCP-4.0-beta
+preview for the stateless core. Full plan in `docs/BUILD_PLAN.md`; founding research in
 `docs/research/mcp-sme-portfolio-research-2026-06.md`.
 
 ### Phase 0 (Foundations) task checklist
