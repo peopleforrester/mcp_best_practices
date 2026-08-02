@@ -1,5 +1,5 @@
 # ABOUTME: The stateless handle pattern: cross-call state via a server-minted handle as a tool arg.
-# ABOUTME: Mirrors the 2026-07-28 RC direction (no protocol session); the basket_id is the handle.
+# ABOUTME: Mirrors the 2026-07-28 direction (no protocol session, now final); the basket_id is the handle.
 from __future__ import annotations
 
 import uuid
