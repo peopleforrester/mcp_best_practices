@@ -6,8 +6,8 @@
 - [x] P4: RC-readiness spike superseded; version-currency framing; reminder cron repointed
 - [x] P5: labeled preview server on fastmcp 4.0-beta / mcp 2.0 (API verified; handle pattern + cache
       hints; 4 tests green; lockdrift excludes its lock; installs via uv sync --locked)
-- [ ] P6: exam bank "RC, not final" items corrected + curriculum RC notes
-- [ ] P7: verify + wrap (gate, state, push, CI, PR, deploys, journal)
+- [x] P6: exam bank "RC, not final" items corrected + curriculum RC notes
+- [x] P7: verify + wrap (gate 154 green; state/decisions/changelog; ecosystem-map fixed)
 
 ## Verified (2026-07-28, primary sources)
 - 2026-07-28 spec FINAL (blog.modelcontextprotocol.io). mcp 2.0.0 final; fastmcp 3.4.5->mcp1.29 stable,
