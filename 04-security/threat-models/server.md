@@ -8,8 +8,8 @@ tool logic against backing systems (databases, internal APIs, shell, filesystems
 deployments it is an OAuth 2.1 Resource Server that must validate audience-bound access tokens per
 RFC 8707. This model treats the server as a distinct trust zone (NSA CSI rec 2): everything inbound
 from a client or the model is untrusted, and everything the server emits is untrusted input to the
-next stage. It is written against the stable `2025-11-25` spec, with `2026-07-28` RC deltas flagged
-inline as preview.
+next stage. It is written against the stable `2025-11-25` spec, with `2026-07-28` deltas flagged
+inline.
 
 ## STRIDE
 
@@ -31,7 +31,7 @@ inline as preview.
 
 | Threat | OWASP MCP Top 10 | NSA CSI rec | Mitigation |
 |---|---|---|---|
-| A tool invocation against a backing system (data write, command execution) occurs with no durable record, so an actor can deny having triggered it and incident reconstruction is impossible. | MCP08 Lack of Audit & Telemetry | 8 | SIEM-ready structured JSON audit log emitted by the policy gateway for every `tools/call`: caller identity (token subject), tool name, parameters, and a result hash. RC preview: W3C Trace Context (`traceparent`/`tracestate` in `_meta`, SEP-414) correlates the record end to end via OpenTelemetry. |
+| A tool invocation against a backing system (data write, command execution) occurs with no durable record, so an actor can deny having triggered it and incident reconstruction is impossible. | MCP08 Lack of Audit & Telemetry | 8 | SIEM-ready structured JSON audit log emitted by the policy gateway for every `tools/call`: caller identity (token subject), tool name, parameters, and a result hash. In `2026-07-28`: W3C Trace Context (`traceparent`/`tracestate` in `_meta`, SEP-414) correlates the record end to end via OpenTelemetry. |
 
 ### Information disclosure
 
@@ -51,7 +51,7 @@ inline as preview.
 | Threat | OWASP MCP Top 10 | NSA CSI rec | Mitigation |
 |---|---|---|---|
 | Crafted tool parameters break out of the intended operation into the underlying shell, path, or query (command/argument injection, path traversal), running attacker code with the server's privileges. | MCP05 Command Injection & Execution | 5 | Strict JSON Schema validation and allowlisting of parameter values (no string interpolation into shells); execute in a least-privilege sandbox (seccomp/AppArmor/SELinux) with no ambient credentials. The Anthropic Git MCP path-traversal/arg-injection class is the worked example in `guardrails/`. |
-| Granted scopes accumulate across step-up or consent flows until a low-trust client holds broad privilege it was never meant to have (scope creep). | MCP02 Privilege Escalation via Scope Creep | 2 | Least-privilege, per-action/per-tool tokens; the policy gateway enforces a per-client consent registry and refuses scope accumulation. RC preview: scope-accumulation hardening on step-up (SEP-2350) and credential-to-AS binding (SEP-2352). |
+| Granted scopes accumulate across step-up or consent flows until a low-trust client holds broad privilege it was never meant to have (scope creep). | MCP02 Privilege Escalation via Scope Creep | 2 | Least-privilege, per-action/per-tool tokens; the policy gateway enforces a per-client consent registry and refuses scope accumulation. In `2026-07-28`: scope-accumulation hardening on step-up (SEP-2350) and credential-to-AS binding (SEP-2352). |
 | The server is handed a client's foreign-issued token and forwards it to a downstream system, acting as a confused deputy that exercises the downstream's trust in the server. | MCP01 Token Mismanagement & Secret Exposure | 2 | Token passthrough is forbidden: the server accepts only tokens issued for itself and obtains downstream access via token exchange, never by relaying the inbound token. Demonstrated end to end in `oauth-confused-deputy/`. |
 
 ## Server-specific notes
@@ -81,7 +81,7 @@ process count. The sandbox holds no ambient credentials; downstream access is gr
 
 **Parameter validation against schemas (NSA rec 4).** Every tool input is validated against its
 declared JSON Schema before execution, and ambiguous or user-sourced parameter forwarding is blocked.
-The RC moves tool input/output schemas to full JSON Schema 2020-12 with `oneOf`/`anyOf`/`allOf`/`$ref`
+`2026-07-28` moves tool input/output schemas to full JSON Schema 2020-12 with `oneOf`/`anyOf`/`allOf`/`$ref`
 (SEP-2106), which tightens what can be expressed and validated; the guardrails validator targets that
 schema dialect.
 
@@ -91,7 +91,7 @@ Admission verification (sigstore policy-controller or Kyverno) admits only signe
 Cards (`/.well-known/mcp/server-card.json`, SEP-1649 / SEP-2127, DRAFT) give clients a pre-connection
 identity and capability record to validate against the `signed-registry/` before connecting.
 
-**RC stateless-core impact on server design (preview).** The `2026-07-28` RC removes the
+**Stateless-core impact on server design (`2026-07-28`, now final).** The `2026-07-28` revision removes the
 `initialize`/`initialized` handshake (SEP-2575) and the `Mcp-Session-Id` header / protocol-level
 session (SEP-2567). Cross-call state no longer lives in a server-held session: it moves to explicit
 server-minted handles (for example `basket_id`) passed back as ordinary tool arguments. For this
@@ -100,7 +100,7 @@ must be validated and authorized on each call exactly like any other argument (t
 implicitly trusted session key would be the new privilege-escalation foot-gun). Protocol version,
 client info, and capabilities travel in per-request `_meta`, and the required `Mcp-Method`/`Mcp-Name`
 routing headers (SEP-2243) let the policy gateway authorize and rate-limit without parsing the body.
-This is RC, not final; verify against the GA spec when it ships.
+This is `2026-07-28`, verified against the final spec on 2026-07-28.
 
 ## Residual risk
 

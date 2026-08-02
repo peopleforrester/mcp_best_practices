@@ -5,7 +5,7 @@ ABOUTME: Maps each threat to an OWASP MCP Top 10 ID and an NSA CSI recommendatio
 
 The host is the application that runs the agent loop and embeds one MCP client per connected server: Claude Desktop, Claude Code, an IDE extension such as VS Code or Cursor, ChatGPT, or a custom agent runtime. It is the trust anchor for the deployment. The host holds the user's session and credentials, decides which servers to launch and which tools to expose to the model, mediates every consent prompt, and assembles the prompt context (system prompt, user input, tool definitions, tool results) that the LLM acts on. Its trust boundaries are three: with the human user (whose intent it must faithfully represent), with the LLM (whose output it treats as a request for action, not as ground truth), and with each embedded client and the server behind it (which it must treat as untrusted until verified, per NSA CSI rec 2). Tool results that cross the client boundary back into the prompt are the highest-risk inbound channel.
 
-This model is written against the stable `2025-11-25` spec. Where the `2026-07-28` release candidate (RC, final July 28, 2026) shifts host responsibilities, that is flagged inline as preview.
+This model is written against the stable `2025-11-25` spec. Where the `2026-07-28` revision (final 2026-07-28) shifts host responsibilities, that is flagged inline.
 
 ## STRIDE
 
@@ -30,7 +30,7 @@ This model is written against the stable `2025-11-25` spec. Where the `2026-07-2
 | Threat | OWASP MCP Top 10 | NSA CSI rec | Mitigation |
 |---|---|---|---|
 | A destructive tool call runs but the host keeps no record of who proposed it, which user approved it, or what arguments were sent, so the action cannot be attributed after the fact. | MCP08 | 8 | Emit a structured audit record per invocation (proposing model turn, user-consent decision, server identity, and a sha256 argument fingerprint rather than raw parameters) to SIEM via the policy gateway. Result hashing and tamper-evident chaining or signing of the records are target design; the shipped record is a plain structured dict. |
-| Consent decisions are not durably logged, so a disputed "the agent did X without asking" claim cannot be resolved. | MCP08 | 8 | Persist every consent grant and its scope with a timestamp and correlation id; W3C Trace Context in `_meta` (RC, SEP-414) lets the host correlate a UI consent to the downstream tool call. |
+| Consent decisions are not durably logged, so a disputed "the agent did X without asking" claim cannot be resolved. | MCP08 | 8 | Persist every consent grant and its scope with a timestamp and correlation id; W3C Trace Context in `_meta` (`2026-07-28`, SEP-414) lets the host correlate a UI consent to the downstream tool call. |
 
 ### Information disclosure
 
@@ -61,7 +61,7 @@ This model is written against the stable `2025-11-25` spec. Where the `2026-07-2
 
 **Multi-server aggregation risk.** A host typically runs several clients at once and merges their tool catalogs into one namespace the model sees. This is where cross-server contamination lives: data read from a trusted server can be handed to a tool on a less-trusted server in the same turn, tool-name collisions can shadow a trusted tool, and one compromised server raises blast radius across the aggregate (Unit 42 reported a 78.3% attack success rate with five connected servers, a single compromise). Namespace tools per server, enforce per-server data-flow policy in the gateway, and keep one client and one consent scope per server.
 
-**RC stateless core shift (label: preview).** The `2026-07-28` RC removes the `initialize`/`initialized` handshake (SEP-2575) and the `Mcp-Session-Id` / protocol-level session (SEP-2567); protocol version, client info, and capabilities now travel in `_meta` on each request, with `server/discover` for capability advertisement. For the host this moves identity and capability verification from a one-time handshake to a per-request concern: the host (or its gateway) must validate provenance and capability claims on every call rather than trusting a session established once. W3C Trace Context in `_meta` (SEP-414) helps the host correlate consent to invocation across stateless calls for audit. Re-verify these specifics at GA; the RC is not final.
+**Stateless core shift (`2026-07-28`, now final).** The `2026-07-28` revision removes the `initialize`/`initialized` handshake (SEP-2575) and the `Mcp-Session-Id` / protocol-level session (SEP-2567); protocol version, client info, and capabilities now travel in `_meta` on each request, with `server/discover` for capability advertisement. For the host this moves identity and capability verification from a one-time handshake to a per-request concern: the host (or its gateway) must validate provenance and capability claims on every call rather than trusting a session established once. W3C Trace Context in `_meta` (SEP-414) helps the host correlate consent to invocation across stateless calls for audit. Verified against the final text 2026-07-28.
 
 ## Residual risk
 

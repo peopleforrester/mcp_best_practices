@@ -37,7 +37,7 @@ def audit_record(
         request: The evaluated request.
         result: The decision the engine returned.
         correlation_id: Trace id tying this record to the originating client turn
-            (W3C Trace Context in the RC, SEP-414).
+            (W3C Trace Context in 2026-07-28, SEP-414).
         timestamp: ISO-8601 timestamp, supplied by the caller for testability.
 
     Returns:
