@@ -3,6 +3,11 @@ ABOUTME: Every claim is labeled NORMATIVE (published/draft spec) vs DRAFT/BLOG (
 
 # MCP 2026-07-28 Release Candidate: Readiness Spike (verified 2026-06-25)
 
+> **Realized 2026-07-28.** The `2026-07-28` revision went **final** on 2026-07-28, exactly as this
+> readiness spike anticipated. The verified-current state (final spec, `mcp` 2.0 / FastMCP 4.0 beta,
+> and how this repo tracks it) now lives in [`docs/spec-currency.md`](../../spec-currency.md). This
+> spike is kept as the dated readiness record that preceded the release.
+
 Verification date: 2026-06-25. Prior baseline: `docs/best-practice-verification-2026-06-24.md`
 and `docs/research/version-currency-2026-06-23.md`. This spike re-checks the pending revision
 against official sources only and flags what moved in the last day.

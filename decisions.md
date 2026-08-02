@@ -156,3 +156,30 @@ work: presentation-layer claim drift and CI posture. Decisions worth recording:
 - Railway "Wait for CI" (checkSuites) was left off and deferred to a dashboard toggle: the read that
   confirmed checkSuites=false at session start began returning INTERNAL_SERVER_ERROR, so the trigger id
   could not be read to run the mutation safely. Not fabricating an API success for a one-click setting.
+
+## 2026-07-28T00:00:00Z · 3.x · Round 8: adopt the now-final 2026-07-28 spec as current
+
+The `2026-07-28` MCP revision went final on 2026-07-28 (verified live against
+blog.modelcontextprotocol.io; `mcp` 2.0.0 published that day). The repo had framed it as a Release
+Candidate everywhere, which was now false. Decisions:
+
+- Framing flip + labeled preview, not a full code migration (Michael's call). The current spec is
+  2026-07-28, so all framing flips to that. But the only FastMCP that supports it is 4.0-beta (which
+  pulls mcp 2.0), and the repo's standing rule is that a pre-release SDK is never the default. So the
+  default examples stay on stable FastMCP 3.4.x (which implements through 2025-11-25 semantics), and a
+  single labeled preview package rides FastMCP 4.0-beta to demonstrate the stateless core. The posture
+  inverts: 2026-07-28 was the future preview, now it is the present and the SDK support is the preview.
+
+- Verified SDK reality before touching code (recency discipline): mcp 2.0.0 final; fastmcp 3.4.5 -> mcp
+  1.29 (stable) vs fastmcp 4.0.0b1 -> mcp 2.0 (beta), confirmed by uv resolution; TS sdk 1.30.0. This is
+  why the code stays on 3.4.x: adopting 4.0-beta as the default would fabricate stable support that does
+  not exist yet and violate the no-preview-as-default rule.
+
+- Preview package isolation: its lock is excluded from the lockdrift CI check (intentional divergence
+  onto the 4.0/mcp-2.0 line), and it installs via `uv sync --locked` so the CI python matrix covers it.
+
+- The spec-currency-reminder cron, which watched for "2026-07-28 goes final" (now happened), was
+  repointed to watch for "FastMCP 4.0 reaches stable", the trigger to migrate the default examples.
+
+Exam-bank keys touching 2026-07-28 (stateless core enabling stateless load balancing; sampling
+deprecation) were re-verified against the final spec before reframing. Repo at 154 tests, all green.

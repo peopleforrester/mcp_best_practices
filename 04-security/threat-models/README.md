@@ -33,9 +33,11 @@ on `tools/list`, per-session action or token budgets, URL-level egress allowlist
 pinning, per-tool token scoping, and result hashing or tamper-evident chaining of audit records. These
 are marked inline where they appear.
 
-These models are the design input for the packages built in the rest of `04-security/`. They are
-written against the stable `2025-11-25` spec; where the `2026-07-28` RC changes the attack surface (the
-stateless core, removed handshake, new transport headers), that is noted inline as preview.
+These models are the design input for the packages built in the rest of `04-security/`. They were
+written against the `2025-11-25` baseline; where the now-final `2026-07-28` revision changes the attack
+surface (the stateless core, removed handshake, new transport headers), that is noted inline. The shipped
+security packages run on stable FastMCP 3.4.x (prior `2025-11-25` semantics); the stateless-core paths
+are the labeled forward direction.
 
 ## Components
 

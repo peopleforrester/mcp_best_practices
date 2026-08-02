@@ -27,8 +27,9 @@ Approved: 2026-06-23T16:25:45Z by Michael (sha256:e0bb135ce836)
 Polyglot, security-first MCP subject-matter-expert portfolio. Six tracks:
 five competency directories (security flagship → fundamentals → tooling → architecture →
 use-cases) plus an exam-prep track (curriculum + Railway-deployable quiz app), each with working
-code + guidebook + Reveal.js deck. Built against MCP `2025-11-25` (stable) with forward-compat
-notes for the `2026-07-28` RC. Full plan in `docs/BUILD_PLAN.md`; founding research in
+code + guidebook + Reveal.js deck. Tracks MCP `2026-07-28` (current, final 2026-07-28); the default
+examples run on stable FastMCP 3.4.x (prior `2025-11-25` semantics), with a labeled FastMCP-4.0-beta
+preview for the stateless core. Full plan in `docs/BUILD_PLAN.md`; founding research in
 `docs/research/mcp-sme-portfolio-research-2026-06.md`.
 
 ### Phase 0 (Foundations) task checklist
@@ -232,6 +233,23 @@ touched code from my prior rounds. Each phase is a single TDD commit; audit trai
   the OAuth flow tautology nits; pagination DRY, A2A async, and the Taskfile ts:test bug stay deferred.
 Repo total: 141 tests (137 Python across 12 packages + 4 TS), all ruff + mypy clean, TS typecheck green.
 
+### Round 8 (2026-07-28+): adopt MCP 2026-07-28 (now final) as the current spec
+The `2026-07-28` MCP revision went final on 2026-07-28 (verified live against blog.modelcontextprotocol.io;
+`mcp` 2.0.0 shipped that day). The repo had it framed as a Release Candidate everywhere. Michael's call:
+flip the framing to current + add a labeled preview, keep the default code on stable FastMCP 3.4.x
+(the only FastMCP that supports 2026-07-28 is 4.0-beta, which the repo's rules forbid as a default).
+- P5: a labeled preview package `01-fundamentals/server-python-preview/` on FastMCP 4.0-beta / mcp 2.0
+  demonstrates the stateless handle pattern and the SEP-2549 cache hints (4 tests). Its lock is excluded
+  from the lockdrift check (intentional SDK divergence); it installs via uv sync --locked.
+- P1-P4, P6: the framing flipped from "RC" to "current/final" across spec-currency.md (rewritten), the
+  front door (README, docs index, agent guidance, PROJECT_STATE, MEMORY, nav), the six threat models,
+  the guidebooks and decks, the exam bank and curriculum (keys re-verified against the final spec), and
+  the ecosystem map. The RC-readiness spike is marked realized; the reminder cron now watches for
+  FastMCP 4.0 stable (to migrate the default code) instead of the RC-final flip.
+- Posture inverts: 2026-07-28 used to be the future preview; now it is the present, and the SDK support
+  (FastMCP 4.0 / mcp 2.0) is what is in preview. Default examples migrate when FastMCP 4.0 ships stable.
+Repo total: 154 tests (150 Python across 13 packages + 4 TS), all ruff + mypy clean, TS typecheck green.
+
 ### Round 7 (2026-07-03): end-to-end architecture + code + website review, 15 phases
 Four parallel reviewers (architecture five-pillar, website/presentation, security flagship fresh pass,
 non-security tracks fresh pass). Findings verified before acting; the round-6 code changes all verified
@@ -256,8 +274,9 @@ regression-free, so most of this round was presentation-layer and CI-posture tru
   Material nav page (R12); CI gained osv-scanner + CodeQL scanning, a wheel-parity smoke test that
   serves the built wheel over uvicorn and probes it (closing the source-vs-wheel gap), a CycloneDX SBOM
   artifact, and a spec-currency reminder cron for the 2026-07-28 RC-final flip (R13).
-- Deferred with reason: Railway "Wait for CI" (checkSuites=false, confirmed) is a one-click dashboard
-  toggle; the GraphQL path 500'd intermittently so it was not automated (R14). Carried: pagination DRY,
+- Railway "Wait for CI" is now ENABLED (2026-07-03): toggled in the dashboard and confirmed via
+  deploymentTriggerUpdate(checkSuites:true), so a red main CI blocks the auto-deploy (R14). Carried:
+  pagination DRY,
   A2A async seam, Taskfile ts:test pnpm -r bug, TS track depth, injection-detector breadth, cosign
   backend, gateway per-request identity (docstring caveat), rendering full guidebooks inline on the site
   (their track-relative links do not resolve off-tree).
@@ -300,3 +319,4 @@ _(append-only. Each phase transition adds one line, oldest first.)_
 - 2026-06-27 3.x round 5: 10 TDD phases over the second senior review shipped to staging (127 tests green); fixed the round-4 stale-schema miss (H1)
 - 2026-07-03 3.x round 6: 8 TDD phases over the third senior review shipped to staging (141 tests green); built the gateway rate limiter, fixed the k8s 404 dead-code, reconciled threat-model claim drift
 - 2026-07-03 3.x round 7: 15 phases over a full architecture + code + website review (150 tests green); published the docs site to Pages, added security scanning + wheel-parity CI, backed the elicitation claim with a real demo, and reconciled the front-door + threat-model presentation drift
+- 2026-07-28 3.x round 8: adopted the now-final 2026-07-28 spec as current (154 tests green); framing flipped from RC to current across all surfaces, plus a labeled FastMCP-4.0-beta stateless-core preview package

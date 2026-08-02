@@ -1,5 +1,5 @@
-# ABOUTME: Machine backstop for the MCP spec-currency refresh, so version discipline is not memory-bound.
-# ABOUTME: When the 2026-07-28 RC goes final, this opens (or updates) a dated tracking issue.
+# ABOUTME: Machine backstop for the next spec-currency step, so version discipline is not memory-bound.
+# ABOUTME: The 2026-07-28 spec is final; this now watches for FastMCP 4.0 stable to migrate the default code.
 name: Spec currency reminder
 
 on:
@@ -18,34 +18,38 @@ jobs:
       contents: read
       issues: write
     steps:
-      - name: Open or update the RC-final refresh issue once 2026-07-28 is near or past
+      - name: Open a tracking issue when FastMCP 4.0 reaches a stable (non-prerelease) release
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
-          # The RC is final on 2026-07-28. Fire from two weeks before, so the refresh is not forgotten.
-          target="2026-07-28"
-          now=$(date -u +%Y-%m-%d)
-          window=$(date -u -d "$target - 14 days" +%Y-%m-%d)
-          if [[ "$now" < "$window" ]]; then
-            echo "Not yet within the two-week window (opens $window); nothing to do."
+          # The 2026-07-28 spec is final; the default examples run on stable FastMCP 3.4.x until the
+          # FastMCP 4.0 line (which pulls mcp 2.0, the 2026-07-28 SDK) publishes a stable release. When
+          # a 4.0.x final appears on PyPI, open a tracking issue to migrate the default examples.
+          latest_stable=$(curl -s https://pypi.org/pypi/fastmcp/json \
+            | python3 -c "import sys,json; d=json.load(sys.stdin);
+          import re
+          def is_final(v): return re.fullmatch(r'[0-9]+(\.[0-9]+)*', v) is not None
+          fours=[v for v in d['releases'] if v.startswith('4.') and is_final(v)]
+          print(sorted(fours)[-1] if fours else '')")
+          if [ -z "$latest_stable" ]; then
+            echo "No stable FastMCP 4.0.x yet; still on the pre-release line. Nothing to do."
             exit 0
           fi
-          title="Refresh spec currency for the 2026-07-28 RC final"
+          echo "Stable FastMCP $latest_stable is available."
+          title="Migrate the default examples to FastMCP 4.0 (2026-07-28 stateless core)"
           existing=$(gh issue list --repo "$REPO" --state open --search "$title in:title" --json number --jq '.[0].number')
-          body=$(cat <<'EOF'
-          The MCP `2026-07-28` revision is at or near final. Per `docs/spec-currency.md`, refresh the portfolio:
-
-          - [ ] Re-verify SDK pins (`mcp`, `fastmcp`, `@modelcontextprotocol/sdk`) against current stable.
-          - [ ] Flip the "stable baseline = 2025-11-25 / RC = 2026-07-28" framing in `README.md`, `docs/index.md`, and `docs/spec-currency.md`.
-          - [ ] Promote the RC-labeled preview notes (stateless core, `_meta`, `server/discover`) from preview to baseline where they now apply.
-          - [ ] Re-run the version-currency spike and date it.
-
-          Opened automatically by the spec-currency-reminder workflow.
-          EOF
-          )
-          if [[ -n "$existing" ]]; then
+          if [ -n "$existing" ]; then
             echo "Tracking issue #$existing already open; leaving it."
-          else
-            gh issue create --repo "$REPO" --title "$title" --body "$body"
+            exit 0
           fi
+          body=$(printf '%s\n' \
+            "Stable FastMCP $latest_stable is on PyPI (the FastMCP 4.0 / mcp 2.0 line that implements the 2026-07-28 stateless core). Per docs/spec-currency.md, migrate the default examples off 3.4.x:" \
+            "" \
+            "- [ ] Re-pin the stable Python packages to fastmcp>=4,<5 and mcp>=2,<3; re-lock and re-run." \
+            "- [ ] Migrate the fundamentals/tooling/architecture servers to the stateless core; fold in the approach from 01-fundamentals/server-python-preview/." \
+            "- [ ] Retire or relabel the preview package once the mainline is on 4.0." \
+            "- [ ] Refresh docs/spec-currency.md (the FastMCP 3.4.x / 4.0 split note is no longer needed)." \
+            "" \
+            "Opened automatically by the spec-currency-reminder workflow.")
+          gh issue create --repo "$REPO" --title "$title" --body "$body"

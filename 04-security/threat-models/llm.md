@@ -5,7 +5,7 @@ ABOUTME: Maps each threat to an OWASP MCP Top 10 ID and an NSA CSI recommendatio
 
 This trust zone is the model itself plus the boundary where tool descriptions, tool results, resource content, and prompt templates become model context, and where model output becomes tool calls. The model trusts nothing by default: every tool result and every resource is untrusted input on the same footing as a hostile email or a scraped web page, and the model's own output is what drives the next tool invocation. The protocol gives the inference boundary no integrity guarantee beyond the transport (NSA CSI rec 6), so the controls in this zone live at the gateway and guardrail layer, not inside the model.
 
-This model is written against the stable `2025-11-25` spec. Where the `2026-07-28` RC shifts the surface (per-request `_meta`, removed handshake) it is noted as preview.
+This model is written against the stable `2025-11-25` spec. Where the `2026-07-28` revision shifts the surface (per-request `_meta`, removed handshake) it is noted inline.
 
 ## STRIDE
 
@@ -30,7 +30,7 @@ Repudiation maps awkwardly to a stochastic model: the model does not sign its ch
 
 | Threat | OWASP MCP Top 10 | NSA CSI rec | Mitigation |
 |---|---|---|---|
-| The deployment cannot prove which tool the model "chose" or why, because output is nondeterministic and the model emits no provenance for its own decision. | MCP08 Lack of Audit & Telemetry | 8 (log all invocations with parameters, identities, result hashes) | The `policy-gateway/` is the system of record: it logs every proposed tool call with the input context hash, the resolved arguments, the caller identity, and a result hash into SIEM-ready JSON, so attribution lives at the boundary regardless of model nondeterminism. W3C Trace Context (RC SEP-414) correlates the decision across hops. |
+| The deployment cannot prove which tool the model "chose" or why, because output is nondeterministic and the model emits no provenance for its own decision. | MCP08 Lack of Audit & Telemetry | 8 (log all invocations with parameters, identities, result hashes) | The `policy-gateway/` is the system of record: it logs every proposed tool call with the input context hash, the resolved arguments, the caller identity, and a result hash into SIEM-ready JSON, so attribution lives at the boundary regardless of model nondeterminism. W3C Trace Context (`2026-07-28` SEP-414) correlates the decision across hops. |
 
 ### Information disclosure
 

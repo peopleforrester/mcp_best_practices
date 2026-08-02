@@ -3,6 +3,11 @@ ABOUTME: Source of truth where it diverges from the founding research report; re
 
 # Version Currency: verified 2026-06-23
 
+> **Superseded for the spec baseline (2026-07-28).** The `2026-07-28` revision is now final and `mcp`
+> 2.0 has shipped. The current verified spec/SDK state and how this repo tracks it live in
+> [`docs/spec-currency.md`](../spec-currency.md). The pin facts below remain the dated 2026-06-23
+> record for the stable FastMCP 3.4.x line the default examples still use.
+
 Two web-research spikes independently re-verified the fast-moving claims in
 `mcp-sme-portfolio-research-2026-06.md` against official sources. Where this file and the
 report disagree, **this file wins**. Re-verify anything here older than ~6 months at build time.

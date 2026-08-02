@@ -1,5 +1,5 @@
 # ABOUTME: Tests the stateless handle pattern: state travels via a server-minted basket_id argument.
-# ABOUTME: This is the 2026-07-28 RC direction (no protocol session); state keyed by the handle.
+# ABOUTME: This is the 2026-07-28 direction (no protocol session, now final); state keyed by the handle.
 import pytest
 from fastmcp import Client
 from fastmcp.exceptions import ToolError

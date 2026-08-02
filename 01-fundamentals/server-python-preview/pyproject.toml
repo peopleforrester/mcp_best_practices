@@ -1,0 +1,26 @@
+[project]
+# PREVIEW: targets the 2026-07-28 stateless core on the FastMCP 4.0 beta line (mcp 2.0). Kept separate
+# from the stable fundamentals package so the default examples never depend on a pre-release SDK.
+name = "mcp-fundamentals-preview"
+version = "0.1.0"
+description = "Preview: a stateless-core MCP server (2026-07-28) on FastMCP 4.0 beta / mcp 2.0"
+requires-python = ">=3.11"
+dependencies = ["fastmcp>=4.0.0b1,<5"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mcp_fundamentals_preview"]
+
+# This package intentionally rides FastMCP's pre-release 4.0 line to demonstrate 2026-07-28; allow it.
+[tool.uv]
+prerelease = "allow"
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.15.20", "mypy>=1.11"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
