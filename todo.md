@@ -4,7 +4,8 @@
 - [ ] P2: front door (README, docs/index, CLAUDE.md, AGENTS.md, PROJECT_STATE, MEMORY, mkdocs)
 - [ ] P3: threat models (6) + guidebooks + decks spec-boundary wording
 - [ ] P4: RC-readiness spike superseded; version-currency framing; reminder cron repointed
-- [ ] P5: labeled preview server on fastmcp 4.0-beta / mcp 2.0 (verify API first; exclude from lockdrift)
+- [x] P5: labeled preview server on fastmcp 4.0-beta / mcp 2.0 (API verified; handle pattern + cache
+      hints; 4 tests green; lockdrift excludes its lock; installs via uv sync --locked)
 - [ ] P6: exam bank "RC, not final" items corrected + curriculum RC notes
 - [ ] P7: verify + wrap (gate, state, push, CI, PR, deploys, journal)
 
