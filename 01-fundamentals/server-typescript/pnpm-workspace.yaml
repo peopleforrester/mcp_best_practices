@@ -1,0 +1,8 @@
+# ABOUTME: pnpm settings for the single TS package; overrides pin patched transitive dependencies.
+# ABOUTME: These clear osv-scanner advisories in deps pulled by the MCP SDK and vitest.
+packages:
+  - .
+overrides:
+  fast-uri: ">=3.1.4"
+  "@hono/node-server": ">=2.0.5"
+  postcss: ">=8.5.18"
