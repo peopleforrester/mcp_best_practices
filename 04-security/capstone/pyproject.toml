@@ -5,7 +5,7 @@ description = "Composed capstone: signed-registry admission + policy gateway + g
 requires-python = ">=3.11"
 dependencies = [
     "fastmcp>=3.4,<4",
-    "cryptography>=42",
+    "cryptography>=50.0.0",
     "mcp-policy-gateway",
     "mcp-guardrails",
     "mcp-signed-registry",
