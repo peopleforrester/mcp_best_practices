@@ -3,7 +3,7 @@ name = "mcp-signed-registry"
 version = "0.1.0"
 description = "Provenance-verifying MCP server registry: admit only trusted-signer, validly-signed servers"
 requires-python = ">=3.11"
-dependencies = ["cryptography>=42"]
+dependencies = ["cryptography>=50.0.0"]
 
 [build-system]
 requires = ["hatchling"]
@@ -13,7 +13,7 @@ build-backend = "hatchling.build"
 packages = ["src/mcp_signed_registry"]
 
 [dependency-groups]
-dev = ["pytest>=8", "ruff>=0.15.20", "mypy>=1.11"]
+dev = ["pytest>=8", "ruff>=0.16.1", "mypy>=2.3.0"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
