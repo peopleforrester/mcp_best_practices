@@ -23,11 +23,9 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Em-dash check (authored docs; verbatim research report exempt)
         run: |
-          # transcripts/ is machine-generated session-archive spillover, not authored docs; exempt it.
           if grep -rnP '\x{2014}' --include='*.md' --include='*.html' \
                --exclude='mcp-sme-portfolio-research-*.md' \
                --exclude-dir=node_modules --exclude-dir=.venv --exclude-dir=site --exclude-dir=.git \
-               --exclude-dir=transcripts \
                .; then
             echo "::error::em-dash (U+2014) found in authored docs"
             exit 1
