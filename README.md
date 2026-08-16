@@ -1,5 +1,9 @@
 # MCP Best Practices
 
+![A glowing agent node on the left, three blank glass gates in a row, and a cluster of tool and
+database icons on the right. One beam passes through all three gates; a second is stopped at the
+first gate, glowing red at the point of impact.](docs/assets/hero.png)
+
 > **Spec:** the current MCP revision is `2026-07-28` (final 2026-07-28), which this repo tracks. The
 > default examples run on stable FastMCP 3.4.x (implementing through the prior `2025-11-25` semantics);
 > a labeled preview rides the FastMCP 4.0 beta line for the stateless core. See

@@ -70,3 +70,6 @@ Thumbs.db
 # Routed voice-memo transcripts (MRF transcription pipeline). These are raw diarized
 # recordings of private conversations and must never land in this public repo.
 transcripts/
+
+# Log files
+*.log
