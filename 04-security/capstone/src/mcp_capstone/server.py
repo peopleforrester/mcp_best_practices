@@ -6,11 +6,11 @@ import logging
 from collections.abc import Callable
 
 from fastmcp import FastMCP
-from mcp_policy_gateway import PolicyEngine, ToolClass, TokenBucket
-from mcp_policy_gateway.adapter import PolicyMiddleware
-from mcp_signed_registry import ServerEntry, SignedRegistry
 
 from mcp_capstone.guardrails_middleware import GuardrailsMiddleware
+from mcp_policy_gateway import PolicyEngine, TokenBucket, ToolClass
+from mcp_policy_gateway.adapter import PolicyMiddleware
+from mcp_signed_registry import ServerEntry, SignedRegistry
 
 _CLIENT_ID = "client-a"
 _SERVER_ID = "security-capstone"

@@ -56,7 +56,7 @@ def test_tampered_token_rejected():
 
 def test_passthrough_to_downstream_fails():
     # The confused-deputy anti-pattern: server A forwards the client's A-audience token to server B.
-    auth, rs_a, rs_b = _setup()
+    auth, _rs_a, rs_b = _setup()
     token_for_a = auth.issue(subject="user-1", audience=SERVER_A, scope="read", expires_at=NOW + 100)
     result = attempt_passthrough(token_for_a, downstream=rs_b, now=NOW)
     assert result.accepted is False

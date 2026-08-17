@@ -19,8 +19,8 @@ __all__ = [
     "PolicyRequest",
     "PolicyResult",
     "Rule",
-    "ToolClass",
     "TokenBucket",
+    "ToolClass",
     "arguments_fingerprint",
     "audit_record",
 ]

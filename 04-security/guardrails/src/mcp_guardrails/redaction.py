@@ -38,7 +38,7 @@ _RULES: list[tuple[str, str, re.Pattern[str]]] = [
     ("jwt", "[REDACTED_JWT]", re.compile(r"\beyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+")),
     # Covers legacy sk-<alnum> and modern sk-proj-/sk-svcacct-/sk-admin- (hyphen and underscore allowed).
     ("api_key", "[REDACTED_API_KEY]", re.compile(r"\bsk-[A-Za-z0-9_-]{20,}")),
-    ("bearer_token", "Bearer [REDACTED_TOKEN]", re.compile(r"\bBearer\s+[A-Za-z0-9._\-]+", re.I)),
+    ("bearer_token", "Bearer [REDACTED_TOKEN]", re.compile(r"\bBearer\s+[A-Za-z0-9._\-]+", re.IGNORECASE)),
     (
         "email",
         "[REDACTED_EMAIL]",

@@ -25,13 +25,18 @@ def load_bank(path: Path | None = None) -> list[Question]:
     if not isinstance(data, dict) or "questions" not in data:
         raise ValueError(f"question bank {source} must be a mapping with a 'questions' key")
     entries = data["questions"]
+    # ruff's TRY004 wants TypeError for these type guards. ValueError is deliberate and is the
+    # loader's tested contract: a malformed bank must fail with one labeled, actionable error naming
+    # the file. A raw TypeError from Python's ** machinery at import time is the exact failure this
+    # guard replaced, and pydantic's ValidationError (raised just below) is itself a ValueError, so
+    # every malformed-bank path stays one catchable type.
     if not isinstance(entries, list):
-        raise ValueError(f"'questions' in {source} must be a list, got {type(entries).__name__}")
+        raise ValueError(  # noqa: TRY004
+            f"'questions' in {source} must be a list, got {type(entries).__name__}"
+        )
     for i, entry in enumerate(entries):
-        # Guarded here because a non-mapping entry fails in Python's ** call machinery with a
-        # context-free TypeError; the loader's contract is a labeled ValueError naming file and index.
         if not isinstance(entry, dict):
-            raise ValueError(
+            raise ValueError(  # noqa: TRY004
                 f"questions[{i}] in {source} must be a mapping, got {type(entry).__name__}"
             )
     questions = [Question(**entry) for entry in entries]

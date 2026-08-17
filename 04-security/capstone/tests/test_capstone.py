@@ -8,9 +8,9 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
-from mcp_signed_registry import Ed25519Verifier, ServerEntry, SignedRegistry
 
 from mcp_capstone.server import build_capstone_server
+from mcp_signed_registry import Ed25519Verifier, ServerEntry, SignedRegistry
 
 _NAME = "security-capstone"
 _ARTIFACT = "ghcr.io/acme/capstone@sha256:abc"

@@ -6,6 +6,7 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 
 from fastmcp.server.middleware import Middleware, MiddlewareContext
+
 from mcp_guardrails import redact, scan_for_injection
 
 
