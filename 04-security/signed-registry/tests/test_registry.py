@@ -52,7 +52,7 @@ def test_rejects_tampered_payload():
 
 
 def test_rejects_unsigned_entry():
-    sk, pk = _keypair()
+    _sk, pk = _keypair()
     entry = ServerEntry(name="x", artifact_ref="r", signer_id="acme", signature=b"")
     result = _registry(pk).admit(entry)
     assert result.admitted is False

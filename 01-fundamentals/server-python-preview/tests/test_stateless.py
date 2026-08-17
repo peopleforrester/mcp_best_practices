@@ -3,6 +3,7 @@
 import pytest
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
+
 from mcp_fundamentals_preview import build_stateless_cart_server
 
 

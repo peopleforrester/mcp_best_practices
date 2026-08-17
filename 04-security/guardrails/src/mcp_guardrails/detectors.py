@@ -40,32 +40,32 @@ _PATTERNS: list[tuple[str, str, Severity, re.Pattern[str]]] = [
         "ignore-previous-instructions",
         Severity.HIGH,
         re.compile(
-            r"\bignore\s+(?:all\s+|any\s+|the\s+)?(?:previous|prior|above)\s+instructions\b", re.I
+            r"\bignore\s+(?:all\s+|any\s+|the\s+)?(?:previous|prior|above)\s+instructions\b", re.IGNORECASE
         ),
     ),
     (
         "instruction_override",
         "disregard-prior",
         Severity.HIGH,
-        re.compile(r"\bdisregard\s+(?:the\s+)?(?:above|prior|previous|earlier)\b", re.I),
+        re.compile(r"\bdisregard\s+(?:the\s+)?(?:above|prior|previous|earlier)\b", re.IGNORECASE),
     ),
     (
         "instruction_override",
         "new-instructions",
         Severity.MEDIUM,
-        re.compile(r"\b(?:new instructions:|you are now\b)", re.I),
+        re.compile(r"\b(?:new instructions:|you are now\b)", re.IGNORECASE),
     ),
     (
         "exfiltration",
         "send-to-url",
         Severity.HIGH,
-        re.compile(r"\b(?:send|post|upload|exfiltrate|forward)\b.{0,40}\bhttps?://", re.I | re.S),
+        re.compile(r"\b(?:send|post|upload|exfiltrate|forward)\b.{0,40}\bhttps?://", re.IGNORECASE | re.DOTALL),
     ),
     (
         "prompt_leak",
         "reveal-system-prompt",
         Severity.MEDIUM,
-        re.compile(r"\b(?:reveal|print|repeat|show)\b.{0,30}\b(?:system prompt|your instructions)\b", re.I),
+        re.compile(r"\b(?:reveal|print|repeat|show)\b.{0,30}\b(?:system prompt|your instructions)\b", re.IGNORECASE),
     ),
 ]
 

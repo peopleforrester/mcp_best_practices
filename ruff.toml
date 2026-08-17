@@ -1,3 +1,22 @@
 # ABOUTME: Shared ruff config for every package in the monorepo (one place to bump style rules).
 # ABOUTME: Per-package pyproject files inherit this; they must not re-declare [tool.ruff].
 line-length = 100
+
+# Ruff 0.16 changed first-party inference: without this it treats the monorepo's own packages as
+# third-party and wants them merged into the third-party import block. Naming them explicitly keeps
+# the stdlib / third-party / local grouping the repo uses. `src` does not work here because it
+# resolves relative to this file, and each package keeps its code under its own src/.
+[lint.isort]
+known-first-party = [
+  "mcp_architecture",
+  "mcp_capstone",
+  "mcp_fundamentals",
+  "mcp_fundamentals_preview",
+  "mcp_guardrails",
+  "mcp_oauth_demo",
+  "mcp_policy_gateway",
+  "mcp_quiz",
+  "mcp_signed_registry",
+  "mcp_tooling",
+  "mcp_usecases",
+]
