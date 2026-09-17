@@ -4,9 +4,9 @@ ABOUTME: Reads top to bottom; each section points at runnable, tested code. -->
 # Fundamentals Guidebook
 
 The primitives, shown twice (Python and TypeScript) so the concepts stand apart from any one SDK.
-These servers run on stable FastMCP 3.4.x (the prior `2025-11-25` semantics); the now-final `2026-07-28`
-stateless core is demonstrated in `server-python-preview/` and the Architecture track, and covered in
-`docs/spec-currency.md`.
+These servers run on stable FastMCP 4.0 (`mcp` 2.x), which implements the current `2026-07-28`
+revision. The stateless core is shown on its own in `server-python-stateless/` and in the Architecture
+track, and covered in `docs/spec-currency.md`.
 
 ## What MCP gives a server
 

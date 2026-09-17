@@ -3,7 +3,7 @@ name = "mcp-usecases"
 version = "0.1.0"
 description = "Use cases: a read-only Kubernetes MCP server and an MCP-to-agent (A2A) delegation bridge"
 requires-python = ">=3.11"
-dependencies = ["fastmcp>=3.4,<4", "kubernetes>=36,<37"]
+dependencies = ["fastmcp>=4.0.4,<5", "kubernetes>=36,<37"]
 
 [build-system]
 requires = ["hatchling"]

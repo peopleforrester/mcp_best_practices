@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Composed capstone: signed-registry admission + policy gateway + guardrails + audit in one MCP server"
 requires-python = ">=3.11"
 dependencies = [
-    "fastmcp>=3.4,<4",
+    "fastmcp>=4.0.4,<5",
     "cryptography>=42",
     "mcp-policy-gateway",
     "mcp-guardrails",

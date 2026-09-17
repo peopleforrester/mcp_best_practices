@@ -1,43 +1,51 @@
-<!-- ABOUTME: Spec-currency guide. 2026-07-28 is the current final MCP revision; 2025-11-25 is prior.
-ABOUTME: The default examples run on stable FastMCP 3.4.x; a labeled preview rides FastMCP 4.0 beta. -->
+<!-- ABOUTME: Spec-currency guide. 2026-07-28 is the current MCP revision; 2025-11-25 is prior.
+ABOUTME: Every package runs on stable FastMCP 4.0 (mcp 2.x), which implements the current revision. -->
 
-# Spec Currency: `2026-07-28` (current) and `2025-11-25` (prior stable)
+# Spec Currency: `2026-07-28` (current) and `2025-11-25` (prior)
 
-The current MCP revision is **`2026-07-28`**, which went **final on 2026-07-28** and replaces
+The current MCP revision is **`2026-07-28`**, which went final on 2026-07-28 and replaces
 `2025-11-25`. It is the largest revision since launch: the protocol core is now stateless, extensions
 are first-class, and authorization is hardened.
 
-Verified 2026-07-28 against primary sources:
+Verified 2026-09-17 against primary sources:
 
-- `blog.modelcontextprotocol.io/posts/2026-07-28/` announces the final release ("officially pushing
-  the release button on the next version of the MCP specification, `2026-07-28`").
-- The official Python `mcp` SDK is **2.0.0** (published 2026-07-28); a compatibility `1.29.0` shipped
-  the same day for the prior line. The TypeScript SDK is `@modelcontextprotocol/sdk` 1.30.0.
+- `blog.modelcontextprotocol.io` lists no revision after `2026-07-28`; it remains current.
+- The Python `mcp` SDK is **2.2.0** and **FastMCP is 4.0.4** (PyPI). FastMCP 4.0.0 went stable on
+  2026-08-31. The TypeScript SDK is `@modelcontextprotocol/sdk` 1.30.0 (npm).
 
-## What the default examples run on, and why
+## What the examples run on
 
-The examples in this repo are built on **FastMCP** (the ergonomic Python framework), not the raw SDK.
-As of 2026-07-28 the FastMCP lines resolve like this (confirmed by `uv`):
+The examples are built on **FastMCP** (the ergonomic Python framework) rather than the raw SDK. Every
+package in this repo now runs on **stable FastMCP 4.0** (`mcp` 2.x), the line that implements
+`2026-07-28`. Spec and implementation are aligned; there is no gap to declare.
 
-- **FastMCP 3.4.x → `mcp` 1.29**: implements through the `2025-11-25` semantics. **Stable.**
-- **FastMCP 4.0 → `mcp` 2.0**: the `2026-07-28` line. **Pre-release (4.0.0b1 beta) at time of writing.**
+This was not always true, and the history is the useful part. When `2026-07-28` went final, the only
+FastMCP that implemented it was a 4.0 beta. This repo does not ship a pre-release SDK as its default
+path, so for about a month the working code implemented the prior `2025-11-25` semantics while the
+spec had moved on. That gap was stated here rather than papered over, and a single labeled package
+demonstrated the new core against the beta. FastMCP 4.0 reached stable on 2026-08-31 and the whole
+repo migrated. What is left of that package is
+`01-fundamentals/server-python-stateless/`, now an ordinary example of the stateless shape.
 
-So the default examples stay on **stable FastMCP 3.4.x**. This repo's standing rule is that a
-pre-release SDK is never the default path. That means the working code presently implements through the
-`2025-11-25` semantics while the spec itself has moved to `2026-07-28`. That gap is stated here plainly
-rather than papered over, and it closes when FastMCP 4.0 reaches stable.
+The migration was cheaper than its headline suggested. Six of seven packages needed only a version
+bump, because FastMCP 4.0 kept the decorator API source-compatible. Two things did change and are
+worth knowing:
 
-To keep the `2026-07-28` core from being merely described, a **labeled preview** package,
-`01-fundamentals/server-python-preview/`, runs on the FastMCP 4.0 beta line (`mcp` 2.0) and
-demonstrates the stateless handle pattern and the new cache hints. It is isolated from the default
-examples and its lockfile is excluded from the cross-package version check.
+- **Server-initiated elicitation is gone.** `ctx.elicit` fails on a `2026-07-28` connection with
+  "elicitation via server-initiated requests is unavailable", because a stateless request cannot hold
+  a connection open waiting for a human (SEP-2260). The replacement is the multi-round-trip request
+  (SEP-2322), and the tooling track's HITL gate is built on it: the tool returns an
+  `InputRequiredResult` naming what it needs, the client answers, and the retry carries the answers
+  plus a sealed `requestState`. See `03-tooling/src/mcp_tooling/hitl.py`.
+- **`mcp` 2.x renamed its Python model fields to snake_case.** `ToolAnnotations(readOnlyHint=...)` is
+  now `read_only_hint`, and `Tool.inputSchema` is `input_schema`. The wire format is unchanged, so
+  these are still `readOnlyHint` and `inputSchema` on the JSON; only the Python attributes moved.
 
 ## Why this matters for the portfolio
 
-Sitting on the stable framework while demonstrating the current spec at the version boundary is itself
-the credibility signal: it shows the protocol is understood as it changes, not frozen at one snapshot,
-and it is honest about the difference between what the spec says and what the shipped framework
-supports today. When FastMCP 4.0 ships stable, the default examples migrate and this guide is refreshed.
+Tracking a protocol across a breaking revision, in public, with the gap stated while it existed and
+closed when the ecosystem caught up, is the credibility signal. It shows the protocol is understood as
+it changes rather than frozen at one snapshot.
 
 ## Transport and revision history
 
@@ -137,8 +145,12 @@ shipped `2026-07-28` support, and Rust is in beta.
 
 ## Refresh triggers (revisit this guide when any of these happen)
 
-- **FastMCP 4.0 reaches stable.** Re-pin the default examples off 3.4.x, migrate them to the stateless
-  core, and fold the preview package's approach into the mainline fundamentals server.
+- **A revision after `2026-07-28` reaches Release Candidate.** Re-verify every change above against
+  the ratified text. If the shipped framework lags the spec again, say so here and demonstrate the new
+  core in one labeled package rather than moving the default path onto a pre-release SDK. That is what
+  was done between 2026-07-28 and 2026-08-31, and it is the pattern to repeat.
 - The conformance suite (SEP-2484) publishes. Run the relevant examples against it.
-- A revision after `2026-07-28` reaches Release Candidate. Re-verify every change above against the
-  ratified text and add forward-compat preview code as the boundary demands.
+- A FastMCP 5.0 line appears. Same rule: the default path waits for stable.
+
+The "FastMCP 4.0 reaches stable" trigger fired on 2026-08-31 and was worked on 2026-09-17; the
+reminder workflow now watches for the next major line.

@@ -1,44 +1,45 @@
-# Plan: adopt MCP 2026-07-28 (now final) as the current spec + a labeled stateless-core preview
+# Plan: September 2026 currency sweep (FastMCP 4.0 migration)
 
-The `2026-07-28` MCP revision went **final** on 2026-07-28 (verified live against blog.modelcontextprotocol.io
-and the SEP set the repo already documented). It replaces `2025-11-25`. The repo currently calls it a
-"Release Candidate" everywhere; that is now factually wrong.
+Triggered by a full-repo currency review on 2026-09-17 and by issue #50, which the repo's own
+spec-currency reminder workflow filed on 2026-09-07 when its watched condition fired.
 
-## Verified SDK reality (2026-07-28 / PyPI + npm + uv resolution)
-- Official Python `mcp` SDK: **2.0.0** final (a compat `1.29.0` shipped the same day).
-- **FastMCP** (every Python server here uses it): stable **3.4.5 -> mcp 1.29** (2025-11-25 line);
-  **4.0.0b1 -> mcp 2.0** is the 2026-07-28 line but is **beta**.
-- TS `@modelcontextprotocol/sdk`: 1.30.0.
+## Verified state (2026-09-17, primary sources)
 
-## Decision (Michael, framing flip + labeled preview)
-The current spec is now 2026-07-28. The working code stays on **stable FastMCP 3.4.x** because the only
-FastMCP that supports 2026-07-28 is 4.0-beta, and the repo's rule is "never ship preview as the default."
-Add ONE clearly-labeled preview server on fastmcp 4.0-beta / mcp 2.0 to demonstrate the stateless core.
-So the posture inverts: 2026-07-28 used to be the future preview; now it is the present, and the SDK
-support (FastMCP 4.0 / mcp 2.0) is what is in preview.
+- **MCP spec: `2026-07-28` is still current.** No newer revision published (blog.modelcontextprotocol.io).
+  The repo's spec framing was already correct and did not need to change.
+- **FastMCP 4.0.0 went stable on 2026-08-31**, now **4.0.4** (PyPI, 2026-09-16). `mcp` is **2.2.0**.
+  This is the condition the repo documented as its trigger to migrate off 3.4.x.
+- 5 open Dependabot alerts (2 high), all npm transitives in the TypeScript package.
+- 4 open code-scanning alerts, all `note` severity.
+- 5 open Dependabot version PRs targeting `main` directly.
+
+## Decision: migrate, because the documented condition is met
+
+The repo's standing rule is that a pre-release SDK is never the default path, which is why the code sat
+on 3.4.x while the spec had moved. 4.0 is stable, so that reason is gone. Measured before committing to
+it: six of seven packages pass their suites unchanged on 4.0.4, so the migration is a version bump plus
+two real API changes, not a rewrite.
 
 ## Phases
-1. **P1 spec-currency.md** rewritten: 2026-07-28 = current final; 2025-11-25 = prior stable; the
-   examples run on FastMCP 3.4.x (through 2025-11-25 semantics); FastMCP 4.0 / mcp 2.0 is the beta
-   2026-07-28 line demonstrated in the preview; refresh trigger becomes "FastMCP 4.0 stable".
-2. **P2 front door**: README, docs/index.md, CLAUDE.md, AGENTS.md, PROJECT_STATE.md, MEMORY.md,
-   mkdocs description. Flip stable/RC wording; add the honest SDK-support note and the preview pointer.
-3. **P3 threat models + guidebooks + decks**: the six threat models' inline "under the RC" / "the RC"
-   notes become "2026-07-28 (final)"; guidebook and deck spec-boundary lines updated.
-4. **P4 spikes + reminder cron**: supersede/reframe `mcp-rc-2026-07-28-readiness.md` (the RC is now
-   final), note the currency in version-currency spike framing, and repoint the
-   spec-currency-reminder workflow from "RC goes final" to "FastMCP 4.0 reaches stable".
-5. **P5 preview server** (`01-fundamentals/server-python-preview/`, or `preview/stateless-core/`):
-   fastmcp 4.0-beta / mcp 2.0, demonstrating the stateless request form + server/discover + a
-   handle-based tool. VERIFY the fastmcp 4.0 API first (adopting-new-tech). Own pyproject allowing
-   prereleases; README marks it PREVIEW. Tests. EXCLUDE from the lockdrift CI check (intentional SDK
-   divergence) and confirm the CI python matrix still passes with a beta dep installed.
-6. **P6 exam bank + curriculum**: questions flagged "RC, not final" are now wrong. Update the affected
-   items, stems, and rationales to 2026-07-28-final facts; re-verify keys; curriculum README RC notes.
-7. **P7 verify + wrap**: full gate, state/decisions/changelog, push staging, CI green (watch lockdrift
-   and the new preview job), PR to main, verify deploys, journal.
+
+1. **Migrate all packages to FastMCP 4.0 / mcp 2.x.** Re-pin, re-lock, verify.
+2. **Rewrite the HITL gate for multi-round-trip requests.** `2026-07-28` removed server-initiated
+   elicitation (SEP-2260); `ctx.elicit` now fails on a compliant connection. Replace with
+   `InputRequiredResult` (SEP-2322). Keep the existing behaviour tests as the contract and add one
+   that locks the new mechanism.
+3. **Adapt to the `mcp` 2.x snake_case rename.** `ToolAnnotations(readOnlyHint=)` becomes
+   `read_only_hint`, `Tool.inputSchema` becomes `input_schema`. Wire format unchanged.
+4. **Retire the preview package's label.** It existed only because 4.0 was beta. Rename
+   `server-python-preview` to `server-python-stateless` and drop the preview framing; the code is a
+   good stateless-core example on its own merits. Remove the lockdrift exclusion it needed.
+5. **Refresh the docs** that describe the old posture: spec-currency (rewritten), README, docs index,
+   agent guidance, guidebooks, threat-model README, MEMORY, PROJECT_STATE.
+6. **Repoint the reminder workflow.** Its trigger fired; point it at the next major line.
+7. **Clear the security alerts and version drift**, then the code-scanning notes.
+8. **Ship**: staging, CI green, promote, close #50 and the superseded Dependabot PRs.
 
 ## Guardrails
-- No numerical regression and no fabricated support: the default code stays on the SDK line that
-  actually implements what it claims; the preview is labeled and isolated.
-- Recency: every version claim carries its 2026-07-28 verification and source.
+
+- No version claim without a live registry check, dated.
+- The default path stays on stable. If a future spec outruns the framework again, label one package
+  and say so in the docs rather than moving the default onto a pre-release.

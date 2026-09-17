@@ -95,5 +95,5 @@ Each package has its own README with the design detail and the OWASP/NSA mapping
 The now-final `2026-07-28` revision moves session state into explicit tool-argument handles and adds
 `Mcp-Method` / `Mcp-Name` routing headers, both of which suit a gateway (it can route and apply policy
 without inspecting the body). It also hardens authorization (issuer validation per RFC 9207). The
-shipped controls run on stable FastMCP 3.4.x (prior `2025-11-25` semantics); the stateless-core paths
-are the labeled forward direction, and the fundamentals preview package demonstrates them today.
+shipped controls run on stable FastMCP 4.0 (`mcp` 2.x), which implements `2026-07-28`; the
+fundamentals stateless package shows the handle pattern on its own.

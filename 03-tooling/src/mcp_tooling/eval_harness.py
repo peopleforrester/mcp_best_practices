@@ -61,7 +61,7 @@ async def evaluate_server(client: Client) -> dict[str, Scorecard]:
     """
     scores: dict[str, Scorecard] = {}
     for tool in await client.list_tools():
-        schema = tool.inputSchema or {}
+        schema = tool.input_schema or {}
         param_names = set((schema.get("properties") or {}).keys())
         required = set(schema.get("required") or [])
 
@@ -77,7 +77,7 @@ async def evaluate_server(client: Client) -> dict[str, Scorecard]:
         # non-read-only or required-param tool is never called (so the harness cannot mutate state), and
         # its conciseness is left unmeasured (None) rather than assumed to pass.
         annotations = tool.annotations
-        read_only = bool(annotations is not None and annotations.readOnlyHint)
+        read_only = bool(annotations is not None and annotations.read_only_hint)
         concise_response: bool | None
         if read_only and not required:
             result = await client.call_tool(tool.name, {})

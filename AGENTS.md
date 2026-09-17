@@ -9,12 +9,13 @@ each session; it is the live status. The approved plan is `docs/BUILD_PLAN.md` (
 
 ## Spec baseline (non-negotiable)
 
-- Current spec: MCP **`2026-07-28`** (final 2026-07-28). This repo tracks it.
-- Default examples run on **stable FastMCP 3.4.x** (`mcp` 1.29), which implements through the prior
-  **`2025-11-25`** semantics. A pre-release SDK is never the default path.
-- The `2026-07-28` stateless core is demonstrated in a labeled **preview** package
-  (`01-fundamentals/server-python-preview/`) on the **FastMCP 4.0 beta** line (`mcp` 2.0). It migrates
-  to the default when FastMCP 4.0 ships stable.
+- Current spec: MCP **`2026-07-28`**. This repo tracks it.
+- Every package runs on **stable FastMCP 4.0** (`mcp` 2.x), the line that implements it. A pre-release
+  SDK is never the default path; 4.0 went stable 2026-08-31 and the repo migrated.
+- The stateless core is shown on its own in `01-fundamentals/server-python-stateless/` (handle pattern
+  plus SEP-2549 cache hints), beside the session-shaped hello server.
+- `2026-07-28` removed server-initiated elicitation; human-in-the-loop uses multi-round-trip requests
+  (SEP-2322). `mcp` 2.x also renamed Python model fields to snake_case (`read_only_hint`, `input_schema`).
 - Migration detail: `docs/spec-currency.md`. Verified versions: `docs/research/version-currency-2026-06-23.md`.
 
 ## Codebase map
@@ -37,7 +38,7 @@ exam-prep. Each track ships working code + `guidebook.md` + a Reveal.js deck und
 
 | Concern | Choice | Pin |
 |---|---|---|
-| Primary | Python + FastMCP | `mcp>=1.28,<2`; FastMCP `3.4.x` |
+| Primary | Python + FastMCP | FastMCP `4.0.x` (pulls `mcp` 2.x) |
 | Secondary | TypeScript | `@modelcontextprotocol/sdk@^1.29` |
 | Polyglot accent | Go (preferred) or Rust | `go-sdk@v1.6.1` / `rmcp@1.7` |
 | Python tooling | uv | `0.11.x` |

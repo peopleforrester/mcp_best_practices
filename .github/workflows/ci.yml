@@ -94,16 +94,16 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Fail if a shared dependency resolves to different versions across uv.lock files
         run: |
-          # The stable packages must agree on fastmcp/mcp. The preview package intentionally rides the
-          # FastMCP 4.0 beta line (mcp 2.0) to demonstrate the 2026-07-28 spec, so its lock is excluded.
-          locks=$(find . -name uv.lock -not -path '*/server-python-preview/*')
+          # Every package tracks one fastmcp/mcp line. This used to exclude the preview package while
+          # it rode the 4.0 beta; 4.0 is stable and the whole repo is on it, so nothing is excluded.
+          locks=$(find . -name uv.lock)
           status=0
           for pkg in fastmcp mcp; do
             versions=$(grep -hA1 "^name = \"$pkg\"\$" $locks | grep '^version = ' | awk '{print $3}' | sort -u)
             distinct=$(echo "$versions" | grep -c .)
             echo "$pkg: ${versions:-(absent)}"
             if [ "$distinct" -gt 1 ]; then
-              echo "::error::$pkg resolves to multiple versions across the stable lockfiles"
+              echo "::error::$pkg resolves to multiple versions across the lockfiles"
               status=1
             fi
           done

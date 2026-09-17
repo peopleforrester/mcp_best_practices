@@ -1,10 +1,9 @@
-# ABOUTME: Tests the 2026-07-28 stateless-core preview server on FastMCP 4.0 beta / mcp 2.0.
+# ABOUTME: Tests the 2026-07-28 stateless-core server on FastMCP 4.0.
 # ABOUTME: State crosses calls via a server-minted handle, not a protocol session (the headline change).
 import pytest
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
-
-from mcp_fundamentals_preview import build_stateless_cart_server
+from mcp_fundamentals_stateless import build_stateless_cart_server
 
 
 async def test_handle_carries_state_across_stateless_calls():

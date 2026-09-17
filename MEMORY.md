@@ -9,7 +9,7 @@ credible SME authorship through original working code (servers, an MCP policy ga
 guardrails, an Ed25519-signed registry with a cosign backend planned), original threat models, and
 teaching decks, not forked
 reference servers. Tracks MCP spec `2026-07-28` (current, final 2026-07-28); the default examples run
-on stable FastMCP 3.4.x (prior `2025-11-25` semantics), with a labeled FastMCP-4.0-beta preview.
+on stable FastMCP 4.0 (`mcp` 2.x), the line that implements it.
 
 ## Session log
 ### 2026-06-23: Repo bootstrap, ingest, planning (session 1)
@@ -25,8 +25,8 @@ on stable FastMCP 3.4.x (prior `2025-11-25` semantics), with a labeled FastMCP-4
   `docs/research/version-currency-2026-06-23.md`.
 
 ## Key decisions
-- **Spec:** current is `2026-07-28` (final). Default code on stable FastMCP 3.4.x (prior `2025-11-25`
-  semantics); `2026-07-28` stateless core in a labeled FastMCP-4.0-beta preview package.
+- **Spec:** current is `2026-07-28`. All packages on stable FastMCP 4.0 (`mcp` 2.x). Stateless core
+  shown in `01-fundamentals/server-python-stateless/`; HITL uses multi-round-trip, not elicitation.
 - **Build order:** Security (flagship) first, then Fundamentals → Tooling → Architecture → Use Cases.
 - **Stack:** Python/FastMCP primary, TypeScript secondary, one Go/Rust accent; uv + pnpm + Taskfile;
   MkDocs Material; Reveal.js; cosign/sigstore. (Confirm versions via the spike before pinning.)

@@ -1,0 +1,22 @@
+[project]
+# Demonstrates the 2026-07-28 stateless core (handle pattern + cache hints) on stable FastMCP 4.0.
+# Kept as its own package so the pattern reads on its own next to the session-shaped hello server.
+name = "mcp-fundamentals-stateless"
+version = "0.1.0"
+description = "A stateless-core MCP server (2026-07-28): handle pattern and cache hints"
+requires-python = ">=3.11"
+dependencies = ["fastmcp>=4.0.4,<5"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mcp_fundamentals_stateless"]
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.15.20", "mypy>=1.11"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

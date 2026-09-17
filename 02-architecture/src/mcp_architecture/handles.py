@@ -36,14 +36,14 @@ def build_basket_server() -> FastMCP:
 
     # Annotations declared per the tooling track's own guidance: create/add are mutating (and add is
     # not idempotent: repeating it appends again); get_basket is a safe idempotent read.
-    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=False, idempotentHint=False))
+    @mcp.tool(annotations=ToolAnnotations(read_only_hint=False, idempotent_hint=False))
     def create_basket() -> str:
         """Create a basket and return its handle (basket_id) for use in later calls."""
         basket_id = uuid.uuid4().hex
         baskets[basket_id] = []
         return basket_id
 
-    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=False, idempotentHint=False))
+    @mcp.tool(annotations=ToolAnnotations(read_only_hint=False, idempotent_hint=False))
     def add_item(basket_id: str, item: str) -> BasketState:
         """Add an item to the basket named by the handle. Raises if the handle is unknown."""
         if basket_id not in baskets:
@@ -51,7 +51,7 @@ def build_basket_server() -> FastMCP:
         baskets[basket_id].append(item)
         return _state(basket_id)
 
-    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True, idempotentHint=True))
+    @mcp.tool(annotations=ToolAnnotations(read_only_hint=True, idempotent_hint=True))
     def get_basket(basket_id: str) -> BasketState:
         """Read the basket named by the handle. Raises if the handle is unknown."""
         if basket_id not in baskets:

@@ -1,5 +1,5 @@
 # ABOUTME: Machine backstop for the next spec-currency step, so version discipline is not memory-bound.
-# ABOUTME: The 2026-07-28 spec is final; this now watches for FastMCP 4.0 stable to migrate the default code.
+# ABOUTME: The repo is on FastMCP 4.0; this watches for the next major line (5.x) reaching stable.
 name: Spec currency reminder
 
 on:
@@ -23,33 +23,32 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
-          # The 2026-07-28 spec is final; the default examples run on stable FastMCP 3.4.x until the
-          # FastMCP 4.0 line (which pulls mcp 2.0, the 2026-07-28 SDK) publishes a stable release. When
-          # a 4.0.x final appears on PyPI, open a tracking issue to migrate the default examples.
+          # The repo migrated to stable FastMCP 4.0 on 2026-09-17. The next migration decision is the
+          # 5.x line; when a stable (non-prerelease) 5.x appears on PyPI, open a tracking issue.
           latest_stable=$(curl -s https://pypi.org/pypi/fastmcp/json \
             | python3 -c "import sys,json; d=json.load(sys.stdin);
           import re
           def is_final(v): return re.fullmatch(r'[0-9]+(\.[0-9]+)*', v) is not None
-          fours=[v for v in d['releases'] if v.startswith('4.') and is_final(v)]
-          print(sorted(fours)[-1] if fours else '')")
+          nxt=[v for v in d['releases'] if v.startswith('5.') and is_final(v)]
+          print(sorted(nxt)[-1] if nxt else '')")
           if [ -z "$latest_stable" ]; then
-            echo "No stable FastMCP 4.0.x yet; still on the pre-release line. Nothing to do."
+            echo "No stable FastMCP 5.x yet. Nothing to do."
             exit 0
           fi
           echo "Stable FastMCP $latest_stable is available."
-          title="Migrate the default examples to FastMCP 4.0 (2026-07-28 stateless core)"
+          title="Evaluate migrating to FastMCP 5.x"
           existing=$(gh issue list --repo "$REPO" --state open --search "$title in:title" --json number --jq '.[0].number')
           if [ -n "$existing" ]; then
             echo "Tracking issue #$existing already open; leaving it."
             exit 0
           fi
           body=$(printf '%s\n' \
-            "Stable FastMCP $latest_stable is on PyPI (the FastMCP 4.0 / mcp 2.0 line that implements the 2026-07-28 stateless core). Per docs/spec-currency.md, migrate the default examples off 3.4.x:" \
+            "Stable FastMCP $latest_stable is on PyPI. The repo is on the 4.0 line. Per docs/spec-currency.md, evaluate the move:" \
             "" \
-            "- [ ] Re-pin the stable Python packages to fastmcp>=4,<5 and mcp>=2,<3; re-lock and re-run." \
-            "- [ ] Migrate the fundamentals/tooling/architecture servers to the stateless core; fold in the approach from 01-fundamentals/server-python-preview/." \
-            "- [ ] Retire or relabel the preview package once the mainline is on 4.0." \
-            "- [ ] Refresh docs/spec-currency.md (the FastMCP 3.4.x / 4.0 split note is no longer needed)." \
+            "- [ ] Check what MCP spec revision the 5.x line implements, and whether a newer revision is current." \
+            "- [ ] Measure first: bump one package, run its suite, and size the migration before committing to it." \
+            "- [ ] Re-pin every package together so the lockdrift check stays green." \
+            "- [ ] Refresh docs/spec-currency.md and the stack table in AGENTS.md." \
             "" \
             "Opened automatically by the spec-currency-reminder workflow.")
           gh issue create --repo "$REPO" --title "$title" --body "$body"
