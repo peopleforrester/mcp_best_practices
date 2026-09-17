@@ -37,7 +37,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
       - name: Strict docs build
         run: uv run --with-requirements docs/requirements.txt mkdocs build --strict
 
@@ -46,7 +46,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
       - name: Lint, type-check, and test each Python package
         run: |
           pkgs=$(find . -name pyproject.toml -not -path '*/.venv/*' -not -path '*/node_modules/*' -exec dirname {} \;)
@@ -94,16 +94,16 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Fail if a shared dependency resolves to different versions across uv.lock files
         run: |
-          # The stable packages must agree on fastmcp/mcp. The preview package intentionally rides the
-          # FastMCP 4.0 beta line (mcp 2.0) to demonstrate the 2026-07-28 spec, so its lock is excluded.
-          locks=$(find . -name uv.lock -not -path '*/server-python-preview/*')
+          # Every package tracks one fastmcp/mcp line. This used to exclude the preview package while
+          # it rode the 4.0 beta; 4.0 is stable and the whole repo is on it, so nothing is excluded.
+          locks=$(find . -name uv.lock)
           status=0
           for pkg in fastmcp mcp; do
             versions=$(grep -hA1 "^name = \"$pkg\"\$" $locks | grep '^version = ' | awk '{print $3}' | sort -u)
             distinct=$(echo "$versions" | grep -c .)
             echo "$pkg: ${versions:-(absent)}"
             if [ "$distinct" -gt 1 ]; then
-              echo "::error::$pkg resolves to multiple versions across the stable lockfiles"
+              echo "::error::$pkg resolves to multiple versions across the lockfiles"
               status=1
             fi
           done
@@ -119,7 +119,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Scan uv and pnpm lockfiles for known vulnerabilities
-        uses: google/osv-scanner-action/osv-scanner-action@8deb546fdb875b9996d27d4950be7312dac076a1 # v2.5.0
+        uses: google/osv-scanner-action/osv-scanner-action@6e4298ebc4db23e847df9b2e2de2939d6f066c67 # v2.5.1
         with:
           scan-args: |-
             --recursive
@@ -136,7 +136,7 @@ jobs:
         working-directory: 06-exam-prep/quiz-app
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
       - name: Build wheel, clean-install, and smoke-test the deployed artifact via uvicorn
         run: |
           uv build --wheel
@@ -177,7 +177,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+      - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - name: Build the site
         run: uv run --with-requirements docs/requirements.txt mkdocs build --strict
@@ -185,4 +185,4 @@ jobs:
         with:
           path: site
       - id: deployment
-        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

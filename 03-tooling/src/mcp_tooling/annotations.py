@@ -10,22 +10,22 @@ def build_annotations_server() -> FastMCP:
     """Build a server with one tool per annotation hint, for teaching and for the test suite."""
     mcp = FastMCP("tooling-annotations")
 
-    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+    @mcp.tool(annotations=ToolAnnotations(read_only_hint=True))
     def read_status() -> str:
         """Read-only: returns a status string and changes nothing."""
         return "ok"
 
-    @mcp.tool(annotations=ToolAnnotations(destructiveHint=True))
+    @mcp.tool(annotations=ToolAnnotations(destructive_hint=True))
     def delete_record(record_id: str) -> str:
         """Destructive: a client should require confirmation before calling this (demo only)."""
         return f"would delete {record_id}"
 
-    @mcp.tool(annotations=ToolAnnotations(idempotentHint=True))
+    @mcp.tool(annotations=ToolAnnotations(idempotent_hint=True))
     def set_flag(name: str, value: bool) -> str:
         """Idempotent: calling with the same arguments twice has the same effect."""
         return f"{name}={value}"
 
-    @mcp.tool(annotations=ToolAnnotations(openWorldHint=True))
+    @mcp.tool(annotations=ToolAnnotations(open_world_hint=True))
     def web_search(query: str) -> str:
         """Open-world: interacts with external entities outside a closed dataset (demo only)."""
         return f"searching {query}"

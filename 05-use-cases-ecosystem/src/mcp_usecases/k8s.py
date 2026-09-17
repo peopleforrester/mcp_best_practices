@@ -54,7 +54,7 @@ def build_k8s_server(api: Any) -> FastMCP:
     """Build a read-only Kubernetes MCP server over an injected CoreV1Api-like object."""
     mcp = FastMCP("usecases-kubernetes")
 
-    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=True))
+    @mcp.tool(annotations=ToolAnnotations(read_only_hint=True, open_world_hint=True))
     def find_pods(namespace: str, label_selector: str = "") -> PodPage:
         """Search pods in a namespace, optionally filtered by a label selector (e.g. app=web).
 
@@ -74,7 +74,7 @@ def build_k8s_server(api: Any) -> FastMCP:
         views = [_view(pod) for pod in result.items]
         return {"pods": views, "count": len(views)}
 
-    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=True))
+    @mcp.tool(annotations=ToolAnnotations(read_only_hint=True, open_world_hint=True))
     def get_pod_status(namespace: str, name: str) -> PodView:
         """Get the status of one pod by name. Raises a ToolError if no such pod exists. Read-only.
 

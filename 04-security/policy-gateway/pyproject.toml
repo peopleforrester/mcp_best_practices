@@ -3,7 +3,7 @@ name = "mcp-policy-gateway"
 version = "0.1.0"
 description = "Policy-enforcing gateway core for MCP: allowlist, per-client consent, OPA-style rules, SIEM audit"
 requires-python = ">=3.11"
-dependencies = ["fastmcp>=3.4,<4"]
+dependencies = ["fastmcp>=4.0.4,<5"]
 
 [build-system]
 requires = ["hatchling"]

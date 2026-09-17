@@ -2,6 +2,7 @@
 # ABOUTME: Covers security headers, the strict CSP (and its docs exemption), body cap, and rate limit.
 from fastapi.testclient import TestClient
 
+from mcp_quiz import app as appmod
 from mcp_quiz.app import create_app
 from mcp_quiz.bank import load_bank
 
@@ -152,8 +153,6 @@ def test_openapi_schema_never_exposes_answers_or_rationale():
 def test_rate_limit_buckets_are_evicted_when_over_cap(monkeypatch):
     # A flood of one-shot client ids must not grow the bucket map without bound: once it exceeds the
     # cap, buckets whose timestamps have aged past the window are swept.
-    import mcp_quiz.app as appmod
-
     clock = {"now": 0.0}
     monkeypatch.setattr(appmod.time, "monotonic", lambda: clock["now"])
 

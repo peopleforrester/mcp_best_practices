@@ -8,6 +8,14 @@ All notable changes to this project are recorded here. The format follows
 
 ### Added
 
+- Migrated every package to **stable FastMCP 4.0** (`mcp` 2.x), the line that implements the current
+  `2026-07-28` revision. FastMCP 4.0.0 reached stable on 2026-08-31, which was the condition this repo
+  had documented for moving off 3.4.x. Two real API changes came with it: server-initiated elicitation
+  is gone (the tooling track's human-in-the-loop gate now uses multi-round-trip requests, SEP-2322),
+  and `mcp` 2.x renamed its Python model fields to snake_case. The preview package that existed only
+  while 4.0 was beta is now `01-fundamentals/server-python-stateless/`, an ordinary example, and the
+  lockfile exclusion it required has been removed.
+
 - Adopted the now-final MCP `2026-07-28` revision as the current spec (it went final 2026-07-28,
   replacing `2025-11-25`). All framing flips from "Release Candidate" to current across the docs, threat
   models, guidebooks, decks, exam bank, and ecosystem map. The default examples stay on stable FastMCP

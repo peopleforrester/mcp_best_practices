@@ -8,8 +8,7 @@ code, threat models, and teaching material.
 
 !!! info "Spec"
     The current MCP revision is **`2026-07-28`** (final 2026-07-28). The default examples run on stable
-    FastMCP 3.4.x (implementing through the prior **`2025-11-25`** semantics); a labeled preview rides
-    the FastMCP 4.0 beta line for the stateless core. See [Spec Currency](spec-currency.md).
+    FastMCP 4.0 (`mcp` 2.x), the line that implements it. See [Spec Currency](spec-currency.md).
 
 **Live demo:** the exam-prep quiz app runs at
 [mcp-exam-quiz-production.up.railway.app](https://mcp-exam-quiz-production.up.railway.app).
@@ -30,6 +29,6 @@ The portfolio is built in this order, security first:
 ## Start here
 
 - [Build Plan](BUILD_PLAN.md) : the approved, sequenced plan and the locked stack.
-- [Spec Currency](spec-currency.md) : the current `2026-07-28` spec and the FastMCP 3.4.x / 4.0-beta split.
+- [Spec Currency](spec-currency.md) : the current `2026-07-28` spec and how the repo tracks it.
 - [Founding Report](research/mcp-sme-portfolio-research-2026-06.md) : the research this is built on.
 - [Exam Curriculum](research/exam-curriculum-2026-06-23.md) : the ordered body of knowledge and blueprint.

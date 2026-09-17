@@ -3,7 +3,7 @@ name = "mcp-tooling"
 version = "0.1.0"
 description = "Tool design: a good-vs-anti-pattern tool pair and a deterministic eval harness"
 requires-python = ">=3.11"
-dependencies = ["fastmcp>=3.4,<4"]
+dependencies = ["fastmcp>=4.0.4,<5"]
 
 [build-system]
 requires = ["hatchling"]

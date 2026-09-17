@@ -3,7 +3,7 @@ name = "mcp-architecture"
 version = "0.1.0"
 description = "Architecture: stateless handle pattern, server composition, and a registry/server-card demo"
 requires-python = ">=3.11"
-dependencies = ["fastmcp>=3.4,<4"]
+dependencies = ["fastmcp>=4.0.4,<5"]
 
 [build-system]
 requires = ["hatchling"]

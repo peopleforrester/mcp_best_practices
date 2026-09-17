@@ -41,3 +41,21 @@ async def test_declined_elicitation_does_not_perform_the_action():
         result = await client.call_tool("archive_report", {"report_id": "r-42"})
     assert "archived r-42" not in result.data
     assert "not confirmed" in result.data
+
+
+async def test_first_leg_asks_instead_of_acting():
+    # Locks the multi-round-trip mechanism itself (SEP-2322), not just the end-to-end behaviour the
+    # auto-driving client produces. Driving the session directly with allow_input_required exposes the
+    # raw first leg: it must come back as an ask naming the confirm request, having archived nothing.
+    server = build_hitl_server()
+    async with Client(server) as client:
+        result = await client.session.call_tool(
+            "archive_report", {"report_id": "r-42"}, allow_input_required=True
+        )
+    assert result.result_type == "input_required"
+    assert "confirm" in (result.input_requests or {})
+    # request_state is sealed on the wire and unsealed before the tool reads it, so what the client
+    # sees here is an opaque token, never the plaintext the tool minted. That seal is what makes the
+    # state tamper-evident across legs.
+    assert result.request_state
+    assert result.request_state != "r-42"

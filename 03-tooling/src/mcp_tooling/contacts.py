@@ -51,7 +51,7 @@ def build_contacts_server() -> FastMCP:
     """Build a server exposing both the anti-pattern tool and the well-designed tool."""
     mcp = FastMCP("tooling-contacts")
 
-    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+    @mcp.tool(annotations=ToolAnnotations(read_only_hint=True))
     def getData(x: str = "") -> str:
         """gets data"""
         # Anti-pattern: vague name and param, terse description, no pagination, dumps everything
@@ -62,7 +62,7 @@ def build_contacts_server() -> FastMCP:
         lines = [f"{c['id']}|{c['name']}|{c['email']}|{c['team']}" for c in _CONTACTS]
         return "\n".join(lines)
 
-    @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True))
+    @mcp.tool(annotations=ToolAnnotations(read_only_hint=True))
     def contacts_search(
         query: str = "", team: str | None = None, limit: Limit = 5, offset: Offset = 0
     ) -> ContactSearchPage:

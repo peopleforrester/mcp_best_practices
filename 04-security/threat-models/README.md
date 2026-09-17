@@ -36,8 +36,7 @@ are marked inline where they appear.
 These models are the design input for the packages built in the rest of `04-security/`. They were
 written against the `2025-11-25` baseline; where the now-final `2026-07-28` revision changes the attack
 surface (the stateless core, removed handshake, new transport headers), that is noted inline. The shipped
-security packages run on stable FastMCP 3.4.x (prior `2025-11-25` semantics); the stateless-core paths
-are the labeled forward direction.
+security packages run on stable FastMCP 4.0 (`mcp` 2.x), which implements `2026-07-28`.
 
 ## Components
 

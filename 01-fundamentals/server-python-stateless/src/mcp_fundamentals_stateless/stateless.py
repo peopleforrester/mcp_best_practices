@@ -1,4 +1,4 @@
-# ABOUTME: A 2026-07-28 stateless-core MCP server on FastMCP 4.0 beta / mcp 2.0 (PREVIEW).
+# ABOUTME: A 2026-07-28 stateless-core MCP server: no session, state rides a server-minted handle.
 # ABOUTME: No initialize handshake and no session id: cross-call state rides a server-minted handle.
 from __future__ import annotations
 
@@ -46,11 +46,11 @@ def build_stateless_cart_server() -> FastMCP:
     as an ordinary argument. A stateless server like this can sit behind a plain round-robin load
     balancer with no shared session store, which is the point of the change.
 
-    This is PREVIEW code: it runs on the FastMCP 4.0 beta line (which pulls `mcp` 2.0, the 2026-07-28
-    SDK). The default examples in this repo stay on stable FastMCP 3.4.x until 4.0 ships stable.
+    Every package in this repo now runs on FastMCP 4.0 (`mcp` 2.x), which implements this revision;
+    this one exists to show the stateless shape on its own, next to the session-shaped hello server.
     """
     mcp = FastMCP(
-        "fundamentals-stateless-preview",
+        "fundamentals-stateless",
         cache_ttl=CATALOG_CACHE_TTL_SECONDS,
         cache_scope="public",
     )

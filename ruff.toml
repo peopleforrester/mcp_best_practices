@@ -11,7 +11,7 @@ known-first-party = [
   "mcp_architecture",
   "mcp_capstone",
   "mcp_fundamentals",
-  "mcp_fundamentals_preview",
+  "mcp_fundamentals_stateless",
   "mcp_guardrails",
   "mcp_oauth_demo",
   "mcp_policy_gateway",
