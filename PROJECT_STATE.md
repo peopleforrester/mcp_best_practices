@@ -233,6 +233,25 @@ touched code from my prior rounds. Each phase is a single TDD commit; audit trai
   the OAuth flow tautology nits; pagination DRY, A2A async, and the Taskfile ts:test bug stay deferred.
 Repo total: 141 tests (137 Python across 12 packages + 4 TS), all ruff + mypy clean, TS typecheck green.
 
+### Round 9 (2026-09-17): migrate to stable FastMCP 4.0 / mcp 2.x
+A September currency sweep. Verified live: the MCP spec is still `2026-07-28` (no newer revision), but
+**FastMCP 4.0.0 went stable on 2026-08-31** (now 4.0.4) and `mcp` is 2.2.0. That was the documented
+trigger to migrate off 3.4.x, and the repo's own reminder workflow had filed issue #50 for it on 09-07.
+- Measured before committing: six of seven packages passed their suites unchanged on 4.0.4, so this was
+  a version bump plus two real API changes rather than a rewrite.
+- **HITL rewritten for multi-round-trip requests.** `2026-07-28` removed server-initiated elicitation
+  (SEP-2260), so `ctx.elicit` now fails on a compliant connection. `03-tooling` returns an
+  `InputRequiredResult` instead (SEP-2322). The three behaviour tests passed unchanged across the
+  rewrite, which is the evidence the contract held; a fourth locks the new mechanism and the state seal.
+- **`mcp` 2.x renamed Python model fields to snake_case** (`read_only_hint`, `input_schema`). Wire
+  format unchanged, so comments naming the wire fields were left alone.
+- The preview package existed only because 4.0 was beta. Renamed to
+  `01-fundamentals/server-python-stateless/` with the preview framing dropped, and the lockdrift
+  exclusion it needed was removed: every package now agrees on one fastmcp/mcp line.
+- Cleared 5 Dependabot advisories (fast-uri, hono, qs) and 4 code-scanning alerts: two were false
+  positives on `Protocol` stubs and were dismissed with a reason, two were fixed in code.
+Repo total: 155 tests (151 Python across 11 packages + 4 TS), ruff + mypy clean, TS typecheck clean.
+
 ### Round 8 (2026-07-28+): adopt MCP 2026-07-28 (now final) as the current spec
 The `2026-07-28` MCP revision went final on 2026-07-28 (verified live against blog.modelcontextprotocol.io;
 `mcp` 2.0.0 shipped that day). The repo had it framed as a Release Candidate everywhere. Michael's call:
@@ -294,7 +313,7 @@ adapter built and tested green against the real library.
 ## Branch & Tests
 - Branch: `staging` (correct working branch). Code repo → staging-first workflow applies.
 - Working tree: clean after the round-4 remediation commits.
-- Tests: 150 total (146 Python across 12 packages + 4 TS), all green; every package ruff + mypy clean,
+- Tests: 155 total (151 Python across 11 packages + 4 TS), all green; every package ruff + mypy clean,
   TS typecheck clean. CI: prose, docs, python, typescript, lockdrift, osv-scan, wheel-parity, and a
   Pages deploy (main); separate CodeQL and spec-currency-reminder workflows. Docs site published to
   GitHub Pages.
