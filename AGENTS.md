@@ -34,22 +34,32 @@ each session; it is the live status. The approved plan is `docs/BUILD_PLAN.md` (
 Tracks are built in this order: security first, then fundamentals, tooling, architecture, use-cases,
 exam-prep. Each track ships working code + `guidebook.md` + a Reveal.js deck under `slides/`.
 
-## Stack and pins (verified 2026-06-23)
+## Stack and pins (verified 2026-09-21)
 
 | Concern | Choice | Pin |
 |---|---|---|
 | Primary | Python + FastMCP | FastMCP `4.0.x` (pulls `mcp` 2.x) |
 | Secondary | TypeScript | `@modelcontextprotocol/sdk@^1.29` |
-| Polyglot accent | Go (preferred) or Rust | `go-sdk@v1.6.1` / `rmcp@1.7` |
-| Python tooling | uv | `0.11.x` |
-| TS tooling | pnpm | `11.9.x` (Node >=22) |
-| Task runner | Taskfile (go-task) | `3.51.x` |
-| Docs | MkDocs Material | `9.7.x` (maintenance mode) |
-| Slides | Reveal.js | `6.0.1` |
+| Polyglot accent | Go (preferred) or Rust | `go-sdk@v1.8.0` / `rmcp@3.4.0` |
+| Python tooling | uv | `0.12.x` |
+| TS tooling | pnpm | `11.27.x` (Node >=22) |
+| Task runner | Taskfile (go-task) | `3.53.x` |
+| Docs | MkDocs Material | `9.7.x` (terminal; security fixes to 2027-05-05) |
+| Slides | Reveal.js | `6.0.2` |
 | Provenance | cosign / sigstore | cosign `3.x` |
 
 Never trust training data for a version. Re-verify any pin older than ~6 months against the source.
 Research a framework new to a track before writing code in it (official docs, current year).
+
+Two notes the table cannot carry:
+
+- **A dist-tag check is not a currency check when a project renames its packages.** The TypeScript
+  SDK's v2 line shipped as seven new scoped packages (`@modelcontextprotocol/core`, `/client`,
+  `/server`, `/node`, `/hono`, `/fastify`, `/server-legacy`), so `@modelcontextprotocol/sdk` still
+  reports `latest` at 1.30.0 while being a generation behind. Check for renames, not just versions.
+- **MkDocs Material 9.7 is the final feature release.** The project is in maintenance mode with
+  security fixes ending 2027-05-05; the successor is Zensical, still pre-1.0. There will be no 9.8 or
+  10.x, so this pin is terminal rather than merely current, and the replacement decision has a date.
 
 ## Working rules
 
