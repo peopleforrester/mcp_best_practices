@@ -5,7 +5,7 @@ name = "mcp-fundamentals-stateless"
 version = "0.1.0"
 description = "A stateless-core MCP server (2026-07-28): handle pattern and cache hints"
 requires-python = ">=3.11"
-dependencies = ["fastmcp>=4.0.4,<5"]
+dependencies = ["fastmcp>=4.0.5,<5"]
 
 [build-system]
 requires = ["hatchling"]
