@@ -100,3 +100,5 @@ task docs:build      # strict docs build (fails on broken nav/links)
 ```
 
 Python work uses `uv run ...`; TypeScript uses `pnpm ...`; cross-language orchestration uses `task`.
+
+Test command: `scripts/test.sh`

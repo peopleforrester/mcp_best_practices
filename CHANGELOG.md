@@ -8,6 +8,10 @@ All notable changes to this project are recorded here. The format follows
 
 ### Added
 
+- `scripts/test.sh`, one command for the light gate: prose lint, then ruff, mypy, and pytest for every
+  Python package, vitest and tsc for the TypeScript package, and the fastmcp/mcp lockfile drift
+  check. It mirrors the CI jobs and needs only uv and Node. `AGENTS.md` declares it as the test command.
+
 - Migrated every package to **stable FastMCP 4.0** (`mcp` 2.x), the line that implements the current
   `2026-07-28` revision. FastMCP 4.0.0 reached stable on 2026-08-31, which was the condition this repo
   had documented for moving off 3.4.x. Two real API changes came with it: server-initiated elicitation
